@@ -26,16 +26,17 @@ def _string_labels(ds: cell_dataset.GeneExpressionDataset):
 
 
 def plot_class_distribution(ds: cell_dataset.GeneExpressionDataset):
-    label_counter = Counter(ds.y.tolist())
+    label_counter = Counter(_string_labels(ds))
+    label_counter = sorted(label_counter.items(), key=lambda x: x[1])
     fig, ax = plt.subplots(figsize=(12, 5))
-    bars = ax.bar(range(len(label_counter)), label_counter.values(),
+    bars = ax.bar(range(len(label_counter)), [count for _, count in label_counter],
                 color=sns.color_palette('tab20', len(label_counter)))
     ax.set_xticks(range(len(label_counter)))
-    ax.set_xticklabels(label_counter.keys(), rotation=45, ha='right', fontsize=9)
+    ax.set_xticklabels([label for label, _ in label_counter], rotation=45, ha='right', fontsize=9)
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Number of Cells')
     ax.set_title('Training Set — Cell Type Distribution')
-    for bar, count in zip(bars, label_counter.values()):
+    for bar, (_, count) in zip(bars, label_counter):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
                 str(count), ha='center', va='bottom', fontsize=7)
     plt.tight_layout()
