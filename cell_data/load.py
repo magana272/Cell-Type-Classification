@@ -7,6 +7,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import polars as pl
+from tqdm.auto import tqdm
 
 
 DEFAULT_10X_PATHS = {
@@ -60,6 +61,7 @@ class CellSplit:
     y_test: np.ndarray
     sample_info: dict
     X: np.ndarray  # (n_cells, n_genes) float32, rows aligned to idx_*
+    label_encoder: LabelEncoder
 
     @property
     def n_classes(self) -> int:
@@ -91,10 +93,10 @@ def _filter_rare_classes(meta: pd.DataFrame, min_cells: int) -> pd.DataFrame:
     return meta[meta['subclass_label'].isin(keep)].reset_index(drop=True)
 
 
-def _encode_labels(meta: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+def _encode_labels(meta: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, LabelEncoder]:
     le = LabelEncoder()
     y = le.fit_transform(meta['subclass_label'].values)
-    return y, le.classes_
+    return y, le.classes_, le
 
 
 def _split_indices(y: np.ndarray, seed: int):
@@ -162,12 +164,16 @@ def _load_matrix(csv_path: str, sample_names: np.ndarray) -> np.ndarray:
             mat_path, mode='w+', dtype=np.float32,
             shape=(df.height, n_genes),
         )
-        step = max(1, n_genes // 20)
-        for j, col in enumerate(gene_cols):
-            mat[:, j] = df[col].to_numpy()
-            if (j + 1) % step == 0 or (j + 1) == n_genes:
-                print(f'  caching matrix: {(j + 1) / n_genes * 100:5.1f}% '
-                      f'({j + 1:,}/{n_genes:,} genes)', flush=True)
+        chunk = 2048
+        n_chunks = (n_genes + chunk - 1) // chunk
+        for ci in tqdm(range(n_chunks), desc='caching matrix', unit='chunk'):
+            j0 = ci * chunk
+            j1 = min(j0 + chunk, n_genes)
+            block = df.select(gene_cols[j0:j1]).to_numpy()
+            mat[:, j0:j1] = block
+            del block
+            print(f'  caching matrix: {j1 / n_genes * 100:5.1f}% '
+                  f'({j1:,}/{n_genes:,} genes)', flush=True)
         mat.flush()
         del df, mat
         gc.collect()
@@ -195,7 +201,7 @@ def _build_split(paths: dict, seed: int) -> CellSplit:
     meta = _load_metadata(paths['metadata'])
     meta = _canonicalize_labels(meta)
     meta = _filter_rare_classes(meta, MIN_CELLS_PER_CLASS)
-    y_all, class_names = _encode_labels(meta)
+    y_all, class_names, le = _encode_labels(meta)
     print(f'After class filter: {len(meta):,} cells, {len(class_names)} classes')
 
     idx_train, idx_val, idx_test, y_train, y_val, y_test = _split_indices(y_all, seed)
@@ -217,6 +223,7 @@ def _build_split(paths: dict, seed: int) -> CellSplit:
         y_test=y_test,
         sample_info=sample_info,
         X=X,
+        label_encoder=le,
     )
 
 

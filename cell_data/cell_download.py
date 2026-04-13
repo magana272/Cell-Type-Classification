@@ -87,7 +87,6 @@ async def _download_file(
             *(_fetch_range(session, url, tmp, s, e, bar, sem) for s, e in ranges)
         )
     else:
-        # Fallback: unknown size, stream sequentially.
         async with session.get(url) as resp:
             resp.raise_for_status()
             with open(tmp, "wb") as f:
