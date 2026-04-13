@@ -6,7 +6,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import polars as pl
-from tqdm.auto import tqdm
 
 
 DEFAULT_10X_PATHS = {
@@ -86,7 +85,9 @@ def _load_matrix(csv_path: str, sample_names: np.ndarray) -> tuple[np.ndarray, n
     names_path = root + '_cells.npy'
     genes_path = root + '_genes.npy'
 
-    if not (os.path.exists(mat_path) and os.path.exists(names_path)):
+    if not (os.path.exists(mat_path)
+            and os.path.exists(names_path)
+            and os.path.exists(genes_path)):
         print(f'Caching {csv_path} -> {mat_path} (first run only)')
         header = pl.read_csv(csv_path, n_rows=0).columns
         name_col, gene_cols = header[0], header[1:]
@@ -98,15 +99,10 @@ def _load_matrix(csv_path: str, sample_names: np.ndarray) -> tuple[np.ndarray, n
         np.save(names_path, df[name_col].to_numpy().astype(str))
         np.save(genes_path, np.asarray(gene_cols, dtype=str))
 
-        mat = np.lib.format.open_memmap(
-            mat_path, mode='w+', dtype=np.float32,
-            shape=(df.height, len(gene_cols)),
-        )
-        chunk = 2048
-        for ci in tqdm(range(0, len(gene_cols), chunk), desc='caching matrix'):
-            j1 = min(ci + chunk, len(gene_cols))
-            mat[:, ci:j1] = df.select(gene_cols[ci:j1]).to_numpy()
-        mat.flush()
+        mat = df.drop(name_col).to_numpy()
+        if mat.dtype != np.float32:
+            mat = mat.astype(np.float32, copy=False)
+        np.save(mat_path, mat)
         del df, mat
         gc.collect()
 
@@ -114,10 +110,9 @@ def _load_matrix(csv_path: str, sample_names: np.ndarray) -> tuple[np.ndarray, n
     names_full = np.load(names_path)
     gene_names = np.load(genes_path)
 
-    row_of = {n: i for i, n in enumerate(names_full)}
-    rows = np.fromiter(
-        (row_of[n] for n in sample_names), dtype=np.int64, count=len(sample_names),
-    )
+    order = np.argsort(names_full)
+    pos = np.searchsorted(names_full, sample_names, sorter=order)
+    rows = order[pos]
     X = np.ascontiguousarray(X_full[rows])
     print(f'Expression matrix: {X.shape}')
     return X, gene_names
