@@ -1,0 +1,15 @@
+**/__pycache__
+**/.ipynb_checkpoints
+.vscode
+.venv
+__pycache__
+.pdf 
+.zip
+*.npy
+*.csv
+*.pt
+/data/*
+/logs/*
+**/figures/*
+**/runs/*
+.DS_Store
