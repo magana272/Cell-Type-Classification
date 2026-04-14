@@ -40,7 +40,7 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
                       tune_batch_size=None):
     train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'])
     loaders = (train_loader, val_loader)
-    builder =  lambda: build_model(cfg['model'], len(train_loader.gene_names()), train_loader.dataset.n_classes)
+    builder =  lambda: build_model(cfg['model'], len(train_loader.dataset.gene_names), train_loader.dataset.n_classes)
     best_params = run_hparam_search(cfg, builder, train_loader.dataset, loaders, squeeze_channel,
                                     n_trials=n_trials, tune_epochs=tune_epochs)
     if best_params is not None:
@@ -50,7 +50,7 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
     criterion = cfg['loss'](weight=class_weights(train_loader.dataset), label_smoothing=0.1)
     optimizer, scheduler = build_optimizer(
         model, cfg['lr'], cfg['weight_decay'], cfg['epochs'], opt_cls=cfg['optimizer'])
-    writer, ckpt = make_writer_and_ckpt(cfg, len(train_loader.gene_names))
+    writer, ckpt = make_writer_and_ckpt(cfg, len(train_loader.dataset.gene_names))
     print(f'Training {cfg["epochs"]} epochs with best params on {DEVICE}...')
     print_header()
     best = train(model, loaders, criterion, optimizer, scheduler,
