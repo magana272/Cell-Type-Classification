@@ -10,6 +10,7 @@ N_HVG = 2000
 DATA_DIR = 'data/10x'
 N_TRIALS = 3
 TUNE_EPOCHS = 5
+TUNE_BATCH_SIZE = 512
 
 COFIG = {
     'model': 'CellTypeCNN',
@@ -27,7 +28,8 @@ COFIG = {
 
 def main():
     T.train_with_tuning(COFIG, DATA_DIR, squeeze_channel=False,
-                        n_trials=N_TRIALS, tune_epochs=TUNE_EPOCHS)
+                        n_trials=N_TRIALS, tune_epochs=TUNE_EPOCHS,
+                        tune_batch_size=TUNE_BATCH_SIZE)
 
 
 if __name__ == '__main__':
