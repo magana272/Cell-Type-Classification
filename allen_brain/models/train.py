@@ -19,7 +19,7 @@ import os
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def build_model(model_name, n_features, n_classes, device=DEVICE, **kwargs):
+def build_model(model_name: str, n_features: int, n_classes: int, device=DEVICE, **kwargs):
     model = get_model(model_name, n_features, n_classes, **kwargs).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f'Model parameters: {n_params:,}')
@@ -40,7 +40,7 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
                       tune_batch_size=None):
     train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'])
     loaders = (train_loader, val_loader)
-    builder =  lambda: build_model(cfg['model'], len(train_loader.gene_names), train_loader.dataset.n_classes)
+    builder =  lambda: build_model(cfg['model'], len(train_loader.gene_names()), train_loader.dataset.n_classes)
     best_params = run_hparam_search(cfg, builder, train_loader.dataset, loaders, squeeze_channel,
                                     n_trials=n_trials, tune_epochs=tune_epochs)
     if best_params is not None:
