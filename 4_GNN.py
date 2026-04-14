@@ -14,13 +14,13 @@ if torch.cuda.is_available():
     import faiss
 
 SEED = 42
-BATCH_SIZE = 4096//4
+BATCH_SIZE = 4096
 N_HVG = 2000
 DATA_DIR = 'data/smartseq'
 K_NEIGHBORS = 15
-N_TRIALS = 15
-TUNE_EPOCHS = 30
-TUNE_BATCH_SIZE = 512
+N_TRIALS = 3
+TUNE_EPOCHS = 20
+TUNE_BATCH_SIZE = 4096
 
 COFIG = {
     'model': 'CellTypeGNN',

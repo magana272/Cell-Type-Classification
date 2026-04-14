@@ -18,8 +18,8 @@ GMT_URL  = 'https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs
 MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
-N_TRIALS = 10
-TUNE_EPOCHS = 5
+N_TRIALS = 3
+TUNE_EPOCHS = 20
 
 COFIG = {
     'model': 'CellTypeTOSICA',

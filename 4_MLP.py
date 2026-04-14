@@ -4,10 +4,10 @@ from allen_brain.models import train as T
 
 
 SEED = 42
-BATCH_SIZE = 4096//4
+BATCH_SIZE = 4096
 N_HVG = 2000
 DATA_DIR = 'data/smartseq'
-N_TRIALS = 15
+N_TRIALS = 3
 TUNE_EPOCHS = 5
 
 COFIG = {
