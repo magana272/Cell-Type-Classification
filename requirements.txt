@@ -50,7 +50,7 @@ numcodecs==0.16.5
 numpy==2.4.4
 optuna==4.1.0
 packaging==26.0
-pandas==2.3.2
+pandas
 parso==0.8.6
 patsy==1.0.2
 pexpect==4.9.0
