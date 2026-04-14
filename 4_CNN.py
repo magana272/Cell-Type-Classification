@@ -1,10 +1,11 @@
+import torch
 from torch import nn, optim
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from allen_brain.models import get_model
 from allen_brain.models import train as T
 
-
+torch.set_float32_matmul_precision('high')
 SEED = 42
 BATCH_SIZE = 4096
 N_HVG = 2000

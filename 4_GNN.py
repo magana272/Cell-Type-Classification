@@ -11,6 +11,7 @@ from torch_geometric.data import Data
 from allen_brain.cell_data.cell_dataset import make_dataset
 from allen_brain.models import get_model
 from allen_brain.models import train as T
+torch.set_float32_matmul_precision('high')
 if torch.cuda.is_available():
     import faiss
 
@@ -67,7 +68,7 @@ def _build_knn_edges(X_all, k):
     n_total = X_all.shape[0]
     print(f'Building k={k} cosine-NN graph on {n_total:,} cells...')
     if torch.cuda.is_available():
-        X_norm = X_all / np.linalg.norm(X_all, axis=1, keepdims=True)  # cosine → inner product
+        X_norm = X_all / np.linalg.norm(X_all, axis=1, keepdims=True)  
         X_norm = X_norm.astype(np.float32)
         index = faiss.GpuIndexFlatIP(faiss.StandardGpuResources(), X_norm.shape[1])
         index.add(X_norm)
