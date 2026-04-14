@@ -89,7 +89,7 @@ def make_split_dataset(data_dir: str, split='train') -> GeneExpressionDataset:
     return GeneExpressionDataset(X, y, labelencoder=labelencoder, split=split, gene_names=gene_names, class_names=class_names)
 
 
-def make_dataset(data_dir: str, split='train', min_gene_frac: float = 0.01) -> GeneExpressionDataset:
+def make_dataset(data_dir: str, split='train') -> GeneExpressionDataset:
     """Load raw .npy splits, preprocess, return datasets + metadata.
 
     Returns a dict with keys:
@@ -100,9 +100,7 @@ def make_dataset(data_dir: str, split='train', min_gene_frac: float = 0.01) -> G
         'scaler'                — fitted StandardScaler
         'n_classes'             — int
         
-    """
-    ds_val, ds_test, ds_train = None, None, None
-    
+    """    
     if split not in ('train', 'val', 'test'):
         raise ValueError(f"Invalid split '{split}', expected 'train', 'val', 'test'")
     if split == 'test':

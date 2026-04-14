@@ -35,11 +35,11 @@ def make_writer_and_ckpt(cfg, n_features):
 def _tune_loaders(ds, ds_val, tune_batch_size, default_loaders):
     if tune_batch_size == default_loaders[0].batch_size:
         return default_loaders
-    on_gpu = ds.X.device.type == 'cuda'
+    pin = DEVICE.type == 'cuda'
     tune_train = DataLoader(ds, batch_size=tune_batch_size, shuffle=True,
-                            drop_last=True, num_workers=0, pin_memory=not on_gpu)
+                            drop_last=True, num_workers=0, pin_memory=pin)
     tune_val = DataLoader(ds_val, batch_size=tune_batch_size, shuffle=False,
-                          num_workers=0, pin_memory=not on_gpu)
+                          num_workers=0, pin_memory=pin)
     return (tune_train, tune_val)
 
 
@@ -53,8 +53,9 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
                else (lambda: build_model(cfg['model'], len(ds.gene_names), ds.n_classes)))
     best_params = run_hparam_search(cfg, builder, ds, tune_loaders, squeeze_channel,
                                     n_trials=n_trials, tune_epochs=tune_epochs)
-    cfg['lr'] = best_params['lr']
-    cfg['weight_decay'] = best_params['weight_decay']
+    if best_params is not None:
+        cfg['lr'] = best_params['lr']
+        cfg['weight_decay'] = best_params['weight_decay']
     model = builder()
     criterion = cfg['loss'](weight=class_weights(ds), label_smoothing=0.1)
     optimizer, scheduler = build_optimizer(
@@ -69,14 +70,14 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
 
 
 def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE):
-    ds = make_dataset(data_dir, split='train').to(device)
-    ds_val = make_dataset(data_dir, split='val').to(device)
-    on_gpu = device.type == 'cuda'
+    ds = make_dataset(data_dir, split='train')
+    ds_val = make_dataset(data_dir, split='val')
+    pin = device.type == 'cuda'
     train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True,
-                              drop_last=drop_last_train, num_workers=0, pin_memory=not on_gpu)
+                              drop_last=drop_last_train, num_workers=0, pin_memory=pin)
     val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False,
-                            num_workers=0, pin_memory=not on_gpu)
-    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (on {device})')
+                            num_workers=0, pin_memory=pin)
+    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (CPU, transfer to {device})')
     print(f'val:   {len(ds_val)} cells')
     return ds, ds_val, train_loader, val_loader
 
@@ -187,6 +188,12 @@ def run_optuna_study(cfg, objective, n_trials, tune_epochs):
         sampler=optuna.samplers.TPESampler(seed=cfg.get('seed', 0)))
     print(f'Hparam search: {n_trials} trials x {tune_epochs} epochs')
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
+    completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+    if not completed:
+        print('WARNING: no trials completed (all pruned/failed) — '
+              'falling back to default lr/weight_decay. '
+              'Lower tune_batch_size or set PYTORCH_ALLOC_CONF=expandable_segments:True.')
+        return None
     print(f'Best trial: val_acc={study.best_value:.4f}  params={study.best_params}')
     return study.best_params
 
@@ -298,8 +305,9 @@ def train_graph_with_tuning(cfg, data, n_features, n_classes, weights,
         build_model_fn = lambda: build_model(cfg['model'], n_features, n_classes)
     best_params = run_graph_hparam_search(cfg, build_model_fn, data, weights,
                                           n_trials=n_trials, tune_epochs=tune_epochs)
-    cfg['lr'] = best_params['lr']
-    cfg['weight_decay'] = best_params['weight_decay']
+    if best_params is not None:
+        cfg['lr'] = best_params['lr']
+        cfg['weight_decay'] = best_params['weight_decay']
     model = build_model_fn()
     criterion = cfg['loss'](weight=weights, label_smoothing=0.1)
     optimizer, scheduler = build_optimizer(
