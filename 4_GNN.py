@@ -11,7 +11,8 @@ from torch_geometric.data import Data
 from allen_brain.cell_data.cell_dataset import make_dataset
 from allen_brain.models import get_model
 from allen_brain.models import train as T
-
+if torch.cuda.is_available():
+    import faiss
 
 SEED = 42
 BATCH_SIZE = 4096
@@ -65,9 +66,15 @@ def _build_masks(n_train, n_val, n_test):
 def _build_knn_edges(X_all, k):
     n_total = X_all.shape[0]
     print(f'Building k={k} cosine-NN graph on {n_total:,} cells...')
-    nn_finder = NearestNeighbors(n_neighbors=k + 1, metric='cosine', n_jobs=-1)
-    nn_finder.fit(X_all)
-    _, indices = nn_finder.kneighbors(X_all)
+    if torch.cuda.is_available():
+        X_norm = X_all / np.linalg.norm(X_all, axis=1, keepdims=True)  # cosine → inner product
+        X_norm = X_norm.astype(np.float32)
+        index = faiss.GpuIndexFlatIP(faiss.StandardGpuResources(), X_norm.shape[1])
+        index.add(X_norm)
+        _, indices = index.search(X_norm, K_NEIGHBORS + 1) 
+    else:
+        nbrs = NearestNeighbors(n_neighbors=k + 1, metric='cosine', algorithm='brute').fit(X_all)
+        _, indices = nbrs.kneighbors(X_all)
     src = np.repeat(np.arange(n_total), k)
     dst = indices[:, 1:].reshape(-1)
     src_sym = np.concatenate([src, dst])
