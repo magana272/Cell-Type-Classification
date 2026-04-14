@@ -22,7 +22,7 @@ MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
 
 COFIG = {
-    'model': 'TOSICA',
+    'model': 'CellTypeTOSICA',
     'seed': SEED,
     'batch_size': BATCH_SIZE,
     'n_hvg': N_HVG,
