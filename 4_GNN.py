@@ -14,7 +14,7 @@ from allen_brain.models import train as T
 
 
 SEED = 42
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 N_HVG = 2000
 DATA_DIR = 'data/smartseq'
 K_NEIGHBORS = 15
