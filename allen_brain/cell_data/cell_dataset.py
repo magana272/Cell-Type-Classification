@@ -20,6 +20,11 @@ class GeneExpressionDataset(Dataset):
         self.class_names = class_names if class_names is not None else (labelencoder.classes_ if labelencoder else np.array([str(i) for i in range(self.n_classes)]))
         self.gene_names = gene_names
 
+    def to(self, device):
+        self.X = self.X.to(device)
+        self.y = self.y.to(device)
+        return self
+
     def __len__(self):
         return len(self.y)
 
@@ -28,9 +33,9 @@ class GeneExpressionDataset(Dataset):
         
     def get_y_labels(self):
         if self.labelencoder:
-            return list(self.labelencoder.inverse_transform(self.y.numpy()))
+            return list(self.labelencoder.inverse_transform(self.y.cpu().numpy()))
         else:
-            return list(self.y.numpy())
+            return list(self.y.cpu().numpy())
     
     
 def load_label_encoder(le_path)-> [LabelEncoder|None]:

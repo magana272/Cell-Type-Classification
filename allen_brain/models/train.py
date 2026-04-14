@@ -13,18 +13,21 @@ from allen_brain.cell_data.cell_dataset import make_dataset
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def make_dataloaders(data_dir, batch_size, drop_last_train=True):
-    ds = make_dataset(data_dir, split='train')
-    ds_val = make_dataset(data_dir, split='val')
-    train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=drop_last_train)
-    val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False)
-    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes')
+def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE):
+    ds = make_dataset(data_dir, split='train').to(device)
+    ds_val = make_dataset(data_dir, split='val').to(device)
+    on_gpu = device.type == 'cuda'
+    train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True,
+                              drop_last=drop_last_train, num_workers=0, pin_memory=not on_gpu)
+    val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False,
+                            num_workers=0, pin_memory=not on_gpu)
+    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (on {device})')
     print(f'val:   {len(ds_val)} cells')
     return ds, ds_val, train_loader, val_loader
 
 
 def class_weights(ds, device=DEVICE):
-    counts = np.bincount(ds.y.numpy(), minlength=ds.n_classes).astype(np.float32)
+    counts = np.bincount(ds.y.cpu().numpy(), minlength=ds.n_classes).astype(np.float32)
     w = torch.tensor(1.0 / (counts + 1e-6), dtype=torch.float32).to(device)
     return w / w.sum() * ds.n_classes
 
@@ -111,7 +114,9 @@ def _step_epoch(model, loaders, criterion, optimizer, scheduler, scaler, device,
 
 
 def train(model, loaders, criterion, optimizer, scheduler, epochs, writer, ckpt,
-          device=DEVICE, squeeze_channel=False, patience=15):
+          device=DEVICE, squeeze_channel=False, patience=15, compile_model=True):
+    if compile_model and device.type == 'cuda':
+        model = torch.compile(model)
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
     best_loss, best_acc, no_improve = float('inf'), 0.0, 0
     for epoch in range(1, epochs + 1):
