@@ -1,5 +1,7 @@
 """Shared training utilities: dataloaders, class weights, epoch loop, checkpointing."""
 
+import gc
+
 import numpy as np
 import pandas as pd
 import torch
@@ -30,13 +32,26 @@ def make_writer_and_ckpt(cfg, n_features):
     return writer, f'best_model_{run_name}.pt'
 
 
+def _tune_loaders(ds, ds_val, tune_batch_size, default_loaders):
+    if tune_batch_size == default_loaders[0].batch_size:
+        return default_loaders
+    on_gpu = ds.X.device.type == 'cuda'
+    tune_train = DataLoader(ds, batch_size=tune_batch_size, shuffle=True,
+                            drop_last=True, num_workers=0, pin_memory=not on_gpu)
+    tune_val = DataLoader(ds_val, batch_size=tune_batch_size, shuffle=False,
+                          num_workers=0, pin_memory=not on_gpu)
+    return (tune_train, tune_val)
+
+
 def train_with_tuning(cfg, data_dir, squeeze_channel,
-                      make_builder=None, n_trials=15, tune_epochs=5):
-    ds, _, train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'])
+                      make_builder=None, n_trials=15, tune_epochs=5,
+                      tune_batch_size=None):
+    ds, ds_val, train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'])
     loaders = (train_loader, val_loader)
+    tune_loaders = _tune_loaders(ds, ds_val, tune_batch_size or cfg['batch_size'], loaders)
     builder = (make_builder(ds) if make_builder
                else (lambda: build_model(cfg['model'], len(ds.gene_names), ds.n_classes)))
-    best_params = run_hparam_search(cfg, builder, ds, loaders, squeeze_channel,
+    best_params = run_hparam_search(cfg, builder, ds, tune_loaders, squeeze_channel,
                                     n_trials=n_trials, tune_epochs=tune_epochs)
     cfg['lr'] = best_params['lr']
     cfg['weight_decay'] = best_params['weight_decay']
@@ -176,22 +191,36 @@ def run_optuna_study(cfg, objective, n_trials, tune_epochs):
     return study.best_params
 
 
+def _cuda_cleanup():
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 def run_hparam_search(cfg, build_model_fn, ds, loaders, squeeze_channel,
                       n_trials=15, tune_epochs=5):
     weights = class_weights(ds)
 
     def objective(trial):
-        lr, wd = suggest_lr_wd(trial)
-        model = build_model_fn()
-        criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.1)
-        optimizer, scheduler = build_optimizer(
-            model, lr, wd, tune_epochs, opt_cls=cfg['optimizer'])
-        writer, ckpt = _tune_writer_ckpt(cfg, trial.number)
-        acc = train(model, loaders, criterion, optimizer, scheduler,
-                    tune_epochs, writer, ckpt, squeeze_channel=squeeze_channel,
-                    compile_model=False)
-        writer.close()
-        return acc
+        model = optimizer = scheduler = writer = None
+        try:
+            lr, wd = suggest_lr_wd(trial)
+            model = build_model_fn()
+            criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.1)
+            optimizer, scheduler = build_optimizer(
+                model, lr, wd, tune_epochs, opt_cls=cfg['optimizer'])
+            writer, ckpt = _tune_writer_ckpt(cfg, trial.number)
+            return train(model, loaders, criterion, optimizer, scheduler,
+                         tune_epochs, writer, ckpt, squeeze_channel=squeeze_channel,
+                         compile_model=False)
+        except torch.cuda.OutOfMemoryError:
+            print(f'Trial {trial.number}: CUDA OOM — pruning')
+            raise optuna.TrialPruned()
+        finally:
+            if writer is not None:
+                writer.close()
+            del model, optimizer, scheduler, writer
+            _cuda_cleanup()
 
     return run_optuna_study(cfg, objective, n_trials, tune_epochs)
 
@@ -241,16 +270,24 @@ def train_graph(model, data, criterion, optimizer, scheduler, epochs, writer, ck
 def run_graph_hparam_search(cfg, build_model_fn, data, weights,
                             n_trials=15, tune_epochs=30):
     def objective(trial):
-        lr, wd = suggest_lr_wd(trial)
-        model = build_model_fn()
-        criterion = cfg['loss'](weight=weights, label_smoothing=0.1)
-        optimizer, scheduler = build_optimizer(
-            model, lr, wd, tune_epochs, opt_cls=cfg['optimizer'])
-        writer, ckpt = _tune_writer_ckpt(cfg, trial.number)
-        acc = train_graph(model, data, criterion, optimizer, scheduler,
-                          tune_epochs, writer, ckpt, patience=tune_epochs)
-        writer.close()
-        return acc
+        model = optimizer = scheduler = writer = None
+        try:
+            lr, wd = suggest_lr_wd(trial)
+            model = build_model_fn()
+            criterion = cfg['loss'](weight=weights, label_smoothing=0.1)
+            optimizer, scheduler = build_optimizer(
+                model, lr, wd, tune_epochs, opt_cls=cfg['optimizer'])
+            writer, ckpt = _tune_writer_ckpt(cfg, trial.number)
+            return train_graph(model, data, criterion, optimizer, scheduler,
+                               tune_epochs, writer, ckpt, patience=tune_epochs)
+        except torch.cuda.OutOfMemoryError:
+            print(f'Trial {trial.number}: CUDA OOM — pruning')
+            raise optuna.TrialPruned()
+        finally:
+            if writer is not None:
+                writer.close()
+            del model, optimizer, scheduler, writer
+            _cuda_cleanup()
 
     return run_optuna_study(cfg, objective, n_trials, tune_epochs)
 
