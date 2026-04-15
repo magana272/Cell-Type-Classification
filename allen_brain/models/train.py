@@ -125,9 +125,7 @@ def build_optimizer(model, lr, weight_decay, epochs, opt_cls=optim.AdamW):
     return optimizer, scheduler
 
 
-def prep_batch(xb, yb, device=DEVICE, squeeze_channel=False):
-    xb = xb.to(device)
-    yb = yb.to(device)
+def prep_batch(xb, yb, squeeze_channel=False):
     if squeeze_channel and xb.dim() == 3:
         xb = xb.squeeze(1)
     return xb, yb
@@ -149,13 +147,13 @@ def train_batch(model, xb, yb, criterion, optimizer):
 
 
 def run_epoch(model, loader, criterion, optimizer,
-              device=DEVICE, train=True, squeeze_channel=False, on_batch=None):
+              train=True, squeeze_channel=False, on_batch=None):
     model.train() if train else model.eval()
     total_loss, correct, total = 0.0, 0, 0
     ctx = torch.enable_grad() if train else torch.no_grad()
     with ctx:
         for xb, yb in loader:
-            xb, yb = prep_batch(xb, yb, device, squeeze_channel)
+            xb, yb = prep_batch(xb, yb, squeeze_channel)
             if train:
                 loss, logits = train_batch(model, xb, yb, criterion, optimizer)
             else:
@@ -192,13 +190,13 @@ def make_run_name(model_name, n_hvg, batch_size, epochs, lr, wd):
 
 
 def _step_epoch(model, loaders, criterion, optimizer, scheduler,
-                device, squeeze_channel, on_batch=None):
+                squeeze_channel, on_batch=None):
     train_loader, val_loader = loaders
     tr_loss, tr_acc = run_epoch(model, train_loader, criterion, optimizer,
-                                device=device, train=True, squeeze_channel=squeeze_channel,
+                                train=True, squeeze_channel=squeeze_channel,
                                 on_batch=on_batch)
     vl_loss, vl_acc = run_epoch(model, val_loader, criterion, optimizer,
-                                device=device, train=False, squeeze_channel=squeeze_channel,
+                                train=False, squeeze_channel=squeeze_channel,
                                 on_batch=on_batch)
     scheduler.step()
     return tr_loss, tr_acc, vl_loss, vl_acc
@@ -376,7 +374,7 @@ def train(model, loaders, criterion, optimizer, scheduler, epochs, writer, ckpt,
         for epoch in range(1, epochs + 1):
             tr_loss, tr_acc, vl_loss, vl_acc = _step_epoch(
                 model, loaders, criterion, optimizer, scheduler,
-                device, squeeze_channel, on_batch=bar)
+                squeeze_channel, on_batch=bar)
             if trial is not None:
                 trial.report(vl_acc, epoch)
                 if trial.should_prune():
