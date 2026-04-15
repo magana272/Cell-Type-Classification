@@ -127,7 +127,14 @@ class ResidualSAGEBlock(nn.Module):
 class CellTypeGNN(nn.Module):
     def __init__(self, in_dim, hidden_dim, n_classes, dropout=0.3, n_layers=2):
         super().__init__()
-        blocks = [ResidualSAGEBlock(in_dim, hidden_dim, dropout)]
+        # Linear bottleneck to reduce 50k gene features before graph conv
+        self.encoder = nn.Sequential(
+            nn.Linear(in_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+        )
+        blocks = [ResidualSAGEBlock(hidden_dim, hidden_dim, dropout)]
         for _ in range(1, n_layers):
             blocks.append(ResidualSAGEBlock(hidden_dim, hidden_dim, dropout))
         self.blocks = nn.ModuleList(blocks)
@@ -138,6 +145,7 @@ class CellTypeGNN(nn.Module):
         )
 
     def forward(self, x, edge_index):
+        x = self.encoder(x)
         for block in self.blocks:
             x = block(x, edge_index)
         x = F.gelu(self.conv_out(x, edge_index))
@@ -145,6 +153,7 @@ class CellTypeGNN(nn.Module):
 
     def embed(self, x, edge_index):
         """Pre-classifier embedding (for UMAP / transfer)."""
+        x = self.encoder(x)
         for block in self.blocks:
             x = block(x, edge_index)
         return F.gelu(self.conv_out(x, edge_index))
