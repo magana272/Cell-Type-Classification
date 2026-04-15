@@ -4,12 +4,12 @@ from torch import nn, optim
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 2048
+BATCH_SIZE = 128
 N_HVG = 2000
 DATA_DIR = 'data/10x'
 N_TRIALS = 3
-TUNE_EPOCHS = 20
-TUNE_BATCH_SIZE = 2048
+TUNE_EPOCHS = 10
+TUNE_BATCH_SIZE = 128
 
 COFIG = {
     'model': 'CellTypeCNN',
