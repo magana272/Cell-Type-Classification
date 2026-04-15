@@ -49,6 +49,9 @@ def main():
 
     # 3. Final training run with the tuned hparams.
     model = builder()
+    print(f'Model has {count_parameters(model):,} trainable parameters')
+    print(f"GB of VRAM needed for batch: {estimate_vram(model, cfg['batch_size'], n_features) / 1e9:.2f} GB")
+    
     criterion = cfg['loss'](
         weight=T.class_weights(ds), label_smoothing=0.1,
     )
@@ -65,7 +68,14 @@ def main():
     )
     print(f'\nBest validation accuracy: {best:.4f}')
     return best
-
+def estimate_vram(model, batch_size, n_features):
+    # Very rough estimate: VRAM needed for activations during training.
+    # This is a lower bound and can be quite inaccurate.
+    param_bytes = sum(p.numel() * p.element_size() for p in model.parameters())
+    activation_bytes = batch_size * n_features * 4  # Assuming float32 activations
+    return param_bytes + activation_bytes
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 if __name__ == '__main__':
     main()
