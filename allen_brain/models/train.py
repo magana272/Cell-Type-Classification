@@ -309,7 +309,7 @@ def run_optuna_study(cfg, objective, n_trials, tune_epochs):
         pruner=optuna.pruners.HyperbandPruner(
             min_resource=1, max_resource=tune_epochs, reduction_factor=3))
     print(f'Hparam search: {n_trials} trials x up to {tune_epochs} epochs (Hyperband)')
-    study.optimize(objective, n_trials=n_trials, show_progress_bar=True, gc_after_trial=True)
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=False, gc_after_trial=True)
     completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
     if not completed:
         print('WARNING: no trials completed (all pruned/failed) — '
