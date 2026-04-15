@@ -503,7 +503,7 @@ def train_graph_with_tuning(cfg, data_dir, n_features, n_classes, weights,
     data = build_graph_data(data_dir, k_neighbors=k_neighbors).to(DEVICE)
 
     # Build model with best architectural params
-    model_kw = dict(dropout=dropout)
+    model_kw = dict(dropout=dropout, hidden_dim=256*2)
     for k in ('n_layers', 'hidden_dim'):
         if k in bp:
             model_kw[k] = bp[k]
