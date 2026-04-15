@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from torch import nn
 from torch_geometric.data import Data
 from torch_geometric.nn import SAGEConv
+import faiss
+
 
 def load_combined_xy(data_dir):
     """Load all splits into a single pre-allocated X buffer (no vstack copy)."""
@@ -41,13 +43,9 @@ def build_masks(sizes):
         offset += sizes[s]
     return masks['train'], masks['val'], masks['test']
 
-
 def _faiss_knn(X_all, k):
     """Try FAISS (GPU then CPU) for fast cosine k-NN. Returns indices or None."""
-    try:
-        import faiss
-    except ImportError:
-        return None
+
     X_norm = (X_all / np.linalg.norm(X_all, axis=1, keepdims=True)).astype(np.float32)
     # Try GPU first
     if torch.cuda.is_available():
@@ -55,7 +53,7 @@ def _faiss_knn(X_all, k):
             index = faiss.GpuIndexFlatIP(faiss.StandardGpuResources(), X_norm.shape[1])
             index.add(X_norm)
             _, indices = index.search(X_norm, k + 1)
-            print('  (FAISS GPU)')
+            print(' (FAISS GPU)')
             return indices
         except Exception as e:
             print(f'  FAISS GPU failed ({e}), trying CPU...')
