@@ -8,7 +8,7 @@ BATCH_SIZE = 256
 N_HVG = 0
 DATA_DIR = 'data/10x'
 K_NEIGHBORS = 10
-N_TRIALS = 3
+N_TRIALS = 10
 TUNE_EPOCHS = 15
 
 COFIG = {
@@ -38,7 +38,7 @@ def main():
 
     best_acc, ckpt, best_params = T.train_graph_with_tuning(
         COFIG, DATA_DIR, n_features, n_classes, weights,
-        n_trials=N_TRIALS, tune_epochs=TUNE_EPOCHS)
+        n_trials=N_TRIALS, tune_epochs=TUNE_EPOCHS, )
 
     # Rebuild graph with best k for evaluation
     best_k = best_params.get('k_neighbors', K_NEIGHBORS)
