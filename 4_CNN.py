@@ -4,12 +4,12 @@ from torch import nn, optim
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 4096
+BATCH_SIZE = 512
 N_HVG = 2000
 DATA_DIR = 'data/10x'
 N_TRIALS = 3
-TUNE_EPOCHS = 3
-TUNE_BATCH_SIZE = 4096
+TUNE_EPOCHS =3
+TUNE_BATCH_SIZE = 512
 
 COFIG = {
     'model': 'CellTypeCNN',
@@ -17,7 +17,7 @@ COFIG = {
     'batch_size': BATCH_SIZE,
     'n_hvg': N_HVG,
     'device': str(T.DEVICE),
-    'optimizer': optim.SGD,
+    'optimizer': optim.AdamW,
     'lr': 3e-4,
     'weight_decay': 1e-6,
     'epochs': TUNE_EPOCHS,
@@ -30,7 +30,7 @@ def main():
     squeeze_channel = False
 
     # 1. Dataloaders — full matrix preloaded to pinned host RAM, async H2D per batch.
-    train_loader, val_loader = T.make_dataloaders(DATA_DIR, cfg['batch_size'])
+    train_loader, val_loader = T.make_dataloaders(DATA_DIR, cfg['batch_size'], n_hvg=cfg['n_hvg'])
     loaders = (train_loader, val_loader)
     ds = train_loader.dataset
     n_features = len(ds.gene_names)

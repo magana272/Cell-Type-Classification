@@ -12,7 +12,7 @@ def _gene_filter(X_val: np.ndarray, min_gene_frac: float) -> np.ndarray:
     return keep
 
 
-def _select_hvg(X_val_filtered: np.ndarray, n_hvg: int) -> np.ndarray:
+def select_hvg(X_val_filtered: np.ndarray, n_hvg: int) -> np.ndarray:
     """Top-variance genes from log-normalized data, sorted by descending variance."""
     lib = np.maximum(X_val_filtered.sum(axis=1, keepdims=True, dtype=np.float64), 1.0)
     normed = np.log1p(X_val_filtered / lib * 1e4).astype(np.float32)
@@ -51,7 +51,7 @@ def preprocess_hvg(
     Returns (X_train, X_val, X_test, hvg_gene_names, scaler).
     """
     filtered_idx = _gene_filter(X_val, min_gene_frac)
-    hvg_local = _select_hvg(X_val[:, filtered_idx], n_hvg)
+    hvg_local = select_hvg(X_val[:, filtered_idx], n_hvg)
     hvg_gene_idx = filtered_idx[hvg_local]
     print(f'HVG: {hvg_local.size} genes selected')
 

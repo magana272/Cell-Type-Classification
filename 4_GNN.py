@@ -15,7 +15,7 @@ if torch.cuda.is_available():
 
 SEED = 42
 BATCH_SIZE = 1024
-N_HVG = 2000
+N_HVG = 0
 DATA_DIR = 'data/smartseq'
 K_NEIGHBORS = 15
 N_TRIALS = 3

@@ -6,11 +6,13 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn, optim
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from alive_progress import alive_bar
 import optuna
 
 from allen_brain.cell_data.cell_dataset import GeneExpressionDataset, make_dataset
+from allen_brain.cell_data.cell_preprocess import select_hvg
 from allen_brain.models import get_model
 
 import os
@@ -37,7 +39,7 @@ def make_writer_and_ckpt(cfg, n_features):
 def train_with_tuning(cfg, data_dir, squeeze_channel,
                       make_builder=None, n_trials=15, tune_epochs=5,
                       tune_batch_size=None):
-    train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'])
+    train_loader, val_loader = make_dataloaders(data_dir, cfg['batch_size'], n_hvg=cfg.get('n_hvg'))
     loaders = (train_loader, val_loader)
     builder =  lambda: build_model(cfg['model'], len(train_loader.dataset.gene_names), train_loader.dataset.n_classes)
     best_params = run_hparam_search(cfg, builder, train_loader.dataset, loaders, squeeze_channel,
@@ -58,57 +60,23 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
     return best
 
 
-class _PinnedLoader:
-    """Replaces DataLoader: preloads the full matrix into pinned host RAM and
-    issues a single non-blocking H2D copy per batch.
-
-    Why not GPU-side preload: at 50k features + 67k cells the dataset alone is
-    ~13 GB on device, which starves model activations during Optuna trials.
-    Pinned host memory keeps the per-batch transfer cheap and async without
-    locking GPU memory that the model needs.
-    """
-
-    def __init__(self, dataset, batch_size, shuffle, drop_last, device):
-        self.dataset = dataset
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-        self.drop_last = drop_last
-        self.device = device
-        X = np.array(dataset.X, dtype=np.float32, copy=True)
-        y = np.array(dataset.y, dtype=np.int64, copy=True)
-        X_t = torch.from_numpy(X).unsqueeze(1)
-        y_t = torch.from_numpy(y)
-        if device.type == 'cuda':
-            X_t = X_t.pin_memory()
-            y_t = y_t.pin_memory()
-        self.X = X_t
-        self.y = y_t
-
-    def __len__(self):
-        n = self.X.shape[0]
-        return n // self.batch_size if self.drop_last else (n + self.batch_size - 1) // self.batch_size
-
-    def __iter__(self):
-        n = self.X.shape[0]
-        idx = torch.randperm(n) if self.shuffle else torch.arange(n)
-        bs = self.batch_size
-        end = (n // bs) * bs if self.drop_last else n
-        non_blocking = self.device.type == 'cuda'
-        for i in range(0, end, bs):
-            sel = idx[i:i + bs]
-            xb = self.X[sel].to(self.device, non_blocking=non_blocking)
-            yb = self.y[sel].to(self.device, non_blocking=non_blocking)
-            yield xb, yb
-
-
-def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE):
+def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE, n_hvg=None):
     ds = make_dataset(data_dir, split='train')
     ds_val = make_dataset(data_dir, split='val')
-    train_loader = _PinnedLoader(ds, batch_size, shuffle=True,
-                              drop_last=drop_last_train, device=device)
-    val_loader = _PinnedLoader(ds_val, batch_size, shuffle=False,
-                            drop_last=False, device=device)
-    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (preloaded to {device})')
+    if n_hvg is not None and 0 < n_hvg < len(ds.gene_names):
+        print(f'Selecting top {n_hvg} HVGs by variance on train split...')
+        top_idx = np.sort(select_hvg(np.asarray(ds.X), n_hvg))
+        ds.X = np.asarray(ds.X[:, top_idx])
+        ds_val.X = np.asarray(ds_val.X[:, top_idx])
+        ds.gene_names = ds.gene_names[top_idx]
+        ds_val.gene_names = ds_val.gene_names[top_idx]
+
+    pin = device.type == 'cuda'
+    train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True,
+                              drop_last=drop_last_train, pin_memory=pin)
+    val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False,
+                            drop_last=False, pin_memory=pin)
+    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes')
     print(f'val:   {len(ds_val)} cells')
     return train_loader, val_loader
 
@@ -125,7 +93,10 @@ def build_optimizer(model, lr, weight_decay, epochs, opt_cls=optim.AdamW):
     return optimizer, scheduler
 
 
-def prep_batch(xb, yb, squeeze_channel=False):
+def prep_batch(xb, yb, squeeze_channel=False, device=DEVICE):
+    non_blocking = device.type == 'cuda'
+    xb = xb.to(device, non_blocking=non_blocking)
+    yb = yb.to(device, non_blocking=non_blocking)
     if squeeze_channel and xb.dim() == 3:
         xb = xb.squeeze(1)
     return xb, yb
@@ -202,10 +173,10 @@ def _step_epoch(model, loaders, criterion, optimizer, scheduler,
     return tr_loss, tr_acc, vl_loss, vl_acc
 
 
-def suggest_lr_wd(trial):
+def suggest_lr(trial):
     lr = trial.suggest_float('lr', 1e-5, 1e-2, log=True)
-    wd = trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True)
-    return lr, wd
+    # wd = trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True)
+    return lr
 
 
 def _tune_writer_ckpt(cfg, trial_number):
@@ -246,11 +217,11 @@ def run_hparam_search(cfg, build_model_fn, ds, loaders, squeeze_channel,
     def objective(trial):
         model = optimizer = scheduler = writer = None
         try:
-            lr, wd = suggest_lr_wd(trial)
+            lr = suggest_lr(trial)
             model = build_model_fn()
             criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.1)
             optimizer, scheduler = build_optimizer(
-                model, lr, wd, tune_epochs, opt_cls=cfg['optimizer'])
+                model, lr, cfg['weight_decay'], tune_epochs, opt_cls=cfg['optimizer'])
             writer, ckpt = _tune_writer_ckpt(cfg, trial.number)
             return train(model, loaders, criterion, optimizer, scheduler,
                          tune_epochs, writer, ckpt, squeeze_channel=squeeze_channel,
