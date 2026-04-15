@@ -4,10 +4,10 @@ from allen_brain.models import train as T
 from allen_brain.models.CellTypeGNN import build_graph_data, masked_class_weights
 
 SEED = 42
-BATCH_SIZE = 1024
+BATCH_SIZE = 256
 N_HVG = 0
 DATA_DIR = 'data/10x'
-K_NEIGHBORS = 15
+K_NEIGHBORS = 10
 N_TRIALS = 3
 TUNE_EPOCHS = 15
 
