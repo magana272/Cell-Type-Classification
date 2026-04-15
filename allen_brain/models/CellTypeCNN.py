@@ -52,38 +52,38 @@ class CellTypeCNN(nn.Module):
     def __init__(self, seq_len: int, n_classes: int, dropout: float = 0.3):
         super().__init__()
         self.stem = nn.Sequential(
-            nn.Conv1d(1, 64, kernel_size=15, stride=2, padding=7, bias=False),
-            nn.BatchNorm1d(64),
+            nn.Conv1d(1, 32, kernel_size=15, stride=2, padding=7, bias=False),
+            nn.BatchNorm1d(32),
             nn.ReLU(),
         )
         self.stage1 = nn.Sequential(
-            ResBlock(64, 96, kernel=7, dropout=dropout),
+            ResBlock(32, 48, kernel=7, dropout=dropout),
             nn.MaxPool1d(3),
         )
         self.stage2 = nn.Sequential(
-            ResBlock(96, 160, kernel=5, dropout=dropout),
-            ResBlock(160, 160, kernel=5, dropout=dropout),
+            ResBlock(48, 80, kernel=5, dropout=dropout),
+            ResBlock(80, 80, kernel=5, dropout=dropout),
             nn.MaxPool1d(3),
         )
         self.stage3 = nn.Sequential(
-            ResBlock(160, 256, kernel=3, dropout=dropout),
-            ResBlock(256, 256, kernel=3, dropout=dropout),
+            ResBlock(80, 128, kernel=3, dropout=dropout),
+            ResBlock(128, 128, kernel=3, dropout=dropout),
             nn.MaxPool1d(3),
         )
-        self.stage4 = ResBlock(256, 256, kernel=3, dropout=dropout)
+        self.stage4 = ResBlock(128, 128, kernel=3, dropout=dropout)
 
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
         self.max_pool = nn.AdaptiveMaxPool1d(1)
 
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.LayerNorm(512),
-            nn.Dropout(dropout),
-            nn.Linear(512, 256),
-            nn.ReLU(),
             nn.LayerNorm(256),
             nn.Dropout(dropout),
-            nn.Linear(256, n_classes),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.LayerNorm(128),
+            nn.Dropout(dropout),
+            nn.Linear(128, n_classes),
         )
 
     def forward(self, x):

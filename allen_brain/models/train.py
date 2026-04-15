@@ -262,9 +262,9 @@ def train_graph(model, data, criterion, optimizer, scheduler, epochs, writer, ck
             torch.save(model.state_dict(), ckpt)
         else:
             no_improve += 1
-        print_row(epoch, tr_loss, tr_acc, vl_loss, vl_acc,
-                  scheduler.get_last_lr()[0], ' *' if improved else '')
-        log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc)
+        lr = scheduler.get_last_lr()[0]
+        print_row(epoch, tr_loss, tr_acc, vl_loss, vl_acc, lr, ' *' if improved else '')
+        log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc, lr=lr)
         if trial is not None:
             trial.report(vl_acc, epoch)
             if trial.should_prune():
@@ -349,7 +349,8 @@ def train(model, loaders, criterion, optimizer, scheduler, epochs, writer, ckpt,
                 no_improve += 1
             flag = ' *' if improved else ''
             bar.text(f'ep {epoch}/{epochs} tl={tr_loss:.4f} ta={tr_acc:.4f} vl={vl_loss:.4f} va={vl_acc:.4f}{flag}')
-            log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc)
+            log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc,
+                      lr=scheduler.get_last_lr()[0])
             if no_improve >= patience:
                 break
     return best_acc

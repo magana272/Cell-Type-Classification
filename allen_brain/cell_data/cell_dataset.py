@@ -8,14 +8,6 @@ from .cell_preprocess import preprocess_hvg
 from sklearn.preprocessing import LabelEncoder
 
 
-def _as_int64_contig(y):
-    arr = np.asarray(y)
-    if arr.dtype != np.int64:
-        arr = arr.astype(np.int64, copy=False)
-    if not arr.flags['C_CONTIGUOUS']:
-        arr = np.ascontiguousarray(arr)
-    return arr
-
 
 class GeneExpressionDataset(Dataset):
     """Lazy row-wise view over an (N, G) expression matrix stored as .npy.
