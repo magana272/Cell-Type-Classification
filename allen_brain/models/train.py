@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn, optim
-from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from alive_progress import alive_bar
 import optuna
@@ -59,16 +58,47 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
     return best
 
 
+class _GPULoader:
+    """Preloaded on-GPU replacement for DataLoader on small tabular datasets.
+
+    Why: for ~2k HVG gene expression, the whole matrix is a few GB and fits on
+    the A100. Doing host->device copy per batch is the dominant cost; preloading
+    once and slicing with cuda indices makes an epoch GPU-bound.
+    """
+
+    def __init__(self, dataset, batch_size, shuffle, drop_last, device):
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.drop_last = drop_last
+        self.device = device
+        X = np.asarray(dataset.X, dtype=np.float32)
+        y = np.asarray(dataset.y, dtype=np.int64)
+        self.X = torch.from_numpy(X).unsqueeze(1).to(device)
+        self.y = torch.from_numpy(y).to(device)
+
+    def __len__(self):
+        n = self.X.shape[0]
+        return n // self.batch_size if self.drop_last else (n + self.batch_size - 1) // self.batch_size
+
+    def __iter__(self):
+        n = self.X.shape[0]
+        idx = torch.randperm(n, device=self.device) if self.shuffle else torch.arange(n, device=self.device)
+        bs = self.batch_size
+        end = (n // bs) * bs if self.drop_last else n
+        for i in range(0, end, bs):
+            sel = idx[i:i + bs]
+            yield self.X[sel], self.y[sel]
+
+
 def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE):
     ds = make_dataset(data_dir, split='train')
     ds_val = make_dataset(data_dir, split='val')
-    pin = device.type == 'cuda'
-    loader_kwargs = dict(num_workers=2, pin_memory=pin, persistent_workers=pin,
-                         prefetch_factor=2 if pin else None)
-    train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True,
-                              drop_last=drop_last_train, **loader_kwargs)
-    val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False, **loader_kwargs)
-    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (CPU, transfer to {device})')
+    train_loader = _GPULoader(ds, batch_size, shuffle=True,
+                              drop_last=drop_last_train, device=device)
+    val_loader = _GPULoader(ds_val, batch_size, shuffle=False,
+                            drop_last=False, device=device)
+    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes (preloaded to {device})')
     print(f'val:   {len(ds_val)} cells')
     return train_loader, val_loader
 
