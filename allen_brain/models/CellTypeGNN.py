@@ -47,22 +47,11 @@ def build_knn_edges(X_all, k):
     n_total = X_all.shape[0]
     print(f'Building k={k} cosine-NN graph on {n_total:,} cells...')
     used_faiss = False
-    if torch.cuda.is_available():
-        try:
-            import faiss
-            X_norm = X_all / np.linalg.norm(X_all, axis=1, keepdims=True)
-            X_norm = X_norm.astype(np.float32)
-            index = faiss.GpuIndexFlatIP(faiss.StandardGpuResources(), X_norm.shape[1])
-            index.add(X_norm)
-            _, indices = index.search(X_norm, k + 1)
-            used_faiss = True
-        except Exception as e:
-            print(f'FAISS GPU failed ({e}), falling back to sklearn...')
-    if not used_faiss:
-        from sklearn.neighbors import NearestNeighbors
-        nbrs = NearestNeighbors(n_neighbors=k + 1, metric='cosine',
-                                algorithm='brute').fit(X_all)
-        _, indices = nbrs.kneighbors(X_all)
+
+    from sklearn.neighbors import NearestNeighbors
+    nbrs = NearestNeighbors(n_neighbors=k + 1, metric='cosine',
+                            algorithm='brute').fit(X_all)
+    _, indices = nbrs.kneighbors(X_all)
     src = np.repeat(np.arange(n_total), k)
     dst = indices[:, 1:].reshape(-1)
     src_sym = np.concatenate([src, dst])
