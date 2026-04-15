@@ -4,12 +4,12 @@ from torch import nn, optim
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 128
+BATCH_SIZE = 128*2
 N_HVG = 2000
 DATA_DIR = 'data/10x'
 N_TRIALS = 1
 TUNE_EPOCHS = 10
-TUNE_BATCH_SIZE = 128
+TUNE_BATCH_SIZE = 128*2
 
 COFIG = {
     'model': 'CellTypeCNN',
@@ -17,10 +17,10 @@ COFIG = {
     'batch_size': BATCH_SIZE,
     'n_hvg': N_HVG,
     'device': str(T.DEVICE),
-    'optimizer': optim.AdamW,
+    'optimizer': optim.SGD,
     'lr': 3e-4,
     'weight_decay': 1e-6,
-    'epochs': 20,
+    'epochs': TUNE_EPOCHS,
     'loss': nn.CrossEntropyLoss,
 }
 
