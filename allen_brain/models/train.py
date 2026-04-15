@@ -175,8 +175,8 @@ def _step_epoch(model, loaders, criterion, optimizer, scheduler,
 
 def suggest_lr(trial):
     lr = trial.suggest_float('lr', 1e-5, 1e-2, log=True)
-    # wd = trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True)
-    return lr
+    wd = trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True)
+    return lr, wd
 
 
 def _tune_writer_ckpt(cfg, trial_number):
