@@ -3,6 +3,10 @@
 import os
 
 import numpy as np
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
@@ -78,13 +82,13 @@ def _load_and_predict(model_cls_name, squeeze_channel, is_graph):
 def _collect_all():
     results = {}
     for name, (cls_name, squeeze, is_graph) in MODELS.items():
-        print(f'Loading {name}...')
+        console.print(f'Loading [bold]{name}[/bold]...')
         r = _load_and_predict(cls_name, squeeze, is_graph)
         if r is not None:
             results[name] = r
-            print(f'  {name}: {len(r["y_true"])} test samples')
+            console.print(f'  [green]{name}[/green]: {len(r["y_true"])} test samples')
         else:
-            print(f'  {name}: no checkpoint found, skipping')
+            console.print(f'  [yellow]{name}[/yellow]: no checkpoint found, skipping')
     return results
 
 
@@ -114,7 +118,7 @@ def plot_roc_per_model(results, save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'roc_curves_all_models.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved roc_curves_all_models.png')
+    console.print('[green]Saved[/green] roc_curves_all_models.png')
 
 
 def plot_roc_comparison(results, save_dir):
@@ -140,13 +144,13 @@ def plot_roc_comparison(results, save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'roc_curves_comparison.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved roc_curves_comparison.png')
+    console.print('[green]Saved[/green] roc_curves_comparison.png')
 
 
 def plot_accuracy_comparison(save_dir, csv_path='results.csv'):
     """Grouped bar chart of accuracy, F1-macro, F1-weighted from results.csv."""
     if not os.path.exists(csv_path):
-        print(f'{csv_path} not found, skipping accuracy comparison plot')
+        console.print(f'[yellow]{csv_path} not found[/yellow], skipping accuracy comparison plot')
         return
     df = pd.read_csv(csv_path)
     metrics = ['accuracy', 'f1_macro', 'f1_weighted']
@@ -167,7 +171,7 @@ def plot_accuracy_comparison(save_dir, csv_path='results.csv'):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'accuracy_comparison.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved accuracy_comparison.png')
+    console.print('[green]Saved[/green] accuracy_comparison.png')
 
 
 def plot_confusion_matrices(results, save_dir):
@@ -191,7 +195,7 @@ def plot_confusion_matrices(results, save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'confusion_matrices_comparison.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved confusion_matrices_comparison.png')
+    console.print('[green]Saved[/green] confusion_matrices_comparison.png')
 
 
 def plot_per_class_f1(results, save_dir):
@@ -223,7 +227,7 @@ def plot_per_class_f1(results, save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'per_class_f1_comparison.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved per_class_f1_comparison.png')
+    console.print('[green]Saved[/green] per_class_f1_comparison.png')
 
 
 def plot_metrics_table(save_dir, csv_path='results.csv'):
@@ -246,18 +250,19 @@ def plot_metrics_table(save_dir, csv_path='results.csv'):
     plt.savefig(os.path.join(save_dir, 'metrics_table.png'), dpi=150,
                 bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved metrics_table.png')
+    console.print('[green]Saved[/green] metrics_table.png')
 
 
 def main():
     os.makedirs(SAVE_DIR, exist_ok=True)
-    print('=' * 60)
-    print('MODEL COMPARISON')
-    print('=' * 60)
+    console.print(Panel(
+        '[bold]MODEL COMPARISON[/bold]',
+        border_style='cyan', expand=False,
+    ))
 
     results = _collect_all()
     if not results:
-        print('No trained models found. Run 4_*.py scripts first.')
+        console.print('[bold red]No trained models found.[/bold red] Run 4_*.py scripts first.')
         return
 
     plot_roc_per_model(results, SAVE_DIR)
@@ -267,7 +272,10 @@ def main():
     plot_per_class_f1(results, SAVE_DIR)
     plot_metrics_table(SAVE_DIR)
 
-    print(f'\nAll figures saved to {SAVE_DIR}/')
+    console.print(Panel(
+        f'All figures saved to [bold]{SAVE_DIR}/[/bold]',
+        border_style='green', expand=False,
+    ))
 
 
 if __name__ == '__main__':

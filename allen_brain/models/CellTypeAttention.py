@@ -6,6 +6,9 @@ import requests
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from rich.console import Console
+
+console = Console()
 
 
 
@@ -32,14 +35,14 @@ def _download_gmt(path, url):
     if os.path.exists(path):
         return True
     try:
-        print(f'Downloading Reactome GMT to {path}...')
+        console.print(f'Downloading Reactome GMT to {path}...')
         r = requests.get(url, timeout=120)
         r.raise_for_status()
         with open(path, 'wb') as f:
             f.write(r.content)
         return True
     except Exception as e:
-        print(f'GMT download failed ({e}); falling back to identity mask.')
+        console.print(f'[yellow]GMT download failed[/yellow] ({e}); falling back to identity mask.')
         return False
 
 
@@ -71,13 +74,13 @@ def build_pathway_mask(gene_names, gmt_path='data/reactome.gmt',
     if not _download_gmt(gmt_path, gmt_url):
         return torch.eye(len(gene_names)), len(gene_names)
     gmt = _parse_gmt(gmt_path, max_gene_set_size)
-    print(f'Gene sets loaded: {len(gmt):,}')
+    console.print(f'Gene sets loaded: {len(gmt):,}')
     kept = _select_pathways(gmt, set(gene_names), min_overlap, max_pathways)
     if not kept:
-        print('No pathways matched; using identity mask.')
+        console.print('[yellow]No pathways matched; using identity mask.[/yellow]')
         return torch.eye(len(gene_names)), len(gene_names)
     mask = _pathways_to_mask(kept, gene_names)
-    print(f'Mask: {tuple(mask.shape)}, sparsity {1 - mask.mean().item():.2%}')
+    console.print(f'Mask: {tuple(mask.shape)}, sparsity {1 - mask.mean().item():.2%}')
     return mask, len(kept)
 
 

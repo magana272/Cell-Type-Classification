@@ -5,6 +5,7 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from rich.console import Console
 import seaborn as sns
 import umap
 from sklearn.decomposition import PCA
@@ -13,6 +14,7 @@ import allen_brain.cell_data.cell_dataset as cell_dataset
 import allen_brain.cell_data.cell_preprocess as cell_preprocess
 
 FIG_DIR = 'figures'
+console = Console()
 
 
 def _to_numpy(a):
@@ -56,7 +58,7 @@ def plot_class_distribution(ds: cell_dataset.GeneExpressionDataset,
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.show()
-    print(f'Saved {save_path}')
+    console.print(f'[green]Saved[/green] {save_path}')
 
 
 def plot_pca(ds: cell_dataset.GeneExpressionDataset,
@@ -77,7 +79,7 @@ def plot_pca(ds: cell_dataset.GeneExpressionDataset,
     y = _to_numpy(ds.y)
     class_names = _class_names(ds)
 
-    print('Running PCA on training set...')
+    console.print('Running PCA on training set...')
     pca = PCA(n_components=n_components, random_state=seed)
     X = X - X.mean(axis=0)
     X_pca = pca.fit_transform(X)
@@ -109,7 +111,7 @@ def plot_pca(ds: cell_dataset.GeneExpressionDataset,
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.show()
-    print(f'Saved {save_path}')
+    console.print(f'[green]Saved[/green] {save_path}')
     return pca, X_pca
 
 
@@ -129,7 +131,7 @@ def plot_umap(ds: cell_dataset.GeneExpressionDataset, X_pca=None,
         umap_idx = rng.choice(len(X_pca), max_cells, replace=False)
         X_input = X_pca[umap_idx]
         umap_labels = labels[umap_idx]
-        print(f'  Subsampled to {max_cells:,} cells for UMAP speed.')
+        console.print(f'  Subsampled to {max_cells:,} cells for UMAP speed.')
     else:
         X_input = X_pca
         umap_labels = labels
@@ -156,7 +158,7 @@ def plot_umap(ds: cell_dataset.GeneExpressionDataset, X_pca=None,
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.show()
-    print(f'Saved {save_path}')
+    console.print(f'[green]Saved[/green] {save_path}')
     return X_umap
 
 
@@ -219,7 +221,7 @@ def plot_heatmap(ds: cell_dataset.GeneExpressionDataset, gene_names,
                                bbox_to_anchor=(1.15, 1), loc='upper left')
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.show()
-    print(f'Saved {save_path}')
+    console.print(f'[green]Saved[/green] {save_path}')
     return g
 
 
@@ -229,7 +231,7 @@ def plot_violin(ds: cell_dataset.GeneExpressionDataset, gene_names,
     if save_path is None:
         save_path = os.path.join(FIG_DIR, 'fig_violin.png')
     _ensure_dir(save_path)
-    print(f'Plotting violin plots for top {top_n} most variable genes...')
+    console.print(f'Plotting violin plots for top {top_n} most variable genes...')
     X = _to_numpy(ds.X)
     labels = _string_labels(ds)
     top_gene_names, top_indices = get_top_hvg_genes(X, gene_names, top_n=top_n)
@@ -254,7 +256,7 @@ def plot_violin(ds: cell_dataset.GeneExpressionDataset, gene_names,
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.show()
-    print(f'Saved {save_path}')
+    console.print(f'[green]Saved[/green] {save_path}')
     
 def _compute_cv2_stats(X: np.ndarray):
     """Compute per-gene mean, variance, and CV^2 on library-normalized (non-log) data.
@@ -319,7 +321,7 @@ def plot_cv2(ds: cell_dataset.GeneExpressionDataset, gene_names,
         save_path = os.path.join(FIG_DIR, 'fig_cv2.png')
     _ensure_dir(save_path)
 
-    print(f'Computing CV^2 statistics for {ds.X.shape[1]:,} genes ...')
+    console.print(f'Computing CV^2 statistics for {ds.X.shape[1]:,} genes ...')
     X = _to_numpy(ds.X)
     gene_names = np.asarray(gene_names)
 
@@ -330,7 +332,7 @@ def plot_cv2(ds: cell_dataset.GeneExpressionDataset, gene_names,
     log_cv2  = np.log10(cv2_v)
 
     # -- fit trend ---------------------------------------------------------
-    print('  Fitting LOWESS trend ...')
+    console.print('  Fitting LOWESS trend ...')
     trend_log_mean, trend_log_cv2, trend_fn = _fit_cv2_trend(log_mean, log_cv2)
 
     # -- ratio = observed / trend (linear scale) ---------------------------
@@ -390,7 +392,7 @@ def plot_cv2(ds: cell_dataset.GeneExpressionDataset, gene_names,
     plt.show()
     top_hvg_names = gene_names[hvg_idx_full]
     top_hvg_ratios = ratio[hvg_in_valid] if len(hvg_in_valid) > 0 else np.array([])
-    print(f'  Top 10 HVGs (select_hvg): {", ".join(top_hvg_names[:10])}')
-    print(f'Saved {save_path}')
+    console.print(f'  Top 10 HVGs (select_hvg): {", ".join(top_hvg_names[:10])}')
+    console.print(f'[green]Saved[/green] {save_path}')
 
     return top_hvg_names, top_hvg_ratios

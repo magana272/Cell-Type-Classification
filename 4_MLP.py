@@ -1,11 +1,13 @@
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 1024*8
+BATCH_SIZE = 24576
 N_HVG = 0
 DATA_DIR = 'data/10x'
 N_TRIALS = 10
 TUNE_EPOCHS = 15
+
+NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'
 
 COFIG = {
     'model': 'CellTypeMLP',
@@ -19,6 +21,7 @@ COFIG = {
     'epochs': 20,
     'loss': 'cross_entropy',
     'label_smoothing': 0.1,
+    'normalize': NORMALIZE,
 }
 
 

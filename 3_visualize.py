@@ -38,10 +38,10 @@ def run_visualizations(data_dir: str, tag: str):
     # Try split first, fall back to full matrix
     train_ds = make_dataset(data_dir, split="train")
     if train_ds is None:
-        print(f"  No train split found for {tag}, loading full matrix ...")
+        console.print(f"  [yellow]No train split found for {tag}[/yellow], loading full matrix ...")
         train_ds = make_dataset(data_dir)
     if train_ds is None:
-        print(f"  [SKIP] No data found in {data_dir}")
+        console.print(f"  [bold red]\\[SKIP][/bold red] No data found in {data_dir}")
         return
 
     gene_names = train_ds.gene_names
@@ -98,7 +98,7 @@ def run_visualizations(data_dir: str, tag: str):
 def main():
     for data_dir, tag in DATASETS:
         run_visualizations(data_dir, tag)
-    print("\nAll visualizations complete.")
+    console.print("\nAll visualizations complete.")
 
 
 if __name__ == "__main__":

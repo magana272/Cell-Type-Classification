@@ -1,8 +1,10 @@
 import numpy as np
 import torch
+from rich.console import Console
 from sklearn.preprocessing import StandardScaler
 
 _DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+console = Console()
 
 
 def _gene_filter(X_val: np.ndarray, min_gene_frac: float) -> np.ndarray:
@@ -14,7 +16,7 @@ def _gene_filter(X_val: np.ndarray, min_gene_frac: float) -> np.ndarray:
     X_t = torch.as_tensor(np.asarray(X_val), device=_DEVICE)
     nonzero = (X_t > 0).sum(dim=0)
     keep = torch.nonzero(nonzero >= min_cells, as_tuple=False).squeeze(1)
-    print(f'Gene filter: {keep.numel():,} / {X_val.shape[1]:,} genes '
+    console.print(f'Gene filter: {keep.numel():,} / {X_val.shape[1]:,} genes '
           f'(>= {min_cells} val cells)')
     return keep.cpu().numpy()
 
@@ -72,7 +74,7 @@ def preprocess_hvg(
     filtered_idx = _gene_filter(X_val, min_gene_frac)
     hvg_local = select_hvg(X_val[:, filtered_idx], n_hvg)
     hvg_gene_idx = filtered_idx[hvg_local]
-    print(f'HVG: {hvg_local.size} genes selected')
+    console.print(f'HVG: {hvg_local.size} genes selected')
 
     X_train = _normalize(X_train, filtered_idx, hvg_local)
     X_val = _normalize(X_val, filtered_idx, hvg_local)
@@ -115,6 +117,6 @@ def align_genes(X_source, gene_names_source, gene_names_target):
     X_aligned = torch.zeros(n_samples, n_target, dtype=torch.float32, device=_DEVICE)
     X_aligned[:, has_match] = X_t[:, src_idx_t[has_match]]
 
-    print(f'Gene alignment: {matched}/{n_target} target genes matched '
+    console.print(f'Gene alignment: {matched}/{n_target} target genes matched '
           f'({n_target - matched} zero-filled)')
     return X_aligned.cpu().numpy(), matched

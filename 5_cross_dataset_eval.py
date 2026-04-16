@@ -4,6 +4,9 @@ import os
 
 import numpy as np
 import torch
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 from torch.utils.data import DataLoader, TensorDataset
 
 from allen_brain.models import train as T
@@ -26,13 +29,14 @@ MAX_GENE_SET_SIZE = 300
 
 
 _find_best_ckpt = T.find_best_ckpt
+console = Console()
 
 
 def _load_eval_data():
     """Load and return SmartSeq evaluation data (all splits combined)."""
     # Ensure SmartSeq data is processed
     if not os.path.exists(os.path.join(EVAL_DIR, 'X_train.npy')):
-        print('Processing SmartSeq dataset...')
+        console.print('Processing SmartSeq dataset...')
         load_smartseq()
 
     # Combine all SmartSeq splits for evaluation
@@ -61,7 +65,7 @@ def _align_to_training(X_eval, gene_names_eval, ckpt_path):
         hvg_idx = np.load(hvg_path)
         X_aligned = X_aligned[:, hvg_idx]
         gene_names_train = gene_names_train[hvg_idx]
-        print(f'Applied HVG selection: {len(hvg_idx)} genes')
+        console.print(f'Applied HVG selection: {len(hvg_idx)} genes')
 
     return X_aligned, gene_names_train
 
@@ -71,7 +75,7 @@ def _eval_standard_model(model_name, X_aligned, y_eval, gene_names,
     """Evaluate a standard (non-graph) model on aligned data."""
     ckpt_path = _find_best_ckpt(model_name)
     if ckpt_path is None:
-        print(f'  No checkpoint found for {model_name}, skipping.')
+        console.print(f'  [yellow]No checkpoint found for {model_name}[/yellow], skipping.')
         return None
 
     X_al, gnames = _align_to_training(X_aligned, gene_names, ckpt_path)
@@ -86,7 +90,7 @@ def _eval_standard_model(model_name, X_aligned, y_eval, gene_names,
 
     model.load_state_dict(torch.load(ckpt_path, map_location=T.DEVICE,
                                      weights_only=True))
-    print(f'Loaded checkpoint: {ckpt_path}')
+    console.print(f'Loaded checkpoint: {ckpt_path}')
 
     # Build DataLoader from aligned numpy arrays
     X_t = torch.from_numpy(X_al).unsqueeze(1)  # add channel dim for dataset compat
@@ -104,7 +108,7 @@ def _eval_gnn_model(X_aligned, y_eval, gene_names, class_names):
     """Evaluate GNN model on aligned SmartSeq data with new graph."""
     ckpt_path = _find_best_ckpt('CellTypeGNN')
     if ckpt_path is None:
-        print('  No checkpoint found for CellTypeGNN, skipping.')
+        console.print('  [yellow]No checkpoint found for CellTypeGNN[/yellow], skipping.')
         return None
 
     X_al, gnames = _align_to_training(X_aligned, gene_names, ckpt_path)
@@ -113,14 +117,14 @@ def _eval_gnn_model(X_aligned, y_eval, gene_names, class_names):
                                   allow_pickle=True))
 
     # Build new graph on SmartSeq data
-    print(f'Building evaluation graph on SmartSeq data...')
+    console.print('Building evaluation graph on SmartSeq data...')
     data = build_eval_graph(X_al, y_eval, k_neighbors=K_NEIGHBORS).to(T.DEVICE)
 
     saved_kw = T._load_model_kwargs(ckpt_path, model_name='CellTypeGNN')
     model = T.build_model('CellTypeGNN', n_features, n_classes_train, **saved_kw)
     model.load_state_dict(torch.load(ckpt_path, map_location=T.DEVICE,
                                      weights_only=True))
-    print(f'Loaded checkpoint: {ckpt_path}')
+    console.print(f'Loaded checkpoint: {ckpt_path}')
 
     model.eval()
     with torch.no_grad():
@@ -143,37 +147,35 @@ def _transformer_extra_kwargs(gene_names):
 
 
 def main():
-    print('=' * 60)
-    print('CROSS-DATASET EVALUATION: 10x -> SmartSeq')
-    print('=' * 60)
+    console.print(Panel(
+        '[bold]CROSS-DATASET EVALUATION[/bold]  ·  10x → SmartSeq',
+        border_style='cyan', expand=False,
+    ))
 
     X_eval, y_eval, gene_names_eval, class_names_eval = _load_eval_data()
-    print(f'\nSmartSeq data: {X_eval.shape[0]:,} cells, '
+    console.print(f'\nSmartSeq data: {X_eval.shape[0]:,} cells, '
           f'{X_eval.shape[1]:,} genes, {len(class_names_eval)} classes')
-    print(f'Classes: {list(class_names_eval)}\n')
+    console.print(f'Classes: {list(class_names_eval)}\n')
 
     results = {}
 
     # MLP
-    print('\n' + '-' * 40)
-    print('Evaluating CellTypeMLP on SmartSeq')
-    print('-' * 40)
+    console.print(Panel('[bold]Evaluating CellTypeMLP on SmartSeq[/bold]',
+                        border_style='dim', expand=False))
     results['MLP'] = _eval_standard_model(
         'CellTypeMLP', X_eval, y_eval, gene_names_eval,
         class_names_eval, squeeze_channel=True)
 
     # CNN
-    print('\n' + '-' * 40)
-    print('Evaluating CellTypeCNN on SmartSeq')
-    print('-' * 40)
+    console.print(Panel('[bold]Evaluating CellTypeCNN on SmartSeq[/bold]',
+                        border_style='dim', expand=False))
     results['CNN'] = _eval_standard_model(
         'CellTypeCNN', X_eval, y_eval, gene_names_eval,
         class_names_eval, squeeze_channel=False)
 
     # Transformer
-    print('\n' + '-' * 40)
-    print('Evaluating CellTypeTOSICA on SmartSeq')
-    print('-' * 40)
+    console.print(Panel('[bold]Evaluating CellTypeTOSICA on SmartSeq[/bold]',
+                        border_style='dim', expand=False))
     # Build pathway mask from the aligned gene names
     ckpt_t = _find_best_ckpt('CellTypeTOSICA')
     if ckpt_t is not None:
@@ -187,26 +189,30 @@ def main():
         extra_model_kwargs=tosica_kw)
 
     # GNN
-    print('\n' + '-' * 40)
-    print('Evaluating CellTypeGNN on SmartSeq')
-    print('-' * 40)
+    console.print(Panel('[bold]Evaluating CellTypeGNN on SmartSeq[/bold]',
+                        border_style='dim', expand=False))
     results['GNN'] = _eval_gnn_model(
         X_eval, y_eval, gene_names_eval, class_names_eval)
 
     # Summary table
-    print('\n' + '=' * 60)
-    print('CROSS-DATASET EVALUATION SUMMARY')
-    print('=' * 60)
-    header = f'{"Model":<15} {"Acc":>6} {"F1-M":>6} {"F1-W":>6} {"Prec-M":>7} {"Rec-M":>6}'
-    print(header)
-    print('-' * len(header))
+    table = Table(title='Cross-Dataset Evaluation Summary', show_lines=True)
+    table.add_column('Model', style='bold')
+    table.add_column('Acc', justify='right')
+    table.add_column('F1-M', justify='right')
+    table.add_column('F1-W', justify='right')
+    table.add_column('Prec-M', justify='right')
+    table.add_column('Rec-M', justify='right')
     for name, m in results.items():
         if m is None:
-            print(f'{name:<15} {"N/A":>6}')
+            table.add_row(name, 'N/A', '', '', '', '')
         else:
-            print(f'{name:<15} {m["accuracy"]:>6.4f} {m["f1_macro"]:>6.4f} '
-                  f'{m["f1_weighted"]:>6.4f} {m["precision_macro"]:>7.4f} '
-                  f'{m["recall_macro"]:>6.4f}')
+            table.add_row(name,
+                          f'{m["accuracy"]:.4f}',
+                          f'{m["f1_macro"]:.4f}',
+                          f'{m["f1_weighted"]:.4f}',
+                          f'{m["precision_macro"]:.4f}',
+                          f'{m["recall_macro"]:.4f}')
+    console.print(table)
 
 
 if __name__ == '__main__':

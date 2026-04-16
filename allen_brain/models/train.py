@@ -4,11 +4,14 @@ import gc
 import glob
 import json
 import os
+import pickle
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from rich.console import Console
+from rich.panel import Panel
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
@@ -17,6 +20,7 @@ from sklearn.metrics import (
     f1_score, precision_score, recall_score,
     confusion_matrix, classification_report,
 )
+from sklearn.preprocessing import StandardScaler
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -28,6 +32,7 @@ from allen_brain.models import get_model
 from allen_brain.models.losses import build_criterion
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+console = Console()
 _OPTIMIZERS = {'adamw': optim.AdamW, 'adam': optim.Adam, 'sgd': optim.SGD}
 
 
@@ -53,7 +58,7 @@ def estimate_vram(model, batch_size, n_features):
 def build_model(model_name: str, n_features: int, n_classes: int, device=DEVICE, **kwargs):
     model = get_model(model_name, n_features, n_classes, **kwargs).to(device)
     n_params = sum(p.numel() for p in model.parameters())
-    print(f'Model parameters: {n_params:,}')
+    console.print(f'Model parameters: {n_params:,}')
     return model
 
 
@@ -71,8 +76,10 @@ def make_writer_and_ckpt(cfg, n_features):
 def train_with_tuning(cfg, data_dir, squeeze_channel,
                       n_trials=15, tune_epochs=5,
                       n_hvg_range=None, extra_model_kwargs=None):
-    train_loader, val_loader, hvg_idx = make_dataloaders(
-        data_dir, cfg['batch_size'], n_hvg=cfg.get('n_hvg'))
+    normalize = cfg.get('normalize')
+    train_loader, val_loader, hvg_idx, scaler = make_dataloaders(
+        data_dir, cfg['batch_size'], n_hvg=cfg.get('n_hvg'),
+        normalize=normalize)
     loaders = (train_loader, val_loader)
     ds = train_loader.dataset
 
@@ -91,14 +98,17 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
     label_smoothing = bp.get('label_smoothing', cfg.get('label_smoothing', 0.1))
     focal_gamma = bp.get('focal_gamma', cfg.get('focal_gamma', 2.0))
     dropout = bp.get('dropout', cfg.get('dropout', 0.1))
+    normalize = bp.get('normalize', cfg.get('normalize'))
+    if normalize == 'none':
+        normalize = None
 
-    # Rebuild dataloaders if n_hvg was tuned
-    if 'n_hvg' in bp:
-        cfg['n_hvg'] = bp['n_hvg']
-        train_loader, val_loader, hvg_idx = make_dataloaders(
-            data_dir, cfg['batch_size'], n_hvg=cfg['n_hvg'])
-        loaders = (train_loader, val_loader)
-        ds = train_loader.dataset
+    # Rebuild dataloaders with best n_hvg + normalize
+    best_n_hvg = bp.get('n_hvg', cfg.get('n_hvg'))
+    train_loader, val_loader, hvg_idx, scaler = make_dataloaders(
+        data_dir, cfg['batch_size'], n_hvg=best_n_hvg,
+        normalize=normalize)
+    loaders = (train_loader, val_loader)
+    ds = train_loader.dataset
 
     # Build model with best architectural params
     model_kw = dict(dropout=dropout)
@@ -118,36 +128,94 @@ def train_with_tuning(cfg, data_dir, squeeze_channel,
     ckpt_dir = os.path.dirname(ckpt)
     if hvg_idx is not None:
         np.save(os.path.join(ckpt_dir, 'hvg_indices.npy'), hvg_idx)
+    if scaler is not None:
+        with open(os.path.join(ckpt_dir, 'scaler.pkl'), 'wb') as f:
+            pickle.dump(scaler, f)
+    if normalize:
+        with open(os.path.join(ckpt_dir, 'normalize.txt'), 'w') as f:
+            f.write(normalize)
     _save_model_kwargs(ckpt_dir, model_kw)
 
-    print(f'Training {cfg["epochs"]} epochs with best params on {DEVICE}...')
+    console.print(f'Training {cfg["epochs"]} epochs with best params on {DEVICE}...')
     print_header()
     best = train(model, loaders, criterion, optimizer, scheduler,
                  cfg['epochs'], writer, ckpt, squeeze_channel=squeeze_channel)
-    print(f'\nBest validation accuracy: {best:.4f}')
+    console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
     return best, ckpt, bp
 
 
-def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE, n_hvg=None):
+def _log_normalize(X: np.ndarray) -> np.ndarray:
+    """Library-size normalize + log1p: log1p(X / lib_size * 1e4)."""
+    X = np.asarray(X, dtype=np.float32)
+    lib = X.sum(axis=1, keepdims=True)
+    lib = np.maximum(lib, 1.0)
+    return np.log1p(X / lib * 1e4)
+
+
+def _apply_normalization(X_train: np.ndarray, X_val: np.ndarray,
+                         normalize: str | None) -> tuple[np.ndarray, np.ndarray, StandardScaler | None]:
+    """Apply normalization to train/val arrays.
+
+    normalize: None, 'log', 'standard', or 'log+standard'.
+    Returns (X_train, X_val, scaler_or_None).
+    """
+    if not normalize or normalize == 'none':
+        return X_train, X_val, None
+
+    scaler = None
+    if normalize in ('log', 'log+standard'):
+        console.print('Applying log normalization (log1p of library-size-normalized counts)...')
+        X_train = _log_normalize(X_train)
+        X_val = _log_normalize(X_val)
+
+    if normalize in ('standard', 'log+standard'):
+        console.print('Applying StandardScaler (fit on train)...')
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train).astype(np.float32)
+        X_val = scaler.transform(X_val).astype(np.float32)
+
+    return X_train, X_val, scaler
+
+
+def _apply_normalization_test(X_test: np.ndarray, normalize: str | None,
+                              scaler: StandardScaler | None) -> np.ndarray:
+    """Apply the same normalization to a test array."""
+    if not normalize or normalize == 'none':
+        return X_test
+    if normalize in ('log', 'log+standard'):
+        X_test = _log_normalize(X_test)
+    if normalize in ('standard', 'log+standard') and scaler is not None:
+        X_test = scaler.transform(X_test).astype(np.float32)
+    return X_test
+
+
+def make_dataloaders(data_dir, batch_size, drop_last_train=True, device=DEVICE,
+                     n_hvg=None, normalize=None):
     ds = make_dataset(data_dir, split='train')
     ds_val = make_dataset(data_dir, split='val')
     hvg_idx = None
     if n_hvg is not None and 0 < n_hvg < len(ds.gene_names):
-        print(f'Selecting top {n_hvg} HVGs by variance on train split...')
+        console.print(f'Selecting top {n_hvg} HVGs by variance on train split...')
         hvg_idx = np.sort(select_hvg(np.asarray(ds.X), n_hvg))
         ds.X = np.asarray(ds.X[:, hvg_idx])
         ds_val.X = np.asarray(ds_val.X[:, hvg_idx])
         ds.gene_names = ds.gene_names[hvg_idx]
         ds_val.gene_names = ds_val.gene_names[hvg_idx]
 
+    # Apply normalization
+    X_train, X_val, scaler = _apply_normalization(
+        np.asarray(ds.X), np.asarray(ds_val.X), normalize)
+    ds.X = X_train
+    ds_val.X = X_val
+
     pin = device.type == 'cuda'
     train_loader = DataLoader(ds, batch_size=batch_size, shuffle=True,
                               drop_last=drop_last_train, pin_memory=pin)
     val_loader = DataLoader(ds_val, batch_size=batch_size, shuffle=False,
                             drop_last=False, pin_memory=pin)
-    print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes')
-    print(f'val:   {len(ds_val)} cells')
-    return train_loader, val_loader, hvg_idx
+    console.print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes')
+    console.print(f'val:   {len(ds_val)} cells')
+    return train_loader, val_loader, hvg_idx, scaler
 
 
 def class_weights(ds: GeneExpressionDataset, device=DEVICE):
@@ -218,12 +286,12 @@ def log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc):
 
 
 def print_header():
-    print(f'{"Epoch":>6} | {"Train Loss":>10} | {"Train Acc":>9} | {"Val Loss":>9} | {"Val Acc":>8} | LR')
-    print('-' * 72)
+    console.print(f'{"Epoch":>6} | {"Train Loss":>10} | {"Train Acc":>9} | {"Val Loss":>9} | {"Val Acc":>8} | LR')
+    console.print('-' * 72)
 
 
 def print_row(epoch, tr_loss, tr_acc, vl_loss, vl_acc, lr, flag):
-    print(f'{epoch:>6} | {tr_loss:>10.4f} | {tr_acc:>8.4f} | {vl_loss:>9.4f} | {vl_acc:>8.4f} | {lr:.2e}{flag}')
+    console.print(f'{epoch:>6} | {tr_loss:>10.4f} | {tr_acc:>8.4f} | {vl_loss:>9.4f} | {vl_acc:>8.4f} | {lr:.2e}{flag}')
 
 
 def make_run_name(model_name, n_hvg, batch_size, epochs, lr, wd):
@@ -262,6 +330,8 @@ def suggest_hparams(trial, model_name):
         params['focal_gamma'] = trial.suggest_float('focal_gamma', 0.5, 5.0)
     else:
         params['focal_gamma'] = 2.0
+    params['normalize'] = trial.suggest_categorical(
+        'normalize', ['none', 'log', 'standard', 'log+standard'])
 
     # Model-specific architectural params
     if model_name == 'CellTypeMLP':
@@ -310,15 +380,15 @@ def run_optuna_study(cfg, objective, n_trials, tune_epochs):
         sampler=optuna.samplers.TPESampler(seed=cfg.get('seed', 0)),
         pruner=optuna.pruners.HyperbandPruner(
             min_resource=1, max_resource=tune_epochs, reduction_factor=3))
-    print(f'Hparam search: {n_trials} trials x up to {tune_epochs} epochs (Hyperband)')
+    console.print(f'Hparam search: {n_trials} trials x up to {tune_epochs} epochs (Hyperband)')
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False, gc_after_trial=True)
     completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
     if not completed:
-        print('WARNING: no trials completed (all pruned/failed) — '
+        console.print('[bold yellow]WARNING[/bold yellow]: no trials completed (all pruned/failed) — '
               'falling back to default lr/weight_decay. '
               'Lower tune_batch_size or set PYTORCH_ALLOC_CONF=expandable_segments:True.')
         return None
-    print(f'Best trial: val_acc={study.best_value:.4f}  params={study.best_params}')
+    console.print(f'Best trial: val_acc=[bold green]{study.best_value:.4f}[/bold green]  params={study.best_params}')
     return study.best_params
 
 
@@ -341,6 +411,7 @@ def run_hparam_search(cfg, ds, loaders, squeeze_channel,
     extra_model_kwargs : dict, optional
         Extra kwargs forwarded to build_model (e.g. mask, n_pathways for TOSICA).
     """
+    base_normalize = cfg.get('normalize') or 'none'
     default_weights = class_weights(ds)
     extra_kw = extra_model_kwargs or {}
 
@@ -352,12 +423,20 @@ def run_hparam_search(cfg, ds, loaders, squeeze_channel,
             model_kw = _model_kwargs_from_params(params, cfg['model'])
             model_kw.update(extra_kw)
 
+            trial_normalize = params['normalize']
+            n_hvg = cfg.get('n_hvg')
             if n_hvg_range is not None:
                 n_hvg = trial.suggest_int(
                     'n_hvg', n_hvg_range[0], n_hvg_range[1],
                     step=n_hvg_range[2])
-                tl, vl, _ = make_dataloaders(
-                    data_dir, cfg['batch_size'], n_hvg=n_hvg)
+
+            needs_rebuild = (n_hvg_range is not None
+                             or trial_normalize != base_normalize)
+            if needs_rebuild and data_dir is not None:
+                norm = trial_normalize if trial_normalize != 'none' else None
+                tl, vl, _, _ = make_dataloaders(
+                    data_dir, cfg['batch_size'], n_hvg=n_hvg,
+                    normalize=norm)
                 trial_loaders = (tl, vl)
                 trial_ds = tl.dataset
                 n_feat = len(trial_ds.gene_names)
@@ -381,7 +460,7 @@ def run_hparam_search(cfg, ds, loaders, squeeze_channel,
                          tune_epochs, writer, ckpt, squeeze_channel=squeeze_channel,
                          compile_model=False, trial=trial)
         except torch.cuda.OutOfMemoryError:
-            print(f'Trial {trial.number}: CUDA OOM — pruning')
+            console.print(f'Trial {trial.number}: [yellow]CUDA OOM[/yellow] — pruning')
             raise optuna.TrialPruned()
         finally:
             if writer is not None:
@@ -433,7 +512,7 @@ def train_graph(model, data, criterion, optimizer, scheduler, epochs, writer, ck
             if trial.should_prune():
                 raise optuna.TrialPruned()
         if no_improve >= patience:
-            print(f'Early stopping at epoch {epoch}')
+            console.print(f'Early stopping at epoch {epoch}')
             break
     return best_acc
 
@@ -443,17 +522,20 @@ def run_graph_hparam_search(cfg, data_dir, n_features, n_classes, weights,
     from allen_brain.models.CellTypeGNN import build_graph_data
     graph_cache = {}
 
-    def _get_graph(k):
-        if k not in graph_cache:
-            graph_cache[k] = build_graph_data(data_dir, k_neighbors=k).to(DEVICE)
-        return graph_cache[k]
+    def _get_graph(k, norm):
+        key = (k, norm)
+        if key not in graph_cache:
+            graph_cache[key] = build_graph_data(
+                data_dir, k_neighbors=k,
+                normalize=norm if norm != 'none' else None).to(DEVICE)
+        return graph_cache[key]
 
     def objective(trial):
         model = optimizer = scheduler = writer = None
         try:
             params = suggest_hparams(trial, 'CellTypeGNN')
             k = params['k_neighbors']
-            data = _get_graph(k)
+            data = _get_graph(k, params['normalize'])
 
             model_kw = _model_kwargs_from_params(params, 'CellTypeGNN')
             model = build_model('CellTypeGNN', n_features, n_classes, **model_kw)
@@ -469,7 +551,7 @@ def run_graph_hparam_search(cfg, data_dir, n_features, n_classes, weights,
                                tune_epochs, writer, ckpt, patience=tune_epochs,
                                trial=trial)
         except torch.cuda.OutOfMemoryError:
-            print(f'Trial {trial.number}: CUDA OOM — pruning')
+            console.print(f'Trial {trial.number}: [yellow]CUDA OOM[/yellow] — pruning')
             raise optuna.TrialPruned()
         finally:
             if writer is not None:
@@ -500,9 +582,13 @@ def train_graph_with_tuning(cfg, data_dir, n_features, n_classes, weights,
     focal_gamma = bp.get('focal_gamma', cfg.get('focal_gamma', 2.0))
     dropout = bp.get('dropout', cfg.get('dropout', 0.3))
     k_neighbors = bp.get('k_neighbors', cfg.get('k_neighbors', 15))
+    normalize = bp.get('normalize', cfg.get('normalize'))
+    if normalize == 'none':
+        normalize = None
 
-    # Build graph with best k
-    data = build_graph_data(data_dir, k_neighbors=k_neighbors).to(DEVICE)
+    # Build graph with best k + normalize
+    data = build_graph_data(data_dir, k_neighbors=k_neighbors,
+                            normalize=normalize).to(DEVICE)
 
     # Build model with best architectural params
     model_kw = dict(dropout=dropout)
@@ -517,12 +603,12 @@ def train_graph_with_tuning(cfg, data_dir, n_features, n_classes, weights,
         model, lr, wd, cfg['epochs'], opt_cls=opt_name)
     writer, ckpt = make_writer_and_ckpt(cfg, n_features)
     _save_model_kwargs(os.path.dirname(ckpt), model_kw)
-    print(f'\nData: {data}')
-    print(f'Training {cfg["epochs"]} epochs with best params on {DEVICE}...')
+    console.print(f'\nData: {data}')
+    console.print(f'Training {cfg["epochs"]} epochs with best params on {DEVICE}...')
     print_header()
     best = train_graph(model, data, criterion, optimizer, scheduler,
                        cfg['epochs'], writer, ckpt)
-    print(f'\nBest validation accuracy: {best:.4f}')
+    console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
     return best, ckpt, bp
 
 
@@ -551,7 +637,7 @@ def train(model, loaders, criterion, optimizer, scheduler, epochs, writer, ckpt,
         print_row(epoch, tr_loss, tr_acc, vl_loss, vl_acc, lr, flag)
         log_epoch(writer, epoch, tr_loss, tr_acc, vl_loss, vl_acc)
         if no_improve >= patience:
-            print(f'Early stopping at epoch {epoch}')
+            console.print(f'Early stopping at epoch {epoch}')
             break
     return best_acc
 
@@ -604,10 +690,10 @@ def _load_model_kwargs(ckpt_path, model_name=None):
         with open(p) as f:
             return json.load(f)
     if model_name is not None:
-        print(f'No model_kwargs.json found, inferring architecture from checkpoint...')
+        console.print('No model_kwargs.json found, inferring architecture from checkpoint...')
         kw = _infer_model_kwargs(model_name, ckpt_path)
         if kw:
-            print(f'  Inferred: {kw}')
+            console.print(f'  Inferred: {kw}')
         return kw
     return {}
 
@@ -635,7 +721,7 @@ def save_hyperparameters(model_name, best_params, cfg, save_dir='finalhyperparam
     with open(path, 'w') as f:
         for k in sorted(merged):
             f.write(f'{k} = {merged[k]}\n')
-    print(f'Saved hyperparameters to {path}')
+    console.print(f'[green]Saved[/green] hyperparameters to {path}')
 
 
 def append_results_csv(model_name, metrics, csv_path='results.csv'):
@@ -653,7 +739,7 @@ def append_results_csv(model_name, metrics, csv_path='results.csv'):
     else:
         df = df_new
     df.to_csv(csv_path, index=False)
-    print(f'Results for {model_name} written to {csv_path}')
+    console.print(f'Results for {model_name} written to {csv_path}')
 
 
 # ---------------------------------------------------------------------------
@@ -671,7 +757,7 @@ def _save_confusion_matrix(cm, class_names, save_path):
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved confusion matrix to {save_path}')
+    console.print(f'[green]Saved[/green] confusion matrix to {save_path}')
 
 
 def _collect_predictions(model, loader, squeeze_channel=False, device=DEVICE):
@@ -727,18 +813,17 @@ def _compute_metrics(y_true, y_pred, class_names, save_dir=None):
     cm = confusion_matrix(y_true, y_pred)
     metrics['confusion_matrix'] = cm
 
-    print('\n' + '=' * 60)
-    print('EVALUATION RESULTS')
-    print('=' * 60)
+    console.print(Panel('[bold]EVALUATION RESULTS[/bold]',
+                        border_style='cyan', expand=False))
     report = classification_report(y_true, y_pred, target_names=class_names,
                                    zero_division=0)
-    print(report)
-    print(f'Accuracy: {acc:.4f}')
-    print(f'F1 (macro): {metrics["f1_macro"]:.4f}  F1 (weighted): {metrics["f1_weighted"]:.4f}')
-    print(f'Precision (macro): {metrics["precision_macro"]:.4f}  '
-          f'Precision (weighted): {metrics["precision_weighted"]:.4f}')
-    print(f'Recall (macro): {metrics["recall_macro"]:.4f}  '
-          f'Recall (weighted): {metrics["recall_weighted"]:.4f}')
+    console.print(report)
+    console.print(f'Accuracy: [bold]{acc:.4f}[/bold]')
+    console.print(f'F1 (macro): [bold]{metrics["f1_macro"]:.4f}[/bold]  F1 (weighted): [bold]{metrics["f1_weighted"]:.4f}[/bold]')
+    console.print(f'Precision (macro): [bold]{metrics["precision_macro"]:.4f}[/bold]  '
+          f'Precision (weighted): [bold]{metrics["precision_weighted"]:.4f}[/bold]')
+    console.print(f'Recall (macro): [bold]{metrics["recall_macro"]:.4f}[/bold]  '
+          f'Recall (weighted): [bold]{metrics["recall_weighted"]:.4f}[/bold]')
 
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
@@ -754,14 +839,30 @@ def evaluate(cfg, data_dir, ckpt_path, squeeze_channel=False,
     Returns dict with accuracy, f1, precision, recall, confusion_matrix.
     """
     ds_test = make_dataset(data_dir, split='test')
+    ckpt_dir = os.path.dirname(ckpt_path)
 
     # Apply HVG indices if saved during training
-    hvg_path = os.path.join(os.path.dirname(ckpt_path), 'hvg_indices.npy')
+    hvg_path = os.path.join(ckpt_dir, 'hvg_indices.npy')
     if os.path.exists(hvg_path):
         hvg_idx = np.load(hvg_path)
         ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
         ds_test.gene_names = ds_test.gene_names[hvg_idx]
-        print(f'Applied HVG selection: {len(hvg_idx)} genes')
+        console.print(f'Applied HVG selection: {len(hvg_idx)} genes')
+
+    # Apply normalization if saved during training
+    normalize = None
+    norm_path = os.path.join(ckpt_dir, 'normalize.txt')
+    if os.path.exists(norm_path):
+        with open(norm_path) as f:
+            normalize = f.read().strip()
+    scaler = None
+    scaler_path = os.path.join(ckpt_dir, 'scaler.pkl')
+    if os.path.exists(scaler_path):
+        with open(scaler_path, 'rb') as f:
+            scaler = pickle.load(f)
+    if normalize:
+        console.print(f'Applying saved normalization: {normalize}')
+        ds_test.X = _apply_normalization_test(np.asarray(ds_test.X), normalize, scaler)
 
     n_features = len(ds_test.gene_names)
     n_classes = ds_test.n_classes
@@ -774,7 +875,7 @@ def evaluate(cfg, data_dir, ckpt_path, squeeze_channel=False,
     model = build_model(cfg['model'], n_features, n_classes, **saved_kw)
 
     model.load_state_dict(torch.load(ckpt_path, map_location=DEVICE, weights_only=True))
-    print(f'Loaded checkpoint: {ckpt_path}')
+    console.print(f'Loaded checkpoint: {ckpt_path}')
 
     pin = DEVICE.type == 'cuda'
     test_loader = DataLoader(ds_test, batch_size=cfg['batch_size'],
@@ -795,7 +896,7 @@ def evaluate_graph(cfg, data, ckpt_path, n_features, n_classes,
     model = build_model(cfg['model'], n_features, n_classes, **saved_kw)
 
     model.load_state_dict(torch.load(ckpt_path, map_location=DEVICE, weights_only=True))
-    print(f'Loaded checkpoint: {ckpt_path}')
+    console.print(f'Loaded checkpoint: {ckpt_path}')
 
     model.eval()
     with torch.no_grad():

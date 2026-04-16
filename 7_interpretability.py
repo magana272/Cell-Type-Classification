@@ -5,7 +5,11 @@ import os
 import numpy as np
 import torch
 import torch.nn.functional as F_torch
+from rich.console import Console
+from rich.panel import Panel
 from torch.utils.data import DataLoader
+
+console = Console()
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -35,10 +39,11 @@ MAX_GENE_SET_SIZE = 300
 
 def interpret_tosica(save_dir):
     """Extract and visualize pathway attention scores from TOSICA."""
-    print('\n--- TOSICA Pathway Attention ---')
+    console.print(Panel('[bold]TOSICA Pathway Attention[/bold]',
+                        border_style='dim', expand=False))
     ckpt = T.find_best_ckpt('CellTypeTOSICA')
     if ckpt is None:
-        print('No TOSICA checkpoint found, skipping.')
+        console.print('[yellow]No TOSICA checkpoint found, skipping.[/yellow]')
         return
 
     ds_test = make_dataset(DATA_DIR, split='test')
@@ -108,7 +113,7 @@ def interpret_tosica(save_dir):
     plt.savefig(os.path.join(save_dir, 'tosica_pathway_attention_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved tosica_pathway_attention_heatmap.png')
+    console.print('[green]Saved[/green] tosica_pathway_attention_heatmap.png')
 
     # Top pathways per top 3 classes
     class_counts = [len(attn_by_class[c]) for c in range(n_classes)]
@@ -129,7 +134,7 @@ def interpret_tosica(save_dir):
     plt.savefig(os.path.join(save_dir, 'tosica_top_pathways_per_class.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved tosica_top_pathways_per_class.png')
+    console.print('[green]Saved[/green] tosica_top_pathways_per_class.png')
 
 
 # ---------------------------------------------------------------------------
@@ -138,16 +143,17 @@ def interpret_tosica(save_dir):
 
 def interpret_gnn(save_dir):
     """Visualize GNN node embeddings via UMAP."""
-    print('\n--- GNN Embedding UMAP ---')
+    console.print(Panel('[bold]GNN Embedding UMAP[/bold]',
+                        border_style='dim', expand=False))
     ckpt = T.find_best_ckpt('CellTypeGNN')
     if ckpt is None:
-        print('No GNN checkpoint found, skipping.')
+        console.print('[yellow]No GNN checkpoint found, skipping.[/yellow]')
         return
 
     try:
         import umap
     except ImportError:
-        print('umap-learn not installed, skipping GNN interpretability.')
+        console.print('[yellow]umap-learn not installed, skipping GNN interpretability.[/yellow]')
         return
 
     saved_kw = T._load_model_kwargs(ckpt, model_name='CellTypeGNN')
@@ -177,7 +183,7 @@ def interpret_gnn(save_dir):
     labels_sub = labels[idx]
     preds_sub = preds[idx]
 
-    print(f'Running UMAP on {n_sample} nodes...')
+    console.print(f'Running UMAP on {n_sample} nodes...')
     reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
     umap_emb = reducer.fit_transform(emb_sub)
 
@@ -194,7 +200,7 @@ def interpret_gnn(save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'gnn_embedding_umap.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved gnn_embedding_umap.png')
+    console.print('[green]Saved[/green] gnn_embedding_umap.png')
 
     # UMAP by correctness
     correct = labels_sub == preds_sub
@@ -210,7 +216,7 @@ def interpret_gnn(save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'gnn_embedding_correctness.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved gnn_embedding_correctness.png')
+    console.print('[green]Saved[/green] gnn_embedding_correctness.png')
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +269,7 @@ def _plot_saliency(saliency, gene_names, class_names, model_prefix, save_dir):
     plt.savefig(os.path.join(save_dir, f'{model_prefix.lower()}_gene_saliency_top20.png'),
                 dpi=150)
     plt.close(fig)
-    print(f'Saved {model_prefix.lower()}_gene_saliency_top20.png')
+    console.print(f'[green]Saved[/green] {model_prefix.lower()}_gene_saliency_top20.png')
 
     # Per-class heatmap (top 30 genes)
     top_30 = np.argsort(overall)[::-1][:30]
@@ -277,15 +283,16 @@ def _plot_saliency(saliency, gene_names, class_names, model_prefix, save_dir):
     plt.savefig(os.path.join(save_dir, f'{model_prefix.lower()}_saliency_per_class.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved {model_prefix.lower()}_saliency_per_class.png')
+    console.print(f'[green]Saved[/green] {model_prefix.lower()}_saliency_per_class.png')
 
 
 def interpret_mlp(save_dir):
     """Compute and visualize gene-level saliency for MLP."""
-    print('\n--- MLP Gene Saliency ---')
+    console.print(Panel('[bold]MLP Gene Saliency[/bold]',
+                        border_style='dim', expand=False))
     ckpt = T.find_best_ckpt('CellTypeMLP')
     if ckpt is None:
-        print('No MLP checkpoint found, skipping.')
+        console.print('[yellow]No MLP checkpoint found, skipping.[/yellow]')
         return
 
     ds_test = make_dataset(DATA_DIR, split='test')
@@ -315,10 +322,11 @@ def interpret_mlp(save_dir):
 
 def interpret_cnn(save_dir):
     """Compute gene saliency and visualize stem filters for CNN."""
-    print('\n--- CNN Gene Saliency + Filters ---')
+    console.print(Panel('[bold]CNN Gene Saliency + Filters[/bold]',
+                        border_style='dim', expand=False))
     ckpt = T.find_best_ckpt('CellTypeCNN')
     if ckpt is None:
-        print('No CNN checkpoint found, skipping.')
+        console.print('[yellow]No CNN checkpoint found, skipping.[/yellow]')
         return
 
     ds_test = make_dataset(DATA_DIR, split='test')
@@ -378,7 +386,7 @@ def interpret_cnn(save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'cnn_stem_filters.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved cnn_stem_filters.png')
+    console.print('[green]Saved[/green] cnn_stem_filters.png')
 
 
 # ---------------------------------------------------------------------------
@@ -387,7 +395,8 @@ def interpret_cnn(save_dir):
 
 def compare_gene_importance(save_dir):
     """Compare top important genes across models."""
-    print('\n--- Cross-Model Gene Importance ---')
+    console.print(Panel('[bold]Cross-Model Gene Importance[/bold]',
+                        border_style='dim', expand=False))
     top_n = 50
     importance = {}
 
@@ -456,7 +465,7 @@ def compare_gene_importance(save_dir):
         importance['Transformer'] = all_genes
 
     if len(importance) < 2:
-        print('Need at least 2 models for comparison, skipping.')
+        console.print('[yellow]Need at least 2 models for comparison, skipping.[/yellow]')
         return
 
     # Overlap bar chart
@@ -484,7 +493,7 @@ def compare_gene_importance(save_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'gene_importance_comparison.png'), dpi=150)
     plt.close(fig)
-    print(f'Saved gene_importance_comparison.png')
+    console.print('[green]Saved[/green] gene_importance_comparison.png')
 
 
 # ---------------------------------------------------------------------------
@@ -493,20 +502,24 @@ def compare_gene_importance(save_dir):
 
 def main():
     os.makedirs(SAVE_DIR, exist_ok=True)
-    print('=' * 60)
-    print('INTERPRETABILITY ANALYSIS')
-    print('=' * 60)
+    console.print(Panel(
+        '[bold]INTERPRETABILITY ANALYSIS[/bold]',
+        border_style='cyan', expand=False,
+    ))
 
     for fn in (interpret_tosica, interpret_gnn, interpret_mlp,
                interpret_cnn, compare_gene_importance):
         try:
             fn(SAVE_DIR)
         except Exception as e:
-            print(f'Error in {fn.__name__}: {e}')
+            console.print(f'[bold red]Error in {fn.__name__}[/bold red]: {e}')
             import traceback
             traceback.print_exc()
 
-    print(f'\nAll figures saved to {SAVE_DIR}/')
+    console.print(Panel(
+        f'All figures saved to [bold]{SAVE_DIR}/[/bold]',
+        border_style='green', expand=False,
+    ))
 
 
 if __name__ == '__main__':
