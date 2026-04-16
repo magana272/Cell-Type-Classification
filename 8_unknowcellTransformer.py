@@ -1,12 +1,11 @@
-"""Train TOSICA on a subset of cell types, detect held-out types as Unknown.
+"""Train TOSICA on all cell types except one, detect held-out type as Unknown.
 
-Replicates the TOSICA paper's unknown cell type discovery experiment:
-  1. Randomly sample 5000 training cells
-  2. Hold out one cell type from training (skipping IT classes)
-  3. Train TOSICA with pathway mask
-  4. Predict on full test set — held-out cells should be flagged as 'Unknown'
-  5. Evaluate classification performance on known classes
-  6. Run the paper's attention embedding pipeline: normalize -> PCA -> kNN -> UMAP
+Unknown cell type discovery experiment:
+  1. Train on FULL training set with one cell type removed
+  2. Train TOSICA with pathway mask (log+standard normalization)
+  3. Predict on full test set — held-out cells should be flagged as 'Unknown'
+  4. Evaluate classification performance on known classes
+  5. Run attention embedding pipeline: normalize -> PCA -> kNN -> UMAP
 """
 
 import os
@@ -28,7 +27,7 @@ from allen_brain.cell_data.cell_dataset import make_dataset, GeneExpressionDatas
 from allen_brain.models import train as T
 from allen_brain.models.CellTypeAttention import build_pathway_mask
 from allen_brain.models.CellTypeAttentionUMAP import (
-    select_random_cells, collect_attention, attention_umap,
+    collect_attention, attention_umap,
 )
 
 console = Console()
@@ -40,7 +39,6 @@ DATA_DIR = 'data/10x'
 SAVE_DIR = 'figures'
 GMT_PATH = 'data/reactome.gmt'
 
-N_RANDOM_CELLS = 5000
 SEED = 42
 BATCH_SIZE = 4096
 EPOCHS = 20
@@ -61,7 +59,7 @@ CFG = {
     'loss': 'focal',
     'label_smoothing': 0.06,
     'focal_gamma': 0.47,
-    'normalize': None,
+    'normalize': 'log+standard',
     'n_hvg': 0,
 }
 
@@ -108,13 +106,7 @@ def main():
     ds_val   = make_dataset(DATA_DIR, split='val')
     ds_test  = make_dataset(DATA_DIR, split='test')
 
-    n_train_total = len(ds_train)
-    console.print(f'Total training cells: {n_train_total}')
-
-    cell_idx = select_random_cells(n_train_total, N_RANDOM_CELLS, seed=SEED)
-    ds_train.X = np.asarray(ds_train.X)[cell_idx]
-    ds_train.y = np.asarray(ds_train.y)[cell_idx]
-    console.print(f'Randomly selected {len(cell_idx)} training cells')
+    console.print(f'Total training cells: {len(ds_train)}')
 
     gene_names = [str(g) for g in ds_train.gene_names]
     all_class_names = list(ds_train.class_names)
@@ -150,6 +142,11 @@ def main():
                            if i != held_out_idx]
     n_reduced = len(reduced_class_names)
     console.print(f'Training classes: {n_reduced} (held out: {held_out_name})')
+
+    # Apply normalization (log+standard, same as best TOSICA training)
+    normalize = CFG.get('normalize')
+    X_train, X_val, scaler = T._apply_normalization(
+        X_train.astype(np.float32), X_val.astype(np.float32), normalize)
 
     # Wrap into simple datasets
     train_ds = torch.utils.data.TensorDataset(
@@ -206,8 +203,10 @@ def main():
     X_test_known, y_test_known, _ = _hold_out_class(ds_test, held_out_idx)
     y_test_known_remapped, _ = _remap_labels(y_test_known, held_out_idx, n_original_classes)
 
+    X_test_known_norm = T._apply_normalization_test(
+        X_test_known.astype(np.float32), normalize, scaler)
     known_test_ds = torch.utils.data.TensorDataset(
-        torch.from_numpy(X_test_known.astype(np.float32)),
+        torch.from_numpy(X_test_known_norm),
         torch.from_numpy(y_test_known_remapped))
     known_test_loader = DataLoader(known_test_ds, batch_size=BATCH_SIZE,
                                    shuffle=False, pin_memory=pin)
@@ -243,7 +242,8 @@ def main():
     # ------------------------------------------------------------------
     # 7. Predict on full test set (including held-out class)
     # ------------------------------------------------------------------
-    X_test = np.asarray(ds_test.X).astype(np.float32)
+    X_test = T._apply_normalization_test(
+        np.asarray(ds_test.X).astype(np.float32), normalize, scaler)
     y_test = np.asarray(ds_test.y)
     test_ds = torch.utils.data.TensorDataset(
         torch.from_numpy(X_test).float(),
