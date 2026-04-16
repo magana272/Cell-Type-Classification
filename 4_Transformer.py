@@ -3,16 +3,16 @@ from allen_brain.models.CellTypeAttention import build_pathway_mask
 from allen_brain.cell_data.cell_dataset import make_dataset
 
 SEED = 42
-BATCH_SIZE = 4096
+BATCH_SIZE = 4096*2
 ACCUMULATION_STEPS = 6  # effective batch = 4096 * 6 = 24576
 N_HVG = 0
 DATA_DIR = 'data/10x'
 GMT_PATH = 'data/reactome.gmt'
-MAX_PATHWAYS = 500
+MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
-MAX_GENE_SET_SIZE = 500
-N_TRIALS = 30
-TUNE_EPOCHS = 50
+MAX_GENE_SET_SIZE = 300
+N_TRIALS = 20
+TUNE_EPOCHS = 2
 
 NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'
 
