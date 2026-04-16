@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1080" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#546E7A"/></marker>
+    <filter id="ds" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.10"/></filter>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5C6BC0"/><stop offset="100%" stop-color="#7E57C2"/></linearGradient>
+    <linearGradient id="seGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F3E5F5"/><stop offset="100%" stop-color="#E1BEE7"/></linearGradient>
+  </defs>
+
+  <!-- ============ TITLE BAR ============ -->
+  <rect x="0" y="0" width="860" height="48" rx="0" fill="url(#titleGrad)"/>
+  <text x="430" y="30" text-anchor="middle" fill="#FFF" font-size="18" font-weight="bold">Model 1 &mdash; MLP with Squeeze-and-Excitation  (CellTypeMLP)</text>
+
+  <!-- ============ INPUT DATA TABLE ============ -->
+  <text x="430" y="76" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Input: 4 cells &#xD7; 10 genes (log-normalized expression)</text>
+
+  <!-- table origin -->
+  <g transform="translate(155,88)">
+    <!-- header row background -->
+    <rect x="0" y="0" width="550" height="22" rx="4" fill="#E8EAF6"/>
+    <!-- column headers -->
+    <text x="25" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold"></text>
+    <text x="75" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2081;</text>
+    <text x="125" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2082;</text>
+    <text x="175" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2083;</text>
+    <text x="225" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2084;</text>
+    <text x="275" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2085;</text>
+    <text x="325" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2086;</text>
+    <text x="375" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2087;</text>
+    <text x="425" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2088;</text>
+    <text x="475" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2089;</text>
+    <text x="525" y="15" text-anchor="middle" fill="#283593" font-size="9.5" font-weight="bold">g&#x2081;&#x2080;</text>
+
+    <!-- Row 1 -->
+    <rect x="0" y="24" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="40" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2081;</text>
+    <rect x="50" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.51" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="40" text-anchor="middle" fill="#222" font-size="9">2.1</text>
+    <rect x="100" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="150" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.32" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="40" text-anchor="middle" fill="#222" font-size="9">1.3</text>
+    <rect x="200" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.78" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="40" text-anchor="middle" fill="#FFF" font-size="9">3.2</text>
+    <rect x="300" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.12" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="40" text-anchor="middle" fill="#222" font-size="9">0.5</text>
+    <rect x="350" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.44" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="40" text-anchor="middle" fill="#222" font-size="9">1.8</text>
+    <rect x="450" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.17" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="40" text-anchor="middle" fill="#222" font-size="9">0.7</text>
+
+    <!-- Row 2 -->
+    <rect x="0" y="48" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="64" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2082;</text>
+    <rect x="50" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="48" width="50" height="24" fill="#1565C0" fill-opacity="1.0" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="64" text-anchor="middle" fill="#FFF" font-size="9">4.1</text>
+    <rect x="150" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.66" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="64" text-anchor="middle" fill="#FFF" font-size="9">2.7</text>
+    <rect x="250" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.85" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="64" text-anchor="middle" fill="#FFF" font-size="9">3.5</text>
+    <rect x="400" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.29" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="64" text-anchor="middle" fill="#222" font-size="9">1.2</text>
+    <rect x="500" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+
+    <!-- Row 3 -->
+    <rect x="0" y="72" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="88" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2083;</text>
+    <rect x="50" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.37" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="88" text-anchor="middle" fill="#222" font-size="9">1.5</text>
+    <rect x="100" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.07" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="88" text-anchor="middle" fill="#222" font-size="9">0.3</text>
+    <rect x="150" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.68" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="88" text-anchor="middle" fill="#FFF" font-size="9">2.8</text>
+    <rect x="300" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.27" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="88" text-anchor="middle" fill="#222" font-size="9">1.1</text>
+    <rect x="350" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.56" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="88" text-anchor="middle" fill="#222" font-size="9">2.3</text>
+    <rect x="450" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.10" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="88" text-anchor="middle" fill="#222" font-size="9">0.4</text>
+
+    <!-- Row 4 -->
+    <rect x="0" y="96" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="112" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2084;</text>
+    <rect x="50" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.93" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.8</text>
+    <rect x="150" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.05" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="112" text-anchor="middle" fill="#222" font-size="9">0.2</text>
+    <rect x="200" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.76" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.1</text>
+    <rect x="250" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.71" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="112" text-anchor="middle" fill="#FFF" font-size="9">2.9</text>
+    <rect x="400" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.20" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="112" text-anchor="middle" fill="#222" font-size="9">0.8</text>
+    <rect x="500" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <!-- table border -->
+    <rect x="0" y="0" width="550" height="120" rx="4" fill="none" stroke="#B0BEC5" stroke-width="1"/>
+  </g>
+
+  <!-- shape annotation -->
+  <text x="430" y="225" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(B, G) = (4, 10)</text>
+  <!-- arrow -->
+  <line x1="430" y1="232" x2="430" y2="260" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ FIRST MLP BLOCK ============ -->
+  <rect x="240" y="265" width="380" height="55" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="286" text-anchor="middle" fill="#2E7D32" font-size="13" font-weight="bold">MLPBlock (First Layer)</text>
+  <text x="430" y="305" text-anchor="middle" fill="#555" font-size="11">Linear(10 &#x2192; 512)  &#x2192;  ReLU  &#x2192;  Dropout(p)</text>
+
+  <text x="430" y="338" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 512)</text>
+  <line x1="430" y1="345" x2="430" y2="370" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ SE BLOCK (EXPANDED) ============ -->
+  <rect x="160" y="375" width="540" height="240" rx="10" fill="url(#seGrad)" stroke="#AB47BC" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="396" text-anchor="middle" fill="#6A1B9A" font-size="13" font-weight="bold">Squeeze-and-Excitation Block  (r = 8)</text>
+
+  <!-- Identity path (right side) -->
+  <line x1="600" y1="415" x2="600" y2="570" stroke="#AB47BC" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="620" y="495" fill="#7B1FA2" font-size="10" font-style="italic" transform="rotate(90,620,495)">identity h</text>
+
+  <!-- Squeeze path (left/center) -->
+  <!-- unsqueeze -->
+  <rect x="260" y="410" width="240" height="30" rx="6" fill="#F3E5F5" stroke="#CE93D8" stroke-width="1"/>
+  <text x="380" y="430" text-anchor="middle" fill="#4A148C" font-size="11">unsqueeze(-1) &#x2192; (4, 512, 1)</text>
+
+  <line x1="380" y1="440" x2="380" y2="455" stroke="#546E7A" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- AvgPool -->
+  <rect x="260" y="458" width="240" height="30" rx="6" fill="#EDE7F6" stroke="#B39DDB" stroke-width="1"/>
+  <text x="380" y="478" text-anchor="middle" fill="#4A148C" font-size="11">AdaptiveAvgPool1d(1) &#x2192; (4, 512)</text>
+
+  <line x1="380" y1="488" x2="380" y2="503" stroke="#546E7A" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- FC down + ReLU + FC up + Sigmoid -->
+  <rect x="220" y="506" width="320" height="30" rx="6" fill="#EDE7F6" stroke="#B39DDB" stroke-width="1"/>
+  <text x="380" y="526" text-anchor="middle" fill="#4A148C" font-size="11">FC(512&#x2192;64) &#x2192; ReLU &#x2192; FC(64&#x2192;512) &#x2192; &#x3C3;</text>
+
+  <line x1="380" y1="536" x2="380" y2="548" stroke="#546E7A" stroke-width="1.2"/>
+  <text x="380" y="558" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">s &#x2208; (4, 512)</text>
+
+  <!-- Multiply symbol -->
+  <line x1="380" y1="563" x2="380" y2="576" stroke="#546E7A" stroke-width="1.2"/>
+  <line x1="600" y1="576" x2="395" y2="576" stroke="#AB47BC" stroke-width="1.5"/>
+  <circle cx="380" cy="576" r="10" fill="#E1BEE7" stroke="#AB47BC" stroke-width="1.5"/>
+  <text x="380" y="580" text-anchor="middle" fill="#4A148C" font-size="12" font-weight="bold">&#x2299;</text>
+
+  <text x="430" y="598" text-anchor="middle" fill="#7B1FA2" font-size="10">h&#x0303; = h &#x2299; s</text>
+
+  <!-- shape after SE -->
+  <text x="430" y="630" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 512)</text>
+  <line x1="430" y1="637" x2="430" y2="662" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ ADDITIONAL MLP BLOCKS ============ -->
+  <rect x="240" y="667" width="380" height="55" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="688" text-anchor="middle" fill="#2E7D32" font-size="13" font-weight="bold">MLPBlock &#xD7; (n_layers &#x2212; 1)</text>
+  <text x="430" y="707" text-anchor="middle" fill="#555" font-size="11">Linear(d&#x1D62; &#x2192; d&#x1D62;/2)  &#x2192;  ReLU  &#x2192;  Dropout(p)  &#x2502;  min dim = 64</text>
+
+  <text x="430" y="740" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">dims: 512 &#x2192; 256 &#x2192; 128 &#x2192; 64</text>
+  <line x1="430" y1="748" x2="430" y2="773" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ CLASSIFIER ============ -->
+  <rect x="280" y="778" width="300" height="42" rx="8" fill="#FFF3E0" stroke="#FFA726" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="804" text-anchor="middle" fill="#E65100" font-size="13" font-weight="bold">Linear(64 &#x2192; 12)  &#x2192;  logits</text>
+
+  <text x="430" y="838" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 12)</text>
+  <line x1="430" y1="845" x2="430" y2="870" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ SOFTMAX + OUTPUT ============ -->
+  <rect x="220" y="875" width="420" height="42" rx="8" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="901" text-anchor="middle" fill="#1565C0" font-size="13" font-weight="bold">softmax  &#x2192;  argmax  &#x2192;  predicted class</text>
+
+  <line x1="430" y1="917" x2="430" y2="940" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Output predictions -->
+  <g transform="translate(195,950)">
+    <rect x="0" y="0" width="470" height="32" rx="6" fill="#FCE4EC" stroke="#EF5350" stroke-width="1.2"/>
+    <text x="15" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2081; &#x2192;</text>
+    <rect x="50" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="78" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="125" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2082; &#x2192;</text>
+    <rect x="155" y="5" width="56" height="22" rx="4" fill="#AB47BC"/><text x="183" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">PVALB</text>
+    <text x="232" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2083; &#x2192;</text>
+    <rect x="262" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="290" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="342" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2084; &#x2192;</text>
+    <rect x="370" y="5" width="56" height="22" rx="4" fill="#42A5F5"/><text x="398" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">IT</text>
+  </g>
+
+  <!-- Annotation: real scale -->
+  <text x="430" y="1012" text-anchor="middle" fill="#9E9E9E" font-size="10" font-style="italic">Example uses 4 cells &#xD7; 10 genes.  Full model: B &#xD7; 50,281 genes &#x2192; hidden_dim &#x2208; {128, 256, 512}, n_layers &#x2208; [1, 4]</text>
+
+  <!-- Legend -->
+  <g transform="translate(170,1030)">
+    <rect x="0" y="0" width="12" height="12" rx="2" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/>
+    <text x="18" y="10" fill="#666" font-size="9">Linear + Act</text>
+    <rect x="110" y="0" width="12" height="12" rx="2" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1"/>
+    <text x="128" y="10" fill="#666" font-size="9">SE Attention</text>
+    <rect x="220" y="0" width="12" height="12" rx="2" fill="#FFF3E0" stroke="#FFA726" stroke-width="1"/>
+    <text x="238" y="10" fill="#666" font-size="9">Classifier</text>
+    <rect x="320" y="0" width="12" height="12" rx="2" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1"/>
+    <text x="338" y="10" fill="#666" font-size="9">Output</text>
+    <rect x="410" y="0" width="12" height="12" rx="2" fill="#FCE4EC" stroke="#EF5350" stroke-width="1"/>
+    <text x="428" y="10" fill="#666" font-size="9">Predictions</text>
+  </g>
+</svg>

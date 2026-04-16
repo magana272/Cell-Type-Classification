@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1280" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#546E7A"/></marker>
+    <filter id="ds" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.10"/></filter>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00695C"/><stop offset="100%" stop-color="#004D40"/></linearGradient>
+    <linearGradient id="resGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0F2F1"/><stop offset="100%" stop-color="#B2DFDB"/></linearGradient>
+  </defs>
+
+  <!-- ============ TITLE BAR ============ -->
+  <rect x="0" y="0" width="860" height="48" fill="url(#titleGrad)"/>
+  <text x="430" y="30" text-anchor="middle" fill="#FFF" font-size="18" font-weight="bold">Model 4 &mdash; GraphSAGE GNN  (CellTypeGNN)</text>
+
+  <!-- ============ INPUT DATA TABLE ============ -->
+  <text x="430" y="76" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Input: 4 cells &#xD7; 10 genes (expression vectors per node)</text>
+
+  <g transform="translate(155,88)">
+    <!-- header row background -->
+    <rect x="0" y="0" width="550" height="22" rx="4" fill="#E0F2F1"/>
+    <text x="25" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold"></text>
+    <text x="75" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2081;</text>
+    <text x="125" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2082;</text>
+    <text x="175" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2083;</text>
+    <text x="225" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2084;</text>
+    <text x="275" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2085;</text>
+    <text x="325" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2086;</text>
+    <text x="375" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2087;</text>
+    <text x="425" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2088;</text>
+    <text x="475" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2089;</text>
+    <text x="525" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2081;&#x2080;</text>
+
+    <!-- Row 1 -->
+    <rect x="0" y="24" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="40" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2081;</text>
+    <rect x="50" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.51" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="40" text-anchor="middle" fill="#222" font-size="9">2.1</text>
+    <rect x="100" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="150" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.32" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="40" text-anchor="middle" fill="#222" font-size="9">1.3</text>
+    <rect x="200" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.78" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="40" text-anchor="middle" fill="#FFF" font-size="9">3.2</text>
+    <rect x="300" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.12" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="40" text-anchor="middle" fill="#222" font-size="9">0.5</text>
+    <rect x="350" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.44" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="40" text-anchor="middle" fill="#222" font-size="9">1.8</text>
+    <rect x="450" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="24" width="50" height="24" fill="#00897B" fill-opacity="0.17" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="40" text-anchor="middle" fill="#222" font-size="9">0.7</text>
+
+    <!-- Row 2 -->
+    <rect x="0" y="48" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="64" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2082;</text>
+    <rect x="50" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="48" width="50" height="24" fill="#00897B" fill-opacity="1.0" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="64" text-anchor="middle" fill="#FFF" font-size="9">4.1</text>
+    <rect x="150" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="48" width="50" height="24" fill="#00897B" fill-opacity="0.66" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="64" text-anchor="middle" fill="#FFF" font-size="9">2.7</text>
+    <rect x="250" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="48" width="50" height="24" fill="#00897B" fill-opacity="0.85" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="64" text-anchor="middle" fill="#FFF" font-size="9">3.5</text>
+    <rect x="400" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="48" width="50" height="24" fill="#00897B" fill-opacity="0.29" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="64" text-anchor="middle" fill="#222" font-size="9">1.2</text>
+    <rect x="500" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+
+    <!-- Row 3 -->
+    <rect x="0" y="72" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="88" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2083;</text>
+    <rect x="50" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.37" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="88" text-anchor="middle" fill="#222" font-size="9">1.5</text>
+    <rect x="100" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.07" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="88" text-anchor="middle" fill="#222" font-size="9">0.3</text>
+    <rect x="150" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.68" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="88" text-anchor="middle" fill="#FFF" font-size="9">2.8</text>
+    <rect x="300" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.27" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="88" text-anchor="middle" fill="#222" font-size="9">1.1</text>
+    <rect x="350" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.56" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="88" text-anchor="middle" fill="#222" font-size="9">2.3</text>
+    <rect x="450" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="72" width="50" height="24" fill="#00897B" fill-opacity="0.10" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="88" text-anchor="middle" fill="#222" font-size="9">0.4</text>
+
+    <!-- Row 4 -->
+    <rect x="0" y="96" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="25" y="112" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2084;</text>
+    <rect x="50" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="96" width="50" height="24" fill="#00897B" fill-opacity="0.93" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.8</text>
+    <rect x="150" y="96" width="50" height="24" fill="#00897B" fill-opacity="0.05" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="112" text-anchor="middle" fill="#222" font-size="9">0.2</text>
+    <rect x="200" y="96" width="50" height="24" fill="#00897B" fill-opacity="0.76" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.1</text>
+    <rect x="250" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="96" width="50" height="24" fill="#00897B" fill-opacity="0.71" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="112" text-anchor="middle" fill="#FFF" font-size="9">2.9</text>
+    <rect x="400" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="96" width="50" height="24" fill="#00897B" fill-opacity="0.20" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="112" text-anchor="middle" fill="#222" font-size="9">0.8</text>
+    <rect x="500" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <!-- table border -->
+    <rect x="0" y="0" width="550" height="120" rx="4" fill="none" stroke="#B0BEC5" stroke-width="1"/>
+  </g>
+
+  <text x="430" y="225" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(N, G) = (4, 10)   each row = one node</text>
+  <line x1="430" y1="232" x2="430" y2="258" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ GRAPH CONSTRUCTION ============ -->
+  <rect x="200" y="263" width="460" height="175" rx="10" fill="#ECEFF1" stroke="#78909C" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="284" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Graph Construction: k-NN (k=9, cosine similarity)</text>
+  <text x="430" y="302" text-anchor="middle" fill="#78909C" font-size="10">Compute pairwise cosine sim &#x2192; connect each cell to its k nearest neighbours</text>
+
+  <!-- Mini graph illustration -->
+  <g transform="translate(310,312)">
+    <!-- Edges (drawn first, behind nodes) -->
+    <line x1="40" y1="25" x2="120" y2="15" stroke="#B0BEC5" stroke-width="1.5"/>
+    <line x1="40" y1="25" x2="80" y2="90" stroke="#B0BEC5" stroke-width="1.5"/>
+    <line x1="40" y1="25" x2="200" y2="70" stroke="#B0BEC5" stroke-width="1.5"/>
+    <line x1="120" y1="15" x2="200" y2="70" stroke="#B0BEC5" stroke-width="1.5"/>
+    <line x1="120" y1="15" x2="80" y2="90" stroke="#B0BEC5" stroke-width="1.5"/>
+    <line x1="80" y1="90" x2="200" y2="70" stroke="#B0BEC5" stroke-width="1.5"/>
+    <!-- Nodes -->
+    <circle cx="40" cy="25" r="18" fill="#00897B" fill-opacity="0.85" stroke="#004D40" stroke-width="1.5"/>
+    <text x="40" y="30" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">c&#x2081;</text>
+    <circle cx="120" cy="15" r="18" fill="#00897B" fill-opacity="0.85" stroke="#004D40" stroke-width="1.5"/>
+    <text x="120" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">c&#x2082;</text>
+    <circle cx="80" cy="90" r="18" fill="#00897B" fill-opacity="0.85" stroke="#004D40" stroke-width="1.5"/>
+    <text x="80" y="95" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">c&#x2083;</text>
+    <circle cx="200" cy="70" r="18" fill="#00897B" fill-opacity="0.85" stroke="#004D40" stroke-width="1.5"/>
+    <text x="200" y="75" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">c&#x2084;</text>
+  </g>
+
+  <text x="430" y="428" text-anchor="middle" fill="#78909C" font-size="10">edge_index: symmetric, deduplicated     total ~N&#xB7;2k edges</text>
+
+  <text x="430" y="455" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">x: (N, G)   edge_index: (2, E)</text>
+  <line x1="430" y1="462" x2="430" y2="488" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ LINEAR ENCODER ============ -->
+  <rect x="210" y="493" width="440" height="55" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="514" text-anchor="middle" fill="#2E7D32" font-size="13" font-weight="bold">Linear Encoder</text>
+  <text x="430" y="535" text-anchor="middle" fill="#555" font-size="11">Linear(G &#x2192; 256) &#x2192; LayerNorm(256) &#x2192; GELU &#x2192; Dropout(0.378)</text>
+
+  <text x="430" y="568" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(N, 256)</text>
+  <line x1="430" y1="575" x2="430" y2="601" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ RESIDUAL SAGE BLOCK ============ -->
+  <rect x="165" y="606" width="530" height="190" rx="10" fill="url(#resGrad)" stroke="#00897B" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="628" text-anchor="middle" fill="#004D40" font-size="13" font-weight="bold">ResidualSAGEBlock &#xD7; 1</text>
+
+  <!-- Identity skip path (right) -->
+  <line x1="630" y1="645" x2="630" y2="755" stroke="#00897B" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="648" y="700" fill="#00695C" font-size="9" font-style="italic" transform="rotate(90,648,700)">skip (identity)</text>
+
+  <!-- Main path: SAGEConv -->
+  <rect x="250" y="642" width="320" height="30" rx="6" fill="#FFF" stroke="#66BB6A" stroke-width="1"/>
+  <text x="410" y="662" text-anchor="middle" fill="#2E7D32" font-size="11">SAGEConv(256 &#x2192; 256): aggregate + transform</text>
+  <line x1="410" y1="672" x2="410" y2="690" stroke="#546E7A" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- LayerNorm + GELU + Dropout -->
+  <rect x="250" y="693" width="320" height="30" rx="6" fill="#FFF" stroke="#66BB6A" stroke-width="1"/>
+  <text x="410" y="713" text-anchor="middle" fill="#2E7D32" font-size="11">LayerNorm(256) &#x2192; GELU &#x2192; Dropout(0.378)</text>
+  <line x1="410" y1="723" x2="410" y2="755" stroke="#546E7A" stroke-width="1.2"/>
+
+  <!-- Add symbol -->
+  <line x1="630" y1="755" x2="425" y2="755" stroke="#00897B" stroke-width="1.5"/>
+  <circle cx="410" cy="755" r="10" fill="#E0F2F1" stroke="#00897B" stroke-width="1.5"/>
+  <text x="410" y="759" text-anchor="middle" fill="#004D40" font-size="14" font-weight="bold">+</text>
+  <text x="410" y="784" text-anchor="middle" fill="#00695C" font-size="10">y = F(x) + x</text>
+
+  <text x="430" y="815" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(N, 256)</text>
+  <line x1="430" y1="822" x2="430" y2="848" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ OUTPUT SAGE CONV ============ -->
+  <rect x="230" y="853" width="400" height="55" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="874" text-anchor="middle" fill="#2E7D32" font-size="13" font-weight="bold">SAGEConv (Output)</text>
+  <text x="430" y="895" text-anchor="middle" fill="#555" font-size="11">SAGEConv(256 &#x2192; 128) &#x2192; GELU</text>
+
+  <text x="430" y="928" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(N, 128)</text>
+  <line x1="430" y1="935" x2="430" y2="961" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ CLASSIFIER HEAD ============ -->
+  <rect x="260" y="966" width="340" height="55" rx="8" fill="#FFF3E0" stroke="#FFA726" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="987" text-anchor="middle" fill="#E65100" font-size="13" font-weight="bold">Classifier Head</text>
+  <text x="430" y="1007" text-anchor="middle" fill="#555" font-size="11">LayerNorm(128) &#x2192; Linear(128 &#x2192; 12) &#x2192; logits</text>
+
+  <text x="430" y="1040" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(N, 12)</text>
+  <line x1="430" y1="1047" x2="430" y2="1073" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ SOFTMAX + OUTPUT ============ -->
+  <rect x="220" y="1078" width="420" height="42" rx="8" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="1104" text-anchor="middle" fill="#1565C0" font-size="13" font-weight="bold">softmax &#x2192; argmax &#x2192; predicted class (per node)</text>
+
+  <line x1="430" y1="1120" x2="430" y2="1143" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Output predictions -->
+  <g transform="translate(195,1150)">
+    <rect x="0" y="0" width="470" height="32" rx="6" fill="#FCE4EC" stroke="#EF5350" stroke-width="1.2"/>
+    <text x="15" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2081; &#x2192;</text>
+    <rect x="50" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="78" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="125" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2082; &#x2192;</text>
+    <rect x="155" y="5" width="56" height="22" rx="4" fill="#AB47BC"/><text x="183" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">PVALB</text>
+    <text x="232" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2083; &#x2192;</text>
+    <rect x="262" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="290" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="342" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2084; &#x2192;</text>
+    <rect x="370" y="5" width="56" height="22" rx="4" fill="#42A5F5"/><text x="398" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">IT</text>
+  </g>
+
+  <!-- Annotation -->
+  <text x="430" y="1215" text-anchor="middle" fill="#9E9E9E" font-size="10" font-style="italic">Example uses 4 cells &#xD7; 10 genes.  Full model: 50,281 genes, hidden=256, k=9, 1 ResidualSAGEBlock</text>
+
+  <!-- Legend -->
+  <g transform="translate(130,1240)">
+    <rect x="0" y="0" width="12" height="12" rx="2" fill="#ECEFF1" stroke="#78909C" stroke-width="1"/>
+    <text x="18" y="10" fill="#666" font-size="9">Graph Build</text>
+    <rect x="100" y="0" width="12" height="12" rx="2" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/>
+    <text x="118" y="10" fill="#666" font-size="9">Linear / Conv</text>
+    <rect x="220" y="0" width="12" height="12" rx="2" fill="#E0F2F1" stroke="#00897B" stroke-width="1"/>
+    <text x="238" y="10" fill="#666" font-size="9">Residual Block</text>
+    <rect x="350" y="0" width="12" height="12" rx="2" fill="#FFF3E0" stroke="#FFA726" stroke-width="1"/>
+    <text x="368" y="10" fill="#666" font-size="9">Classifier</text>
+    <rect x="450" y="0" width="12" height="12" rx="2" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1"/>
+    <text x="468" y="10" fill="#666" font-size="9">Output</text>
+    <rect x="530" y="0" width="12" height="12" rx="2" fill="#FCE4EC" stroke="#EF5350" stroke-width="1"/>
+    <text x="548" y="10" fill="#666" font-size="9">Predictions</text>
+  </g>
+</svg>

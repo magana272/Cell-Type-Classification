@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1520" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#546E7A"/></marker>
+    <filter id="ds" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.10"/></filter>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00897B"/><stop offset="100%" stop-color="#00695C"/></linearGradient>
+    <linearGradient id="txGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0F2F1"/><stop offset="100%" stop-color="#B2DFDB"/></linearGradient>
+  </defs>
+
+  <!-- ============ TITLE BAR ============ -->
+  <rect x="0" y="0" width="860" height="48" fill="url(#titleGrad)"/>
+  <text x="430" y="30" text-anchor="middle" fill="#FFF" font-size="18" font-weight="bold">Model 3 &mdash; TOSICA: Transformer with Pathway-Masked Embedding</text>
+
+  <!-- ============ INPUT DATA TABLE ============ -->
+  <text x="430" y="76" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Input: 4 cells &#xD7; 10 genes (log-normalized, z-scored expression)</text>
+
+  <g transform="translate(155,88)">
+    <rect x="0" y="0" width="550" height="22" rx="4" fill="#E0F2F1"/>
+    <text x="75" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2081;</text>
+    <text x="125" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2082;</text>
+    <text x="175" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2083;</text>
+    <text x="225" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2084;</text>
+    <text x="275" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2085;</text>
+    <text x="325" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2086;</text>
+    <text x="375" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2087;</text>
+    <text x="425" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2088;</text>
+    <text x="475" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2089;</text>
+    <text x="525" y="15" text-anchor="middle" fill="#004D40" font-size="9.5" font-weight="bold">g&#x2081;&#x2080;</text>
+    <!-- Row 1 -->
+    <rect x="0" y="24" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="40" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2081;</text>
+    <rect x="50" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.51" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="40" text-anchor="middle" fill="#222" font-size="9">2.1</text>
+    <rect x="100" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="150" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.32" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="40" text-anchor="middle" fill="#222" font-size="9">1.3</text>
+    <rect x="200" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.78" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="40" text-anchor="middle" fill="#FFF" font-size="9">3.2</text>
+    <rect x="300" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.12" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="40" text-anchor="middle" fill="#222" font-size="9">0.5</text>
+    <rect x="350" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.44" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="40" text-anchor="middle" fill="#222" font-size="9">1.8</text>
+    <rect x="450" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.17" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="40" text-anchor="middle" fill="#222" font-size="9">0.7</text>
+    <!-- Row 2 -->
+    <rect x="0" y="48" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="64" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2082;</text>
+    <rect x="50" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="48" width="50" height="24" fill="#1565C0" fill-opacity="1.0" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="64" text-anchor="middle" fill="#FFF" font-size="9">4.1</text>
+    <rect x="150" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.66" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="64" text-anchor="middle" fill="#FFF" font-size="9">2.7</text>
+    <rect x="250" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.85" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="64" text-anchor="middle" fill="#FFF" font-size="9">3.5</text>
+    <rect x="400" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.29" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="64" text-anchor="middle" fill="#222" font-size="9">1.2</text>
+    <rect x="500" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <!-- Row 3 -->
+    <rect x="0" y="72" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="88" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2083;</text>
+    <rect x="50" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.37" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="88" text-anchor="middle" fill="#222" font-size="9">1.5</text>
+    <rect x="100" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.07" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="88" text-anchor="middle" fill="#222" font-size="9">0.3</text>
+    <rect x="150" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.68" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="88" text-anchor="middle" fill="#FFF" font-size="9">2.8</text>
+    <rect x="300" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.27" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="88" text-anchor="middle" fill="#222" font-size="9">1.1</text>
+    <rect x="350" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.56" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="88" text-anchor="middle" fill="#222" font-size="9">2.3</text>
+    <rect x="450" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.10" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="88" text-anchor="middle" fill="#222" font-size="9">0.4</text>
+    <!-- Row 4 -->
+    <rect x="0" y="96" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="112" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2084;</text>
+    <rect x="50" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.93" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.8</text>
+    <rect x="150" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.05" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="112" text-anchor="middle" fill="#222" font-size="9">0.2</text>
+    <rect x="200" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.76" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.1</text>
+    <rect x="250" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.71" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="112" text-anchor="middle" fill="#FFF" font-size="9">2.9</text>
+    <rect x="400" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.20" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="112" text-anchor="middle" fill="#222" font-size="9">0.8</text>
+    <rect x="500" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="0" y="0" width="550" height="120" rx="4" fill="none" stroke="#B0BEC5" stroke-width="1"/>
+  </g>
+
+  <text x="430" y="225" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">x &#x2208; (B, G) = (4, 10)</text>
+  <line x1="430" y1="232" x2="430" y2="258" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ PATHWAY MASK VISUALIZATION ============ -->
+  <rect x="120" y="263" width="620" height="195" rx="10" fill="#E0F2F1" stroke="#26A69A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="285" text-anchor="middle" fill="#004D40" font-size="13" font-weight="bold">Masked Embedding  (Reactome Pathway Prior)</text>
+
+  <!-- Pathway mask M grid: 10 genes x 3 pathways -->
+  <text x="195" y="310" text-anchor="middle" fill="#00695C" font-size="11" font-weight="bold">Pathway Mask M</text>
+  <text x="195" y="325" text-anchor="middle" fill="#546E7A" font-size="9">M &#x2208; {0,1}&#xB9;&#x2070;&#xD7;&#xB3;</text>
+
+  <g transform="translate(138,332)">
+    <!-- Column headers: pathways -->
+    <text x="30" y="-3" text-anchor="middle" fill="#004D40" font-size="8" font-weight="bold">P&#x2081;</text>
+    <text x="56" y="-3" text-anchor="middle" fill="#004D40" font-size="8" font-weight="bold">P&#x2082;</text>
+    <text x="82" y="-3" text-anchor="middle" fill="#004D40" font-size="8" font-weight="bold">P&#x2083;</text>
+    <!-- Row labels: genes, 10 rows -->
+    <text x="-5" y="11" text-anchor="end" fill="#555" font-size="7.5">g&#x2081;</text>
+    <text x="-5" y="23" text-anchor="end" fill="#555" font-size="7.5">g&#x2082;</text>
+    <text x="-5" y="35" text-anchor="end" fill="#555" font-size="7.5">g&#x2083;</text>
+    <text x="-5" y="47" text-anchor="end" fill="#555" font-size="7.5">g&#x2084;</text>
+    <text x="-5" y="59" text-anchor="end" fill="#555" font-size="7.5">g&#x2085;</text>
+    <text x="-5" y="71" text-anchor="end" fill="#555" font-size="7.5">g&#x2086;</text>
+    <text x="-5" y="83" text-anchor="end" fill="#555" font-size="7.5">g&#x2087;</text>
+    <text x="-5" y="95" text-anchor="end" fill="#555" font-size="7.5">g&#x2088;</text>
+    <text x="-5" y="107" text-anchor="end" fill="#555" font-size="7.5">g&#x2089;</text>
+    <text x="-5" y="119" text-anchor="end" fill="#555" font-size="7.5">g&#x2081;&#x2080;</text>
+    <!-- Mask cells: 1=green, 0=white.  Pattern: P1={g1,g3,g5,g8}, P2={g2,g4,g7,g9}, P3={g1,g6,g8,g10} -->
+    <!-- P1 column -->
+    <rect x="5" y="2" width="22" height="11" rx="2" fill="#00897B"/><rect x="5" y="14" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="5" y="26" width="22" height="11" rx="2" fill="#00897B"/><rect x="5" y="38" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="5" y="50" width="22" height="11" rx="2" fill="#00897B"/><rect x="5" y="62" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="5" y="74" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="5" y="86" width="22" height="11" rx="2" fill="#00897B"/><rect x="5" y="98" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="5" y="110" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/>
+    <!-- P2 column -->
+    <rect x="31" y="2" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="31" y="14" width="22" height="11" rx="2" fill="#00897B"/><rect x="31" y="26" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="31" y="38" width="22" height="11" rx="2" fill="#00897B"/><rect x="31" y="50" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="31" y="62" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="31" y="74" width="22" height="11" rx="2" fill="#00897B"/><rect x="31" y="86" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="31" y="98" width="22" height="11" rx="2" fill="#00897B"/><rect x="31" y="110" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/>
+    <!-- P3 column -->
+    <rect x="57" y="2" width="22" height="11" rx="2" fill="#00897B"/><rect x="57" y="14" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="26" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="38" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="50" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="62" width="22" height="11" rx="2" fill="#00897B"/><rect x="57" y="74" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="86" width="22" height="11" rx="2" fill="#00897B"/><rect x="57" y="98" width="22" height="11" rx="2" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><rect x="57" y="110" width="22" height="11" rx="2" fill="#00897B"/>
+    <rect x="5" y="2" width="74" height="119" rx="3" fill="none" stroke="#00897B" stroke-width="1"/>
+  </g>
+
+  <!-- Multiplication and Weight -->
+  <text x="350" y="355" text-anchor="middle" fill="#004D40" font-size="24">&#x2297;</text>
+  <text x="350" y="375" text-anchor="middle" fill="#546E7A" font-size="9">element-wise</text>
+
+  <!-- Weight tensor W -->
+  <text x="430" y="310" text-anchor="middle" fill="#00695C" font-size="11" font-weight="bold">Weight W</text>
+  <text x="430" y="325" text-anchor="middle" fill="#546E7A" font-size="9">W &#x2208; &#x211D;&#x1D48;&#xD7;&#xB9;&#x2070;&#xD7;&#xB3;</text>
+  <rect x="390" y="332" width="80" height="75" rx="4" fill="#B2DFDB" stroke="#00897B" stroke-width="1"/>
+  <text x="430" y="365" text-anchor="middle" fill="#004D40" font-size="9">learnable</text>
+  <text x="430" y="380" text-anchor="middle" fill="#004D40" font-size="9">d &#xD7; G &#xD7; P</text>
+  <text x="430" y="395" text-anchor="middle" fill="#004D40" font-size="9">masked by M</text>
+
+  <!-- Arrow to einsum -->
+  <text x="530" y="355" text-anchor="middle" fill="#004D40" font-size="12" font-weight="bold">&#x2192;</text>
+
+  <!-- Einsum result -->
+  <rect x="555" y="332" width="160" height="75" rx="6" fill="#FFF" stroke="#26A69A" stroke-width="1"/>
+  <text x="635" y="352" text-anchor="middle" fill="#004D40" font-size="11" font-weight="bold">einsum</text>
+  <text x="635" y="370" text-anchor="middle" fill="#546E7A" font-size="9.5">E = einsum('bg, egp &#x2192; bep', x, W&#x0303;)</text>
+  <text x="635" y="386" text-anchor="middle" fill="#546E7A" font-size="9.5">+ bias &#x2208; &#x211D;&#x1D48;&#xD7;&#x1D56;</text>
+  <text x="635" y="402" text-anchor="middle" fill="#00695C" font-size="10" font-weight="bold">&#x2192; (4, d, 3)</text>
+
+  <!-- shape after mask embed -->
+  <text x="430" y="475" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(B, d, P) = (4, 48, 3)  pathway token embeddings</text>
+  <line x1="430" y1="483" x2="430" y2="508" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ CLS TOKEN + POSITIONAL EMBEDDING ============ -->
+  <rect x="195" y="513" width="470" height="70" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="536" text-anchor="middle" fill="#2E7D32" font-size="13" font-weight="bold">Prepend [CLS] Token + Positional Embedding</text>
+  <text x="430" y="555" text-anchor="middle" fill="#555" font-size="11">tokens = cat([CLS &#x2208; &#x211D;&#x1D48;&#xD7;&#xB9;, E], dim=2)  &#x2192;  (4, 48, 4)</text>
+  <text x="430" y="572" text-anchor="middle" fill="#555" font-size="11">tokens = tokens + pos_embed  &#x2192;  permute  &#x2192;  (4, 4 tokens, 48 dim)</text>
+
+  <!-- Token sequence visualization -->
+  <g transform="translate(275,590)">
+    <rect x="0" y="3" width="50" height="22" rx="4" fill="#FF8F00" stroke="#F57F17" stroke-width="1"/><text x="25" y="18" text-anchor="middle" fill="#FFF" font-size="9" font-weight="bold">[CLS]</text>
+    <rect x="60" y="3" width="70" height="22" rx="4" fill="#00897B" stroke="#00695C" stroke-width="1"/><text x="95" y="18" text-anchor="middle" fill="#FFF" font-size="9">Pathway 1</text>
+    <rect x="140" y="3" width="70" height="22" rx="4" fill="#00897B" stroke="#00695C" stroke-width="1"/><text x="175" y="18" text-anchor="middle" fill="#FFF" font-size="9">Pathway 2</text>
+    <rect x="220" y="3" width="70" height="22" rx="4" fill="#00897B" stroke="#00695C" stroke-width="1"/><text x="255" y="18" text-anchor="middle" fill="#FFF" font-size="9">Pathway 3</text>
+  </g>
+
+  <text x="430" y="635" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, P+1, d) = (4, 4, 48)</text>
+  <line x1="430" y1="642" x2="430" y2="668" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ TRANSFORMER ENCODER (expanded) ============ -->
+  <rect x="130" y="673" width="600" height="330" rx="10" fill="url(#txGrad)" stroke="#26A69A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="695" text-anchor="middle" fill="#004D40" font-size="13" font-weight="bold">Transformer Encoder  &#xD7; n_layers  (norm_first=True, GELU)</text>
+
+  <!-- Self-attention detail -->
+  <rect x="165" y="710" width="530" height="120" rx="8" fill="#FFF" fill-opacity="0.7" stroke="#80CBC4" stroke-width="1"/>
+  <text x="430" y="730" text-anchor="middle" fill="#00695C" font-size="12" font-weight="bold">Multi-Head Self-Attention</text>
+
+  <text x="430" y="750" text-anchor="middle" fill="#333" font-size="10.5">Q = Z W&#x1D60;   K = Z W&#x1D4A;   V = Z W&#x1D65;     per head h, d&#x2095; = d/H</text>
+  <text x="430" y="770" text-anchor="middle" fill="#333" font-size="10.5">Attn&#x2095; = softmax( Q&#x2095; K&#x2095;&#x1D40; / &#x221A;d&#x2095; ) V&#x2095;</text>
+  <text x="430" y="790" text-anchor="middle" fill="#333" font-size="10.5">MHA(Z) = Concat(Attn&#x2081;, &#x2026;, Attn&#x2095;) W&#x2092;</text>
+
+  <!-- Attention matrix visualization -->
+  <text x="430" y="815" text-anchor="middle" fill="#00695C" font-size="10">&#x2193; attention weights reveal which pathways matter for each token</text>
+
+  <!-- FFN detail -->
+  <rect x="165" y="840" width="530" height="55" rx="8" fill="#FFF" fill-opacity="0.7" stroke="#80CBC4" stroke-width="1"/>
+  <text x="430" y="860" text-anchor="middle" fill="#00695C" font-size="12" font-weight="bold">Feed-Forward Network</text>
+  <text x="430" y="880" text-anchor="middle" fill="#333" font-size="10.5">FFN(z) = GELU(z W&#x2081; + b&#x2081;) W&#x2082; + b&#x2082;     dim_ff = 4d = 192</text>
+
+  <!-- Pre-norm residual -->
+  <text x="430" y="918" text-anchor="middle" fill="#004D40" font-size="11">Z' = Z + MHA(LN(Z))     Z'' = Z' + FFN(LN(Z'))</text>
+
+  <!-- repeat badge -->
+  <rect x="660" y="940" width="55" height="22" rx="11" fill="#00897B" stroke="none"/>
+  <text x="687" y="955" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">&#xD7; n_L</text>
+
+  <text x="430" y="975" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 4, 48)  &#x2192;  extract [CLS] at position 0  &#x2192;  (4, 48)</text>
+
+  <!-- ============ CLS EXTRACTION ============ -->
+  <line x1="430" y1="982" x2="430" y2="1008" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Token output visualization: highlight CLS -->
+  <g transform="translate(275,1015)">
+    <rect x="0" y="3" width="50" height="22" rx="4" fill="#FF8F00" stroke="#F57F17" stroke-width="2"/><text x="25" y="18" text-anchor="middle" fill="#FFF" font-size="9" font-weight="bold">[CLS]</text>
+    <rect x="60" y="3" width="70" height="22" rx="4" fill="#B2DFDB" stroke="#80CBC4" stroke-width="1"/><text x="95" y="18" text-anchor="middle" fill="#666" font-size="9">P1 out</text>
+    <rect x="140" y="3" width="70" height="22" rx="4" fill="#B2DFDB" stroke="#80CBC4" stroke-width="1"/><text x="175" y="18" text-anchor="middle" fill="#666" font-size="9">P2 out</text>
+    <rect x="220" y="3" width="70" height="22" rx="4" fill="#B2DFDB" stroke="#80CBC4" stroke-width="1"/><text x="255" y="18" text-anchor="middle" fill="#666" font-size="9">P3 out</text>
+  </g>
+  <!-- Arrow from CLS to classifier -->
+  <line x1="300" y1="1040" x2="300" y2="1060" stroke="#F57F17" stroke-width="1.5"/>
+  <line x1="300" y1="1060" x2="430" y2="1060" stroke="#F57F17" stroke-width="1.5"/>
+  <line x1="430" y1="1060" x2="430" y2="1080" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="365" y="1055" text-anchor="middle" fill="#F57F17" font-size="10" font-weight="bold">cls_out &#x2208; (4, 48)</text>
+
+  <!-- ============ CLASSIFIER HEAD ============ -->
+  <rect x="220" y="1085" width="420" height="65" rx="8" fill="#FFF3E0" stroke="#FFA726" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="1107" text-anchor="middle" fill="#E65100" font-size="13" font-weight="bold">Classification Head</text>
+  <text x="430" y="1127" text-anchor="middle" fill="#555" font-size="11">LayerNorm &#x2192; Linear(48 &#x2192; 96) &#x2192; GELU &#x2192; Dropout &#x2192; Linear(96 &#x2192; 12)</text>
+  <text x="430" y="1143" text-anchor="middle" fill="#78909C" font-size="10">note: inner dim = 2d = 96</text>
+
+  <text x="430" y="1170" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 12)</text>
+  <line x1="430" y1="1178" x2="430" y2="1203" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ OUTPUT ============ -->
+  <rect x="220" y="1208" width="420" height="42" rx="8" fill="#E0F2F1" stroke="#26A69A" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="1234" text-anchor="middle" fill="#004D40" font-size="13" font-weight="bold">softmax &#x2192; argmax &#x2192; predicted class</text>
+  <line x1="430" y1="1250" x2="430" y2="1273" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g transform="translate(195,1283)">
+    <rect x="0" y="0" width="470" height="32" rx="6" fill="#FCE4EC" stroke="#EF5350" stroke-width="1.2"/>
+    <text x="15" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2081;&#x2192;</text>
+    <rect x="50" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="78" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="125" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2082;&#x2192;</text>
+    <rect x="155" y="5" width="56" height="22" rx="4" fill="#AB47BC"/><text x="183" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">PVALB</text>
+    <text x="232" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2083;&#x2192;</text>
+    <rect x="262" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="290" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="342" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2084;&#x2192;</text>
+    <rect x="370" y="5" width="56" height="22" rx="4" fill="#42A5F5"/><text x="398" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">IT</text>
+  </g>
+
+  <!-- Annotation -->
+  <text x="430" y="1350" text-anchor="middle" fill="#9E9E9E" font-size="10" font-style="italic">Example: 3 pathways &#xD7; 4 genes each.  Full model: up to 300 Reactome pathways, embed_dim &#x2208; {32, 48, 64}.</text>
+
+  <!-- Legend -->
+  <g transform="translate(130,1375)">
+    <rect x="0" y="0" width="12" height="12" rx="2" fill="#E0F2F1" stroke="#26A69A" stroke-width="1"/><text x="18" y="10" fill="#666" font-size="9">Masked Embed</text>
+    <rect x="110" y="0" width="12" height="12" rx="2" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/><text x="128" y="10" fill="#666" font-size="9">Token Prep</text>
+    <rect x="210" y="0" width="12" height="12" rx="2" fill="#00897B" stroke="none"/><text x="228" y="10" fill="#666" font-size="9">Pathway Mask</text>
+    <rect x="330" y="0" width="12" height="12" rx="2" fill="#FF8F00" stroke="#F57F17" stroke-width="1"/><text x="348" y="10" fill="#666" font-size="9">[CLS] Token</text>
+    <rect x="430" y="0" width="12" height="12" rx="2" fill="#FFF3E0" stroke="#FFA726" stroke-width="1"/><text x="448" y="10" fill="#666" font-size="9">Classifier</text>
+    <rect x="520" y="0" width="12" height="12" rx="2" fill="#FCE4EC" stroke="#EF5350" stroke-width="1"/><text x="538" y="10" fill="#666" font-size="9">Output</text>
+  </g>
+</svg>

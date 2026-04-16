@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1380" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#546E7A"/></marker>
+    <filter id="ds" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.10"/></filter>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1565C0"/><stop offset="100%" stop-color="#0D47A1"/></linearGradient>
+    <linearGradient id="resGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E3F2FD"/><stop offset="100%" stop-color="#BBDEFB"/></linearGradient>
+  </defs>
+
+  <!-- ============ TITLE BAR ============ -->
+  <rect x="0" y="0" width="860" height="48" fill="url(#titleGrad)"/>
+  <text x="430" y="30" text-anchor="middle" fill="#FFF" font-size="18" font-weight="bold">Model 2 &mdash; Residual 1D-CNN with SE Attention  (CellTypeCNN)</text>
+
+  <!-- ============ INPUT DATA TABLE ============ -->
+  <text x="430" y="76" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Input: 4 cells &#xD7; 10 genes  &#x2192;  reshape to (B, 1, seq_len) 1D signal</text>
+
+  <g transform="translate(155,88)">
+    <rect x="0" y="0" width="550" height="22" rx="4" fill="#E3F2FD"/>
+    <text x="25" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold"></text>
+    <text x="75" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2081;</text>
+    <text x="125" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2082;</text>
+    <text x="175" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2083;</text>
+    <text x="225" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2084;</text>
+    <text x="275" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2085;</text>
+    <text x="325" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2086;</text>
+    <text x="375" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2087;</text>
+    <text x="425" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2088;</text>
+    <text x="475" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2089;</text>
+    <text x="525" y="15" text-anchor="middle" fill="#0D47A1" font-size="9.5" font-weight="bold">g&#x2081;&#x2080;</text>
+    <!-- Row 1 -->
+    <rect x="0" y="24" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="40" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2081;</text>
+    <rect x="50" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.51" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="40" text-anchor="middle" fill="#222" font-size="9">2.1</text>
+    <rect x="100" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="150" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.32" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="40" text-anchor="middle" fill="#222" font-size="9">1.3</text>
+    <rect x="200" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.78" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="40" text-anchor="middle" fill="#FFF" font-size="9">3.2</text>
+    <rect x="300" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.12" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="40" text-anchor="middle" fill="#222" font-size="9">0.5</text>
+    <rect x="350" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.44" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="40" text-anchor="middle" fill="#222" font-size="9">1.8</text>
+    <rect x="450" y="24" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="40" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="24" width="50" height="24" fill="#1565C0" fill-opacity="0.17" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="40" text-anchor="middle" fill="#222" font-size="9">0.7</text>
+    <!-- Row 2 -->
+    <rect x="0" y="48" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="64" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2082;</text>
+    <rect x="50" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="48" width="50" height="24" fill="#1565C0" fill-opacity="1.0" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="64" text-anchor="middle" fill="#FFF" font-size="9">4.1</text>
+    <rect x="150" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.66" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="64" text-anchor="middle" fill="#FFF" font-size="9">2.7</text>
+    <rect x="250" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.85" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="64" text-anchor="middle" fill="#FFF" font-size="9">3.5</text>
+    <rect x="400" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="48" width="50" height="24" fill="#1565C0" fill-opacity="0.29" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="64" text-anchor="middle" fill="#222" font-size="9">1.2</text>
+    <rect x="500" y="48" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="64" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <!-- Row 3 -->
+    <rect x="0" y="72" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="88" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2083;</text>
+    <rect x="50" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.37" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="88" text-anchor="middle" fill="#222" font-size="9">1.5</text>
+    <rect x="100" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.07" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="88" text-anchor="middle" fill="#222" font-size="9">0.3</text>
+    <rect x="150" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="200" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="250" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.68" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="88" text-anchor="middle" fill="#FFF" font-size="9">2.8</text>
+    <rect x="300" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.27" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="88" text-anchor="middle" fill="#222" font-size="9">1.1</text>
+    <rect x="350" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="400" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.56" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="88" text-anchor="middle" fill="#222" font-size="9">2.3</text>
+    <rect x="450" y="72" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="88" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="500" y="72" width="50" height="24" fill="#1565C0" fill-opacity="0.10" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="88" text-anchor="middle" fill="#222" font-size="9">0.4</text>
+    <!-- Row 4 -->
+    <rect x="0" y="96" width="50" height="24" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.5"/><text x="25" y="112" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">c&#x2084;</text>
+    <rect x="50" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="75" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="100" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.93" stroke="#E0E0E0" stroke-width="0.5"/><text x="125" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.8</text>
+    <rect x="150" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.05" stroke="#E0E0E0" stroke-width="0.5"/><text x="175" y="112" text-anchor="middle" fill="#222" font-size="9">0.2</text>
+    <rect x="200" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.76" stroke="#E0E0E0" stroke-width="0.5"/><text x="225" y="112" text-anchor="middle" fill="#FFF" font-size="9">3.1</text>
+    <rect x="250" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="275" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="300" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="325" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="350" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.71" stroke="#E0E0E0" stroke-width="0.5"/><text x="375" y="112" text-anchor="middle" fill="#FFF" font-size="9">2.9</text>
+    <rect x="400" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="425" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="450" y="96" width="50" height="24" fill="#1565C0" fill-opacity="0.20" stroke="#E0E0E0" stroke-width="0.5"/><text x="475" y="112" text-anchor="middle" fill="#222" font-size="9">0.8</text>
+    <rect x="500" y="96" width="50" height="24" fill="#FFF" stroke="#E0E0E0" stroke-width="0.5"/><text x="525" y="112" text-anchor="middle" fill="#999" font-size="9">0.0</text>
+    <rect x="0" y="0" width="550" height="120" rx="4" fill="none" stroke="#B0BEC5" stroke-width="1"/>
+  </g>
+
+  <!-- reshape annotation -->
+  <text x="430" y="225" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(B, G) = (4, 10)  &#x2192;  unsqueeze  &#x2192;  (4, 1, 10)</text>
+  <line x1="430" y1="232" x2="430" y2="258" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ STEM ============ -->
+  <rect x="220" y="263" width="420" height="50" rx="8" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="283" text-anchor="middle" fill="#0D47A1" font-size="13" font-weight="bold">Stem</text>
+  <text x="430" y="301" text-anchor="middle" fill="#555" font-size="11">Conv1d(1&#x2192;32, k=15, stride=2, pad=7) &#x2192; BN &#x2192; ReLU</text>
+
+  <text x="430" y="332" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 32, 1000)</text>
+  <text x="630" y="332" text-anchor="start" fill="#B0BEC5" font-size="10" font-style="italic">&#x2190; HVG selected: 2000 genes, stride=2</text>
+  <line x1="430" y1="339" x2="430" y2="365" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ RESBLOCK STAGE (expanded) ============ -->
+  <rect x="130" y="370" width="600" height="310" rx="10" fill="url(#resGrad)" stroke="#1E88E5" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="392" text-anchor="middle" fill="#0D47A1" font-size="13" font-weight="bold">Stage i  &#xD7; n_stages  (channels widen, kernels shrink)</text>
+  <text x="430" y="410" text-anchor="middle" fill="#546E7A" font-size="10">c&#x1D62; = min(32&#xB7;2&#x230A;&#x2071;&#x2F;&#x2082;&#x230B;, 256)     k&#x1D62; = max(7 &#x2212; 2i, 3)</text>
+
+  <!-- Pre-activation ResBlock detail -->
+  <rect x="165" y="422" width="530" height="215" rx="8" fill="#FFF" fill-opacity="0.7" stroke="#90CAF9" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="430" y="440" text-anchor="middle" fill="#1565C0" font-size="12" font-weight="bold">Pre-Activation ResBlock</text>
+
+  <!-- Identity skip path (right) -->
+  <line x1="630" y1="455" x2="630" y2="598" stroke="#1E88E5" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="648" y="528" fill="#1565C0" font-size="9" font-style="italic" transform="rotate(90,648,528)">skip: Proj(1&#xD7;1) if c changes</text>
+
+  <!-- Main path -->
+  <rect x="260" y="452" width="300" height="28" rx="5" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/>
+  <text x="410" y="471" text-anchor="middle" fill="#2E7D32" font-size="11">BN(c&#x1D62;&#x208B;&#x2081;) &#x2192; ReLU &#x2192; Conv1d(c&#x1D62;&#x208B;&#x2081;&#x2192;c&#x1D62;, k&#x1D62;)</text>
+  <line x1="410" y1="480" x2="410" y2="498" stroke="#546E7A" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <rect x="260" y="500" width="300" height="28" rx="5" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/>
+  <text x="410" y="519" text-anchor="middle" fill="#2E7D32" font-size="11">Dropout &#x2192; BN(c&#x1D62;) &#x2192; ReLU &#x2192; Conv1d(c&#x1D62;&#x2192;c&#x1D62;, k&#x1D62;)</text>
+  <line x1="410" y1="528" x2="410" y2="546" stroke="#546E7A" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- SE block inside ResBlock -->
+  <rect x="290" y="548" width="240" height="28" rx="5" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1"/>
+  <text x="410" y="567" text-anchor="middle" fill="#6A1B9A" font-size="11">SE: AvgPool &#x2192; FC&#x2193; &#x2192; ReLU &#x2192; FC&#x2191; &#x2192; &#x3C3; &#x2299; h</text>
+  <line x1="410" y1="576" x2="410" y2="598" stroke="#546E7A" stroke-width="1.2"/>
+
+  <!-- Add symbol -->
+  <line x1="630" y1="598" x2="425" y2="598" stroke="#1E88E5" stroke-width="1.5"/>
+  <circle cx="410" cy="598" r="10" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5"/>
+  <text x="410" y="602" text-anchor="middle" fill="#0D47A1" font-size="14" font-weight="bold">+</text>
+  <text x="410" y="625" text-anchor="middle" fill="#1565C0" font-size="10">y = SE(F(x)) + Proj(x)</text>
+
+  <!-- MaxPool after ResBlock -->
+  <rect x="310" y="640" width="240" height="28" rx="5" fill="#ECEFF1" stroke="#78909C" stroke-width="1"/>
+  <text x="430" y="659" text-anchor="middle" fill="#455A64" font-size="11">MaxPool1d(kernel=3, stride=3)</text>
+
+  <text x="430" y="700" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, c&#x1D62;, L&#x1D62;)  &#x2014;  spatial dim shrinks each stage</text>
+  <line x1="430" y1="708" x2="430" y2="733" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Channel schedule table -->
+  <g transform="translate(195,740)">
+    <rect x="0" y="0" width="470" height="80" rx="6" fill="#FFF" stroke="#B0BEC5" stroke-width="1"/>
+    <text x="235" y="18" text-anchor="middle" fill="#37474F" font-size="11" font-weight="bold">Example: n_stages = 3</text>
+    <line x1="10" y1="25" x2="460" y2="25" stroke="#E0E0E0" stroke-width="0.5"/>
+    <text x="20" y="42" fill="#546E7A" font-size="10" font-weight="bold">Stage</text>
+    <text x="100" y="42" fill="#546E7A" font-size="10" font-weight="bold">Channels</text>
+    <text x="200" y="42" fill="#546E7A" font-size="10" font-weight="bold">Kernel</text>
+    <text x="300" y="42" fill="#546E7A" font-size="10" font-weight="bold">Spatial dim</text>
+    <text x="20" y="58" fill="#333" font-size="10">0</text><text x="100" y="58" fill="#333" font-size="10">32 &#x2192; 32</text><text x="200" y="58" fill="#333" font-size="10">7</text><text x="300" y="58" fill="#333" font-size="10">1000 &#x2192; 333</text>
+    <text x="20" y="72" fill="#333" font-size="10">1</text><text x="100" y="72" fill="#333" font-size="10">32 &#x2192; 32</text><text x="200" y="72" fill="#333" font-size="10">5</text><text x="300" y="72" fill="#333" font-size="10">333 &#x2192; 111</text>
+  </g>
+
+  <line x1="430" y1="828" x2="430" y2="853" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ DUAL POOL HEAD ============ -->
+  <rect x="195" y="858" width="470" height="65" rx="8" fill="#ECEFF1" stroke="#78909C" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="880" text-anchor="middle" fill="#37474F" font-size="13" font-weight="bold">Dual-Pool Aggregation</text>
+  <text x="430" y="900" text-anchor="middle" fill="#555" font-size="11">z = [ AdaptiveAvgPool1d(1) ; AdaptiveMaxPool1d(1) ]</text>
+  <text x="430" y="914" text-anchor="middle" fill="#78909C" font-size="10">captures both average activation and peak response per channel</text>
+
+  <text x="430" y="942" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 2&#xB7;c_last) = (4, 64)  &#x2192;  flatten</text>
+  <line x1="430" y1="950" x2="430" y2="975" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ CLASSIFIER HEAD ============ -->
+  <rect x="195" y="980" width="470" height="80" rx="8" fill="#FFF3E0" stroke="#FFA726" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="1002" text-anchor="middle" fill="#E65100" font-size="13" font-weight="bold">Classification Head</text>
+  <text x="430" y="1022" text-anchor="middle" fill="#555" font-size="11">LayerNorm &#x2192; Dropout &#x2192; Linear(64 &#x2192; 32) &#x2192; ReLU</text>
+  <text x="430" y="1040" text-anchor="middle" fill="#555" font-size="11">&#x2192; LayerNorm &#x2192; Dropout &#x2192; Linear(32 &#x2192; 12) &#x2192; logits</text>
+
+  <text x="430" y="1080" text-anchor="middle" fill="#78909C" font-size="12" font-family="'Courier New', monospace">(4, 12)</text>
+  <line x1="430" y1="1087" x2="430" y2="1112" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ OUTPUT ============ -->
+  <rect x="220" y="1117" width="420" height="42" rx="8" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" filter="url(#ds)"/>
+  <text x="430" y="1143" text-anchor="middle" fill="#1565C0" font-size="13" font-weight="bold">softmax &#x2192; argmax &#x2192; predicted class</text>
+  <line x1="430" y1="1159" x2="430" y2="1182" stroke="#546E7A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g transform="translate(195,1192)">
+    <rect x="0" y="0" width="470" height="32" rx="6" fill="#FCE4EC" stroke="#EF5350" stroke-width="1.2"/>
+    <text x="15" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2081;&#x2192;</text>
+    <rect x="50" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="78" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="125" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2082;&#x2192;</text>
+    <rect x="155" y="5" width="56" height="22" rx="4" fill="#AB47BC"/><text x="183" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">PVALB</text>
+    <text x="232" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2083;&#x2192;</text>
+    <rect x="262" y="5" width="56" height="22" rx="4" fill="#EF5350"/><text x="290" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">Astro</text>
+    <text x="342" y="21" fill="#333" font-size="11" font-weight="bold">c&#x2084;&#x2192;</text>
+    <rect x="370" y="5" width="56" height="22" rx="4" fill="#42A5F5"/><text x="398" y="20" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">IT</text>
+  </g>
+
+  <!-- Annotation -->
+  <text x="430" y="1258" text-anchor="middle" fill="#9E9E9E" font-size="10" font-style="italic">Example: HVG-selected 2000 genes &#x2192; stem halves to 1000.  n_stages &#x2208; [2, 5], channels cap at 256.</text>
+
+  <!-- Legend -->
+  <g transform="translate(145,1280)">
+    <rect x="0" y="0" width="12" height="12" rx="2" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1"/><text x="18" y="10" fill="#666" font-size="9">Conv / Stem</text>
+    <rect x="100" y="0" width="12" height="12" rx="2" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1"/><text x="118" y="10" fill="#666" font-size="9">BN + Act + Conv</text>
+    <rect x="230" y="0" width="12" height="12" rx="2" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1"/><text x="248" y="10" fill="#666" font-size="9">SE Attention</text>
+    <rect x="340" y="0" width="12" height="12" rx="2" fill="#ECEFF1" stroke="#78909C" stroke-width="1"/><text x="358" y="10" fill="#666" font-size="9">Pooling</text>
+    <rect x="420" y="0" width="12" height="12" rx="2" fill="#FFF3E0" stroke="#FFA726" stroke-width="1"/><text x="438" y="10" fill="#666" font-size="9">Classifier</text>
+    <rect x="510" y="0" width="12" height="12" rx="2" fill="#FCE4EC" stroke="#EF5350" stroke-width="1"/><text x="528" y="10" fill="#666" font-size="9">Output</text>
+  </g>
+</svg>
