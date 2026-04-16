@@ -5,7 +5,7 @@ BATCH_SIZE = 1024*8
 N_HVG = 2000
 N_HVG_RANGE = (500, 5000, 500)
 DATA_DIR = 'data/10x'
-N_TRIALS = 10
+N_TRIALS = 30
 TUNE_EPOCHS = 30
 
 NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'

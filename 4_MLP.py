@@ -1,11 +1,11 @@
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 24576
+BATCH_SIZE = 24576 * 2
 N_HVG = 0
 DATA_DIR = 'data/10x'
-N_TRIALS = 10
-TUNE_EPOCHS = 15
+N_TRIALS = 30
+TUNE_EPOCHS = 30
 
 NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'
 

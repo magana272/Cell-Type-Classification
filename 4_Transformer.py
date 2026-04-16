@@ -10,7 +10,7 @@ GMT_PATH = 'data/reactome.gmt'
 MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
-N_TRIALS = 10
+N_TRIALS = 30
 TUNE_EPOCHS = 30
 
 NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'

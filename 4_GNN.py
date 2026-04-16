@@ -8,8 +8,8 @@ BATCH_SIZE = 256
 N_HVG = 0
 DATA_DIR = 'data/10x'
 K_NEIGHBORS = 10
-N_TRIALS = 10
-TUNE_EPOCHS = 15
+N_TRIALS = 30
+TUNE_EPOCHS = 30
 
 NORMALIZE = 'log+standard'  # None, 'log', 'standard', or 'log+standard'
 
