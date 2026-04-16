@@ -5,7 +5,7 @@ from allen_brain.cell_data.cell_vis import plot_pca, plot_class_distribution, pl
 
 SEED = 42
 def main():
-    train_ds = make_dataset('data/smartseq')
+    train_ds = make_dataset('data/10x', split='train')
     
     train_ds = train_ds if train_ds is not None else make_dataset('data/10x')
     pca, X_pca = plot_pca(train_ds, seed=SEED, n_components=20)
