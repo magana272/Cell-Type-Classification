@@ -241,14 +241,14 @@ def plot_violin(ds: cell_dataset.GeneExpressionDataset, gene_names,
     axes_flat = np.atleast_1d(axes).flat
 
     for ax, gene_idx, gene_name in zip(axes_flat, top_indices, top_gene_names):
-        df_gene = pd.DataFrame({'expression': X[:, gene_idx],
+        df_gene = pd.DataFrame({'expression': np.log1p(np.abs(X[:, gene_idx])),
                                 'cell_type':  labels})
         sns.violinplot(data=df_gene, x='cell_type', y='expression',
                        hue='cell_type', inner=None, ax=ax,
                        density_norm='width', cut=0)
         ax.set_title(f'{gene_name}', fontsize=10)
         ax.set_xlabel('')
-        ax.set_ylabel('Standardized Expression')
+        ax.set_ylabel('log(1 + |Expression|)')
         ax.tick_params(axis='x', rotation=45, labelsize=7)
 
     plt.suptitle(f'Top {top_n} Highly Variable Genes: Expression by Cell Type (Training Set)',
