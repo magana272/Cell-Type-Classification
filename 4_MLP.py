@@ -1,7 +1,7 @@
 from allen_brain.models import train as T
 
 SEED = 42
-BATCH_SIZE = 1024
+BATCH_SIZE = 1024*8
 N_HVG = 0
 DATA_DIR = 'data/10x'
 N_TRIALS = 10
