@@ -2,7 +2,7 @@
 
 Unknown cell type discovery experiment:
   1. Train on FULL training set with one cell type removed
-  2. Train TOSICA with pathway mask (log+standard normalization)
+  2. Train TOSICA with pathway mask (no normalization)
   3. Predict on full test set — held-out cells should be flagged as 'Unknown'
   4. Evaluate classification performance on known classes
   5. Run attention embedding pipeline: normalize -> PCA -> kNN -> UMAP
@@ -59,7 +59,7 @@ CFG = {
     'loss': 'focal',
     'label_smoothing': 0.06,
     'focal_gamma': 0.47,
-    'normalize': 'log+standard',
+    'normalize': 'none',
     'n_hvg': 0,
 }
 
@@ -143,7 +143,7 @@ def main():
     n_reduced = len(reduced_class_names)
     console.print(f'Training classes: {n_reduced} (held out: {held_out_name})')
 
-    # Apply normalization (log+standard, same as best TOSICA training)
+    # Apply normalization (none — raw counts)
     normalize = CFG.get('normalize')
     X_train, X_val, scaler = T._apply_normalization(
         X_train.astype(np.float32), X_val.astype(np.float32), normalize)
