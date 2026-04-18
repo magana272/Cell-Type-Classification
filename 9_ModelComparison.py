@@ -231,11 +231,11 @@ def fit_model(adata, gmt_path, project=None, pre_weights='', label_name='subclas
     set_seed(CONFIG['seed'])
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     today = time.strftime('%Y%m%d', time.localtime(time.time()))
-    project = project or gmt_path.replace('.gmt', '') + '_%s' % today + '_' + model_type
+    project = project or gmt_path.replace('.gmt', '') + '_%s' % today
     project_path = os.getcwd() + '/%s' % project
     if not os.path.exists(project_path):
         os.makedirs(project_path)
-    tb_writer = SummaryWriter()
+    tb_writer = SummaryWriter(log_dir=f'runs/model_comparison/{model_type}')
     # check if split data exist
     splits_exist = all(os.path.exists(project_path + f'/{f}.npy')
                        for f in ('exp_train', 'label_train', 'exp_val', 'label_val',
