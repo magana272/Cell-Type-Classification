@@ -98,13 +98,14 @@ def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio
     X = np.asarray(todense(adata), dtype=np.float32)
     print(f"Original data shape: {X.shape}, labels shape: {labels.shape}")
 
-    # Balance populations: sample each class to max_per_class
+    # Balance populations: downsample large classes to the median class size
     ct_names, ct_counts = np.unique(labels, return_counts=True)
-    max_per_class = min(ct_counts.max(), 2_000_000 // len(ct_names))
+    max_per_class = int(np.median(ct_counts))
+    print(f"Class counts: min={ct_counts.min()}, median={max_per_class}, max={ct_counts.max()}")
     balanced_idx = []
     for ct in ct_names:
         ct_idx = np.where(labels == ct)[0]
-        balanced_idx.append(np.random.choice(ct_idx, max_per_class))
+        balanced_idx.append(np.random.choice(ct_idx, min(len(ct_idx), max_per_class), replace=False))
     balanced_idx = np.concatenate(balanced_idx)
     X = X[balanced_idx]
     labels = labels[balanced_idx]
