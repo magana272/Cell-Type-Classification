@@ -82,8 +82,13 @@ MODELS = {
     'CNN': CellTypeCNN
 }
 
-def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio=0.15):
-    """Split adata into train / val / test sets (default 70/15/15)."""
+def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio=0.15,
+                  save_dir=None):
+    """Split adata into train / val / test sets (default 70/15/15).
+
+    If save_dir is provided, saves splits to .npy files incrementally
+    to avoid holding all splits in memory at once.
+    """
     label_encoder = LabelEncoder()
     genes = np.array(adata.var_names)
 
@@ -94,7 +99,6 @@ def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio
     print(f"Original data shape: {X.shape}, labels shape: {labels.shape}")
 
     # Balance populations: sample each class to max_per_class
-    # (replaces balance_populations which used np.r_ in a loop, causing OOM)
     ct_names, ct_counts = np.unique(labels, return_counts=True)
     max_per_class = min(ct_counts.max(), 2_000_000 // len(ct_names))
     balanced_idx = []
@@ -105,6 +109,7 @@ def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio
     X = X[balanced_idx]
     labels = labels[balanced_idx]
     print(f"Balanced: {len(labels)} samples, {len(ct_names)} classes, {max_per_class} per class")
+
     n = len(X)
     n_train = int(n * train_ratio)
     n_val = int(n * val_ratio)
@@ -116,14 +121,14 @@ def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio
     test_idx = indices[n_train + n_val:]
     print(f"Train samples: {len(train_idx)}, Val samples: {len(val_idx)}, Test samples: {len(test_idx)}")
 
-    exp_train = torch.from_numpy(X[train_idx])
-    label_train = torch.from_numpy(labels[train_idx].astype(np.int64))
-    exp_val = torch.from_numpy(X[val_idx])
-    label_val = torch.from_numpy(labels[val_idx].astype(np.int64))
-    exp_test = torch.from_numpy(X[test_idx])
-    label_test = torch.from_numpy(labels[test_idx].astype(np.int64))
+    # Save each split to disk one at a time, then free it
+    splits = [('train', train_idx), ('val', val_idx), ('test', test_idx)]
+    for name, idx in splits:
+        np.save(os.path.join(save_dir, f'exp_{name}.npy'), X[idx])
+        np.save(os.path.join(save_dir, f'label_{name}.npy'), labels[idx].astype(np.int64))
+    del X, labels
 
-    return exp_train, label_train, exp_val, label_val, exp_test, label_test, inverse, genes
+    return inverse, genes
 
 
 def _forward_model(model, exp, model_type, edge_index=None):
@@ -231,26 +236,18 @@ def fit_model(adata, gmt_path, project=None, pre_weights='', label_name='subclas
                        for f in ('exp_train', 'label_train', 'exp_val', 'label_val',
                                  'exp_test', 'label_test'))
     if splits_exist:
-        exp_train = np.load(project_path + '/exp_train.npy')
-        label_train = np.load(project_path + '/label_train.npy')
-        exp_val = np.load(project_path + '/exp_val.npy')
-        label_val = np.load(project_path + '/label_val.npy')
-        exp_test = np.load(project_path + '/exp_test.npy')
-        label_test = np.load(project_path + '/label_test.npy')
         inverse = pd.read_csv(project_path + '/label_dictionary.csv', index_col=0).values.flatten()
         print('Split data loaded!')
     else:
         print('Split data not found, creating new split...')
-        exp_train, label_train, exp_val, label_val, exp_test, label_test, inverse, genes = \
-            split_dataset(adata, label_name)
-        np.save(project_path + '/exp_train.npy', exp_train)
-        np.save(project_path + '/label_train.npy', label_train)
-        np.save(project_path + '/exp_val.npy', exp_val)
-        np.save(project_path + '/label_val.npy', label_val)
-        np.save(project_path + '/exp_test.npy', exp_test)
-        np.save(project_path + '/label_test.npy', label_test)
+        inverse, genes = split_dataset(adata, label_name, save_dir=project_path)
         pd.DataFrame(inverse, columns=[label_name]).to_csv(project_path + '/label_dictionary.csv', quoting=None)
         print('Split data created and saved!')
+    # Load splits from disk (memory-mapped to avoid loading all at once if possible)
+    exp_train = np.load(project_path + '/exp_train.npy')
+    label_train = np.load(project_path + '/label_train.npy')
+    exp_val = np.load(project_path + '/exp_val.npy')
+    label_val = np.load(project_path + '/label_val.npy')
     if gmt_path is None:
         mask = np.random.binomial(1, mask_ratio, size=(len(genes), max_gs))
         pathway = list()
