@@ -89,21 +89,20 @@ def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio
 
     labels = label_encoder.fit_transform(adata.obs[label_name].astype('str').values)
     inverse = label_encoder.inverse_transform(range(labels.max() + 1))
-
+    print(f"Encoded labels: {inverse}")
     X = np.asarray(todense(adata), dtype=np.float32)
-
-    # Append labels as last column for balance_populations
+    print(f"Original data shape: {X.shape}, labels shape: {labels.shape}")
     el_data = np.column_stack([X, labels.astype(np.float32)])
     del X
+    print(f"Combined data shape (exp + labels): {el_data.shape}")
     el_data = balance_populations(data=el_data)
-
+    print(f"Balanced data shape: {el_data.shape}")
     n_genes = el_data.shape[1] - 1
     n = len(el_data)
     n_train = int(n * train_ratio)
     n_val = int(n * val_ratio)
     print(f"Total samples: {n}, genes: {n_genes}, classes: {len(inverse)}")
 
-    # Shuffle indices instead of copying data through random_split
     indices = np.random.permutation(n)
     train_idx = indices[:n_train]
     val_idx = indices[n_train:n_train + n_val]
