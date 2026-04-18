@@ -82,7 +82,7 @@ MODELS = {
     'CNN': CellTypeCNN
 }
 
-def split_dataset(adata, label_name='Celltype', train_ratio=0.7, val_ratio=0.15):
+def split_dataset(adata, label_name='subclass_label', train_ratio=0.7, val_ratio=0.15):
     """Split adata into train / val / test sets (default 70/15/15)."""
     label_encoder = LabelEncoder()
     el_data = pd.DataFrame(
@@ -101,10 +101,10 @@ def split_dataset(adata, label_name='Celltype', train_ratio=0.7, val_ratio=0.15)
     n = len(el_data)
     n_train = int(n * train_ratio)
     n_val = int(n * val_ratio)
-
+    print (f"Total samples: {n}, genes: {n_genes}, classes: {len(inverse)}")
     train_data, val_data, test_data = torch.utils.data.random_split(
         el_data, [n_train, n_val, n - n_train - n_val])
-
+    print(f"Train samples: {len(train_data)}, Val samples: {len(val_data)}, Test samples: {len(test_data)}")
     train_arr = np.array(train_data)
     val_arr = np.array(val_data)
     test_arr = np.array(test_data)
