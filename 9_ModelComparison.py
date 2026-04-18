@@ -238,12 +238,13 @@ def fit_model(adata, gmt_path, project=None, pre_weights='', label_name='subclas
     splits_exist = all(os.path.exists(project_path + f'/{f}.npy')
                        for f in ('exp_train', 'label_train', 'exp_val', 'label_val',
                                  'exp_test', 'label_test'))
+    genes = np.array(adata.var_names)
     if splits_exist:
         inverse = pd.read_csv(project_path + '/label_dictionary.csv', index_col=0).values.flatten()
         print('Split data loaded!')
     else:
         print('Split data not found, creating new split...')
-        inverse, genes = split_dataset(adata, label_name, save_dir=project_path)
+        inverse, _ = split_dataset(adata, label_name, save_dir=project_path)
         pd.DataFrame(inverse, columns=[label_name]).to_csv(project_path + '/label_dictionary.csv', quoting=None)
         print('Split data created and saved!')
     # Load splits from disk (memory-mapped to avoid loading all at once if possible)
