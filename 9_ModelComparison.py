@@ -159,11 +159,12 @@ def _train_epoch(model, optimizer, data_loader, device, epoch, model_type):
     data_loader = tqdm(data_loader)
     for step, data in enumerate(data_loader):
         exp, label = data
+        exp, label = exp.to(device), label.to(device)
         sample_num += exp.shape[0]
-        pred = _forward_model(model, exp.to(device), model_type)
+        pred = _forward_model(model, exp, model_type)
         pred_classes = torch.max(pred, dim=1)[1]
-        accu_num += torch.eq(pred_classes, label.to(device)).sum()
-        loss = loss_fn(pred, label.to(device))
+        accu_num += torch.eq(pred_classes, label).sum()
+        loss = loss_fn(pred, label)
         loss.backward()
         accu_loss += loss.detach()
         data_loader.desc = "[train epoch {}] loss: {:.3f}, acc: {:.3f}".format(
@@ -187,11 +188,12 @@ def _eval_epoch(model, data_loader, device, epoch, model_type):
     data_loader = tqdm(data_loader)
     for step, data in enumerate(data_loader):
         exp, labels = data
+        exp, labels = exp.to(device), labels.to(device)
         sample_num += exp.shape[0]
-        pred = _forward_model(model, exp.to(device), model_type)
+        pred = _forward_model(model, exp, model_type)
         pred_classes = torch.max(pred, dim=1)[1]
-        accu_num += torch.eq(pred_classes, labels.to(device)).sum()
-        loss = loss_fn(pred, labels.to(device))
+        accu_num += torch.eq(pred_classes, labels).sum()
+        loss = loss_fn(pred, labels)
         accu_loss += loss
         data_loader.desc = "[valid epoch {}] loss: {:.3f}, acc: {:.3f}".format(
             epoch, accu_loss.item() / (step + 1), accu_num.item() / sample_num)
@@ -354,12 +356,17 @@ def fit_model(adata, gmt_path, project=None, pre_weights='', label_name='subclas
             tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
             torch.save(model.state_dict(), project_path + "/{}-{}.pth".format(model_type, epoch))
     else:
-        train_dataset = MyDataSet(exp_train, label_train)
-        val_dataset = MyDataSet(exp_val, label_val)
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, num_workers= os.cpu_count(),
-                                                   shuffle=True, pin_memory=True, drop_last=True, persistent_workers=True)
-        valid_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, num_workers= os.cpu_count(),persistent_workers=True,
-                                                   shuffle=False, pin_memory=True, drop_last=True)
+        # Move data to GPU once to avoid per-batch CPU→GPU transfer bottleneck
+        exp_train_t = torch.as_tensor(exp_train, dtype=torch.float32).to(device)
+        label_train_t = torch.as_tensor(label_train, dtype=torch.long).to(device)
+        exp_val_t = torch.as_tensor(exp_val, dtype=torch.float32).to(device)
+        label_val_t = torch.as_tensor(label_val, dtype=torch.long).to(device)
+        train_dataset = torch.utils.data.TensorDataset(exp_train_t, label_train_t)
+        val_dataset = torch.utils.data.TensorDataset(exp_val_t, label_val_t)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
+                                                   shuffle=True, drop_last=True)
+        valid_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size,
+                                                   shuffle=False, drop_last=True)
         for epoch in range(epochs):
             train_loss, train_acc = _train_epoch(model=model, optimizer=optimizer,
                                                  data_loader=train_loader, device=device,
