@@ -418,7 +418,8 @@ def main():
     for model_name in models:
         print(f'\n=== Training {model_name} ===')
         fit_model(adata, gmt_path='CellTypeClassification/allen_brain/TOSICA/resources/reactome.gmt',
-                  project='TOSICA_comparison', model_type=model_name)
+                  project='TOSICA_comparison', model_type=model_name,
+                  batch_size=CONFIG['batch_size'])
 
     #  Evaluate all models 
     device = torch.device(DEVICE)
