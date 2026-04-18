@@ -1,6 +1,8 @@
 import math
 import sys
 
+from pygments import console
+import requests
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from torch.fx import Transformer
@@ -407,7 +409,7 @@ def main():
     #  Train all models 
     for model_name in models:
         print(f'\n=== Training {model_name} ===')
-        fit_model(adata, gmt_path='data/reactome.gmt',
+        fit_model(adata, gmt_path='allen_brain/TOSICA/resources/reactome.gmt',
                   project='TOSICA_comparison', model_type=model_name)
 
     #  Evaluate all models 
