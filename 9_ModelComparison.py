@@ -1,24 +1,25 @@
 import math
 import sys
-import torch
+
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from torch.fx import Transformer
-from TOSICA import train
-from TOSICA import TOSICA_model
-from TOSICA.train import balance_populations, set_seed
+from allen_brain.TOSICA.train import balance_populations, set_seed, read_gmt, create_pathway_mask, get_gmt, MyDataSet, create_model
+from allen_brain.TOSICA import TOSICA_model
+
+# My implemented models
 from allen_brain.models.CellTypeAttention import TOSICA as my_implementation_TOSICA
 from allen_brain.models.CellTypeCNN import CellTypeCNN
 from allen_brain.models.CellTypeGNN import CellTypeGNN, build_knn_edges
 from allen_brain.models.CellTypeMLP import MLP_Model
-from TOSICA import TOSICA_model
-from TOSICA.train import read_gmt, create_pathway_mask, get_gmt, MyDataSet, create_model
+# Torch imports
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import Data
+# Other imports
 from tqdm import tqdm
 import time
 import os
