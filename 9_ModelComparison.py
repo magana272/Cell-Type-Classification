@@ -43,7 +43,7 @@ CONFIG = {
     'max_gs': 300,
     'mask_ratio': 0.015,
     'n_unannotated': 1,
-    'batch_size': 256,
+    'batch_size': 128,
     'embed_dim': 48,
     'depth': 2,
     'num_heads': 4,
@@ -357,10 +357,10 @@ def fit_model(adata, gmt_path, project=None, pre_weights='', label_name='subclas
             torch.save(model.state_dict(), project_path + "/{}-{}.pth".format(model_type, epoch))
     else:
         # Move data to GPU once to avoid per-batch CPU→GPU transfer bottleneck
-        exp_train_t = torch.as_tensor(exp_train, dtype=torch.float32).to(device)
-        label_train_t = torch.as_tensor(label_train, dtype=torch.long).to(device)
-        exp_val_t = torch.as_tensor(exp_val, dtype=torch.float32).to(device)
-        label_val_t = torch.as_tensor(label_val, dtype=torch.long).to(device)
+        exp_train_t = torch.as_tensor(exp_train, dtype=torch.float32)
+        label_train_t = torch.as_tensor(label_train, dtype=torch.long)
+        exp_val_t = torch.as_tensor(exp_val, dtype=torch.float32)
+        label_val_t = torch.as_tensor(label_val, dtype=torch.long)
         train_dataset = MyDataSet(exp_train_t, label_train_t)
         val_dataset = MyDataSet(exp_val_t, label_val_t)
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, num_workers=4,
