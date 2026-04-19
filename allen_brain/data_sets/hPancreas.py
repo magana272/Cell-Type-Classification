@@ -60,7 +60,6 @@ TEST_STUDIES = {'Xin', 'Segerstolpe', 'Lawlor'}
 _PANCREAS_URL = 'https://ndownloader.figshare.com/files/24539828'
 _PANCREAS_H5AD = 'data/pancreas/pancreas.h5ad'
 
-# tech → study mapping
 TECH_TO_STUDY = {
     'inDrop1': 'Baron', 'inDrop2': 'Baron',
     'inDrop3': 'Baron', 'inDrop4': 'Baron',
@@ -68,7 +67,6 @@ TECH_TO_STUDY = {
     'smartseq2': 'Segerstolpe',
     'smarter': 'Xin',
     'fluidigmc1': 'Lawlor',
-    # 'celseq' (Grün) is not part of the TOSICA benchmark
 }
 
 # celltype → TOSICA Celltype mapping
@@ -111,6 +109,11 @@ def setup(data_dir: str = DATA_DIR, seed: int = 1) -> str:
 
         # Map celltype → TOSICA Celltype
         adata.obs[LABEL_COL] = adata.obs['celltype'].map(CELLTYPE_MAP)
+        unmapped = adata.obs.loc[adata.obs[LABEL_COL].isna(), 'celltype']
+        if len(unmapped):
+            console.print(f'[yellow]Dropping {len(unmapped)} cells with '
+                          f'unmapped celltypes: '
+                          f'{dict(unmapped.value_counts())}[/yellow]')
         adata = adata[adata.obs[LABEL_COL].notna()].copy()
 
         os.makedirs(data_dir, exist_ok=True)

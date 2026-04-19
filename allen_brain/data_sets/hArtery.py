@@ -51,54 +51,90 @@ SPLIT_COL = 'state'
 TRAIN_VALUES = {'HEA'}
 TEST_VALUES = {'DIS'}
 
-# Per-sample 10X tar.gz URLs — filename encodes condition (conDIS / conHEA)
+# Per-sample molecule_info.h5 — filename encodes condition (conDIS / conHEA)
 _GEO_SAMPLES = 'https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM4837nnn'
-_SAMPLE_URLS = {
-    'GSM4837523': f'{_GEO_SAMPLES}/GSM4837523/suppl/GSM4837523_02dat20190515tisCARconDIS_featurebcmatrixfiltered.tar.gz',
-    'GSM4837524': f'{_GEO_SAMPLES}/GSM4837524/suppl/GSM4837524_01dat20190515tisCARconHEA_featurebcmatrixfiltered.tar.gz',
-    'GSM4837525': f'{_GEO_SAMPLES}/GSM4837525/suppl/GSM4837525_02dat20190620tisCARconDIS_featurebcmatrixfiltered.tar.gz',
-    'GSM4837526': f'{_GEO_SAMPLES}/GSM4837526/suppl/GSM4837526_01dat20190620tisCARconHEA_featurebcmatrixfiltered.tar.gz',
-    'GSM4837527': f'{_GEO_SAMPLES}/GSM4837527/suppl/GSM4837527_02dat20190717tisCARconDIS_featurebcmatrixfiltered.tar.gz',
-    'GSM4837528': f'{_GEO_SAMPLES}/GSM4837528/suppl/GSM4837528_01dat20190717tisCARconHEA_featurebcmatrixfiltered.tar.gz',
+_SAMPLE_H5 = {
+    'GSM4837523': f'{_GEO_SAMPLES}/GSM4837523/suppl/GSM4837523_02dat20190515tisCARconDIS_moleculeinfo.h5',
+    'GSM4837524': f'{_GEO_SAMPLES}/GSM4837524/suppl/GSM4837524_01dat20190515tisCARconHEA_moleculeinfo.h5',
+    'GSM4837525': f'{_GEO_SAMPLES}/GSM4837525/suppl/GSM4837525_02dat20190620tisCARconDIS_moleculeinfo.h5',
+    'GSM4837526': f'{_GEO_SAMPLES}/GSM4837526/suppl/GSM4837526_01dat20190620tisCARconHEA_moleculeinfo.h5',
+    'GSM4837527': f'{_GEO_SAMPLES}/GSM4837527/suppl/GSM4837527_02dat20190717tisCARconDIS_moleculeinfo.h5',
+    'GSM4837528': f'{_GEO_SAMPLES}/GSM4837528/suppl/GSM4837528_01dat20190717tisCARconHEA_moleculeinfo.h5',
 }
 
 
+def _read_molecule_info_h5(h5_path: str):
+    """Read a cellranger molecule_info.h5 into AnnData count matrix.
+
+    Only keeps barcodes that pass the cell-calling filter.
+    """
+    import h5py
+
+    with h5py.File(h5_path, 'r') as f:
+        console.print(f'    h5 keys: {list(f.keys())}')
+
+        # Gene/feature names
+        if 'features' in f:
+            gene_names = [g.decode() for g in f['features/name'][:]]
+        elif 'gene_ids' in f:
+            gene_names = [g.decode() for g in f['gene_ids'][:]]
+        else:
+            gene_names = None
+
+        all_barcodes = np.array([b.decode() for b in f['barcodes'][:]])
+        n_barcodes = len(all_barcodes)
+        n_features = len(gene_names) if gene_names else f['feature_idx'][:].max() + 1
+
+        # pass_filter: (n_filtered_cells, n_genomes) — values are barcode indices
+        pass_filter = f['barcode_info/pass_filter'][:]
+        filtered_idx = pass_filter[:, 0].astype(np.int64)  # first genome column
+        filtered_barcodes = all_barcodes[filtered_idx]
+        console.print(f'    {len(filtered_barcodes):,} / {n_barcodes:,} barcodes pass filter')
+
+        # Build count matrix only for filtered barcodes
+        barcode_idx = f['barcode_idx'][:]
+        feature_idx = f['feature_idx'][:]
+        count = f['count'][:] if 'count' in f else np.ones(len(barcode_idx), dtype=np.int32)
+
+        # Remap barcode indices: old_idx → new_idx (only for passing barcodes)
+        remap = np.full(n_barcodes, -1, dtype=np.int64)
+        remap[filtered_idx] = np.arange(len(filtered_idx))
+        new_bc_idx = remap[barcode_idx]
+
+        # Keep only molecules from filtered barcodes
+        mask = new_bc_idx >= 0
+        X = scipy.sparse.coo_matrix(
+            (count[mask], (new_bc_idx[mask], feature_idx[mask])),
+            shape=(len(filtered_idx), n_features),
+            dtype=np.float32,
+        ).tocsr()
+
+    adata = ad.AnnData(X=X)
+    adata.obs_names = pd.Index(filtered_barcodes)
+    if gene_names:
+        adata.var_names = pd.Index(gene_names)
+    adata.var_names_make_unique()
+    return adata
+
+
 def _build_h5ad(h5ad_path: str, data_dir: str) -> None:
-    """Download per-sample 10X tars, parse condition from filename."""
+    """Download per-sample molecule_info.h5 files, parse condition from filename."""
     os.makedirs(data_dir, exist_ok=True)
     adatas = []
 
-    for gsm, url in _SAMPLE_URLS.items():
+    for gsm, url in _SAMPLE_H5.items():
         fname = os.path.basename(url)
-        # Parse condition from filename: conDIS → DIS, conHEA → HEA
         state = 'DIS' if 'conDIS' in fname else 'HEA'
 
-        with tempfile.TemporaryDirectory() as tmp:
-            tar_path = os.path.join(tmp, 'sample.tar.gz')
-            _download_geo_file(url, tar_path)
-            with tarfile.open(tar_path) as tf:
-                try:
-                    tf.extractall(tmp, filter='data')
-                except TypeError:
-                    tf.extractall(tmp)
+        h5_path = os.path.join(data_dir, f'{gsm}.h5')
+        _download_geo_file(url, h5_path)
 
-            # Find 10X matrix files
-            mtx_path = bc_path = feat_path = None
-            for root, _dirs, files in os.walk(tmp):
-                for f in files:
-                    fp = os.path.join(root, f)
-                    if f.endswith(('.mtx.gz', '.mtx')) and mtx_path is None:
-                        mtx_path = fp
-                    elif 'barcodes' in f and f.endswith(('.tsv.gz', '.tsv')):
-                        bc_path = fp
-                    elif ('features' in f or 'genes' in f) and f.endswith(('.tsv.gz', '.tsv')):
-                        feat_path = fp
-
-            adata = _read_mtx_files(mtx_path, bc_path, feat_path)
-            adata.obs[SPLIT_COL] = state
-            adata.obs_names = gsm + '_' + adata.obs_names.astype(str)
-            adatas.append(adata)
-            console.print(f'  {gsm} ({state}): {adata.n_obs:,} cells')
+        adata = _read_molecule_info_h5(h5_path)
+        adata.obs[SPLIT_COL] = state
+        adata.obs_names = gsm + '_' + adata.obs_names.astype(str)
+        adatas.append(adata)
+        console.print(f'  {gsm} ({state}): {adata.n_obs:,} cells')
+        os.remove(h5_path)
 
     adata = ad.concat(adatas, join='inner')
     adata.var_names_make_unique()

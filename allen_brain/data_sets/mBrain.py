@@ -192,15 +192,20 @@ def _read_dge_sparse(path: str):
         header = f.readline().strip().split('\t')
         cell_names = header[1:]  # skip first column ("GENE")
 
-        for gene_idx, line in enumerate(f):
+        gene_idx = 0
+        for line in f:
             parts = line.strip().split('\t')
+            try:
+                parsed = [int(v) for v in parts[1:]]
+            except ValueError:
+                continue  # skip metadata / annotation rows
             gene_names.append(parts[0])
-            for cell_idx, v_str in enumerate(parts[1:]):
-                v = int(v_str)
+            for cell_idx, v in enumerate(parsed):
                 if v > 0:
                     rows.append(cell_idx)
                     cols.append(gene_idx)
                     vals.append(v)
+            gene_idx += 1
 
     X = scipy.sparse.coo_matrix(
         (vals, (rows, cols)),
