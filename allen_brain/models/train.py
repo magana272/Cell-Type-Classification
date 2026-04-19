@@ -11,6 +11,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import scipy.sparse
 import torch
 import torch.nn.functional as F
 from rich.console import Console
@@ -608,9 +609,10 @@ class Trainer:
             ds.gene_names = ds.gene_names[hvg_idx]
             ds_val.gene_names = ds_val.gene_names[hvg_idx]
 
-        # Apply normalization
-        X_train, X_val, scaler = _apply_normalization(
-            np.asarray(ds.X), np.asarray(ds_val.X), normalize)
+        # Apply normalization – densify sparse matrices first
+        X_train = ds.X.toarray() if scipy.sparse.issparse(ds.X) else np.asarray(ds.X)
+        X_val = ds_val.X.toarray() if scipy.sparse.issparse(ds_val.X) else np.asarray(ds_val.X)
+        X_train, X_val, scaler = _apply_normalization(X_train, X_val, normalize)
         ds.X = X_train
         ds_val.X = X_val
 
