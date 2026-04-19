@@ -87,15 +87,23 @@ _TM_BRAIN_URLS = [
     f'{_GEO_BASE}/GSE109nnn/GSE109774/suppl/GSE109774_Brain_Neurons.tar.gz',
 ]
 
-# DropViz "DGE By Class" files — cells pre-sorted by cell type
-_DROPVIZ_BASE = 'https://storage.googleapis.com/dropviz-downloads/static/classes'
-_SAUNDERS_CLASS_FILES = {
-    'astrocyte': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Astrocytes_9-13-17.raw.dge.txt.gz',
-    'endothelial cell': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Endothelial_5-3-17.raw.dge.txt.gz',
-    'microglial cell': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Microglia_Macrophage_5-3-17.raw.dge.txt.gz',
-    'brain pericyte': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Mural_5-3-17.raw.dge.txt.gz',
-    'oligodendrocyte': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Oligodendrocytes_5-3-17.raw.dge.txt.gz',
-    'oligodendrocyte precursor cell': f'{_DROPVIZ_BASE}/H_1stRound_CrossTissue_Polydendrocytes_5-3-17.raw.dge.txt.gz',
+# DropViz metacells + annotation (aggregate expression per subcluster + class labels)
+_DROPVIZ_BASE = 'https://storage.googleapis.com/dropviz-downloads/static'
+_SAUNDERS_METACELLS_URL = f'{_DROPVIZ_BASE}/metacells.BrainCellAtlas_Saunders_version_2018.04.01.csv'
+_SAUNDERS_ANNOTATION_URL = f'{_DROPVIZ_BASE}/annotation.BrainCellAtlas_Saunders_version_2018.04.01.csv'
+
+# Saunders class → TOSICA cell_ontology_class
+_SAUNDERS_CLASS_MAP = {
+    'NEURON': 'neuron',
+    'ASTROCYTE': 'astrocyte',
+    'MICROGLIA': 'microglial cell',
+    'MACROPHAGE': 'macrophage',
+    'OLIGODENDROCYTE': 'oligodendrocyte',
+    'POLYDENDROCYTE': 'oligodendrocyte precursor cell',
+    'ENDOTHELIAL_STALK': 'endothelial cell',
+    'ENDOTHELIAL_TIP': 'endothelial cell',
+    'MURAL': 'brain pericyte',
+    'EPENDYMAL': 'ependymal cell',
 }
 
 _ROSENBERG_URL = (
@@ -262,21 +270,38 @@ def _read_dge_sparse(path: str):
 
 
 def _download_saunders(study_path: str, data_dir: str) -> None:
-    """Download Saunders brain atlas DGE By Class from DropViz."""
-    adatas = []
-    for cell_class, url in _SAUNDERS_CLASS_FILES.items():
-        fname = os.path.basename(url)
-        dge_path = os.path.join(data_dir, fname)
-        _download_geo_file(url, dge_path)
-        adata = _read_dge_sparse(dge_path)
-        adata.obs[LABEL_COL] = cell_class
-        adatas.append(adata)
-        console.print(f'  Saunders {cell_class}: {adata.n_obs:,} cells')
-        os.remove(dge_path)
+    """Download Saunders brain atlas metacells + annotation from DropViz."""
+    meta_path = os.path.join(data_dir, 'saunders_metacells.csv')
+    anno_path = os.path.join(data_dir, 'saunders_annotation.csv')
+    _download_geo_file(_SAUNDERS_METACELLS_URL, meta_path)
+    _download_geo_file(_SAUNDERS_ANNOTATION_URL, anno_path)
 
-    adata = ad.concat(adatas, join='inner')
+    # Metacells: genes (rows) × subclusters (columns), comma-separated
+    meta_df = pd.read_csv(meta_path, index_col=0)
+    anno_df = pd.read_csv(anno_path, index_col=0, encoding='latin-1',
+                          on_bad_lines='skip')
+
+    # Build AnnData: subclusters as "cells"
+    X = scipy.sparse.csr_matrix(meta_df.values.T, dtype=np.float32)
+    adata = ad.AnnData(X=X)
+    adata.obs_names = pd.Index(meta_df.columns.astype(str))
+    adata.var_names = pd.Index(meta_df.index.astype(str))
+
+    # Map subclusters → class via annotation CSV (tissue_subcluster column)
+    anno_map = dict(zip(anno_df['tissue_subcluster'].astype(str),
+                        anno_df['class'].astype(str)))
+    adata.obs['class'] = adata.obs_names.map(anno_map)
+    adata.obs[LABEL_COL] = adata.obs['class'].map(_SAUNDERS_CLASS_MAP)
+
+    # Drop unmapped subclusters
+    adata = adata[adata.obs[LABEL_COL].notna()].copy()
     adata.var_names_make_unique()
+
+    os.remove(meta_path)
+    os.remove(anno_path)
     adata.write_h5ad(study_path)
+    console.print(f'  Saunders: {adata.n_obs:,} metacells, '
+                  f'{adata.obs[LABEL_COL].nunique()} types')
 
 
 def _download_rosenberg(study_path: str, data_dir: str) -> None:
