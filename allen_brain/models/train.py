@@ -604,8 +604,10 @@ class Trainer:
         if n_hvg is not None and 0 < n_hvg < len(ds.gene_names):
             console.print(f'Selecting top {n_hvg} HVGs by variance on train split...')
             hvg_idx = np.sort(select_hvg(ds.X, n_hvg))
-            ds.X = np.asarray(ds.X[:, hvg_idx])
-            ds_val.X = np.asarray(ds_val.X[:, hvg_idx])
+            X_sub = ds.X[:, hvg_idx]
+            ds.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+            X_sub_val = ds_val.X[:, hvg_idx]
+            ds_val.X = X_sub_val.toarray() if scipy.sparse.issparse(X_sub_val) else np.asarray(X_sub_val)
             ds.gene_names = ds.gene_names[hvg_idx]
             ds_val.gene_names = ds_val.gene_names[hvg_idx]
 
