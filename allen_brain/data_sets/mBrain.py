@@ -103,11 +103,14 @@ _ROSENBERG_URL = (
     'GSM3017261_150000_CNS_nuclei.mat.gz'
 )
 
-# S3 version has cell-type labels in line 2 (the GEO version does not)
-_ZEISEL_URL = 'https://s3.amazonaws.com/scrnaseq-public-datasets/manual-data/zeisel/expression_mRNA_17-Aug-2014.txt'
+# GEO version (S3 is in Glacier)
+_ZEISEL_URL = (
+    'https://ftp.ncbi.nlm.nih.gov/geo/series/GSE60nnn/GSE60361/suppl/'
+    'GSE60361_C1-3005-Expression.txt.gz'
+)
 
 # Tabula muris FACS metadata with cell_ontology_class annotations
-_TM_METADATA_URL = 'https://czbiohub-tabula-muris.s3.amazonaws.com/TM_facs_metadata.csv'
+_TM_METADATA_URL = 'https://raw.githubusercontent.com/czbiohub-sf/tabula-muris-vignettes/refs/heads/master/data/TM_facs_metadata.csv'
 
 
 # ---- Per-study download helpers -------------------------------------------
@@ -286,59 +289,18 @@ def _download_rosenberg(study_path: str, data_dir: str) -> None:
 
 
 def _download_zeisel(study_path: str, data_dir: str) -> None:
-    """Download Zeisel cortex expression data from S3.
-
-    The S3 file has:
-      line 1: header row (deleted)
-      line 2: cell-type labels (kept)
-      lines 3-11: other metadata (deleted)
-      lines 12+: gene expression (kept)
-    """
-    txt_path = os.path.join(data_dir, 'zeisel_expression.txt')
+    """Download Zeisel cortex expression data (GEO)."""
+    txt_path = os.path.join(data_dir, 'zeisel_expression.txt.gz')
     _download_geo_file(_ZEISEL_URL, txt_path)
 
-    with open(txt_path, 'r') as f:
-        _header = f.readline()          # line 1: discard
-        label_line = f.readline()       # line 2: cell-type labels
-        for _ in range(9):              # lines 3-11: skip metadata
-            f.readline()
-        # lines 12+: gene expression (DGE format: gene_name\tval\tval...)
-        lines = f.readlines()
-
-    # Parse cell-type labels from line 2
-    label_parts = label_line.strip().replace(' #', '').split('\t')
-    cell_labels = label_parts[1:]  # skip first col (row header)
-
-    # Parse expression
-    gene_names = []
-    rows, cols, vals = [], [], []
-    for gene_idx, line in enumerate(lines):
-        parts = line.strip().split('\t')
-        gene_names.append(parts[0])
-        for cell_idx, v_str in enumerate(parts[1:]):
-            try:
-                v = int(v_str)
-            except ValueError:
-                v = int(float(v_str))
-            if v > 0:
-                rows.append(cell_idx)
-                cols.append(gene_idx)
-                vals.append(v)
-
-    n_cells = len(cell_labels)
-    X = scipy.sparse.coo_matrix(
-        (vals, (rows, cols)),
-        shape=(n_cells, len(gene_names)),
-        dtype=np.float32,
-    ).tocsr()
-
-    adata = ad.AnnData(X=X)
-    adata.var_names = pd.Index(gene_names)
-    adata.var_names_make_unique()
-    adata.obs_names_make_unique()
-    adata.obs[LABEL_COL] = cell_labels
-
+    # GEO format: row 0 = "cell_id" header + cell IDs, rows 1+ = gene expression
+    adata = _read_dge_sparse(txt_path)
     os.remove(txt_path)
+    adata.var_names_make_unique()
+
+    _cluster_adata(adata)
+    adata.obs[LABEL_COL] = adata.obs['Celltype']
+
     adata.write_h5ad(study_path)
     console.print(f'  Zeisel: {adata.n_obs:,} cells, '
                   f'{adata.obs[LABEL_COL].nunique()} types')
