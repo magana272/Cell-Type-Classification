@@ -11,10 +11,10 @@ from allen_brain.data_sets import TOSICA_DATASETS
 
 def main():
     # # Download raw files (CSVs + h5ad)
-    # download_data()
+    download_data()
 
-    # load_10x()
-    # load_smartseq()
+    load_10x()
+    load_smartseq()
     # load_pbmc()
     # load_pancreas()
     # #load_tabula_muris()
