@@ -55,7 +55,9 @@ def download_url(url: str, dest: str) -> None:
         return
 
     tqdm.write(f"Downloading {os.path.basename(dest)} ...")
-    resp = requests.get(url, stream=True, allow_redirects=True, timeout=300)
+    headers = {"User-Agent": "Mozilla/5.0 (Python/requests)"}
+    resp = requests.get(url, stream=True, allow_redirects=True, timeout=300,
+                        headers=headers)
     resp.raise_for_status()
     total = int(resp.headers.get("content-length", 0))
     tmp = dest + ".part"

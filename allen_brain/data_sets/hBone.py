@@ -17,31 +17,6 @@ RepC	2211
 HTC	50
 preHTC 	1994
 FC	2266
-GSM4626766	Osteoarthritic cartilage-oLT-1
-GSM4626767	Osteoarthritic cartilage-oLT-2
-GSM4626768	Osteoarthritic cartilage-oLT-3
-GSM4626769	Osteoarthritic cartilage-MT-1
-GSM4626770	Osteoarthritic cartilage-MT-2
-GSM4626771	Osteoarthritic cartilage-MT-3
-
-GSM4626766_OA_oLT_113.barcodes.tsv.gz	24.6 Kb
-GSM4626766_OA_oLT_113.genes.tsv.gz	251.3 Kb
-GSM4626766_OA_oLT_113.matrix.mtx.gz	42.5 Mb
-GSM4626767_OA_oLT_116.barcodes.tsv.gz	15.8 Kb
-GSM4626767_OA_oLT_116.genes.tsv.gz	251.3 Kb
-GSM4626767_OA_oLT_116.matrix.mtx.gz	30.0 Mb
-GSM4626768_OA_oLT_118.barcodes.tsv.gz	18.9 Kb
-GSM4626768_OA_oLT_118.genes.tsv.gz	251.3 Kb
-GSM4626768_OA_oLT_118.matrix.mtx.gz	43.4 Mb
-GSM4626769_OA_MT_113.barcodes.tsv.gz	13.4 Kb
-GSM4626769_OA_MT_113.genes.tsv.gz	251.3 Kb
-GSM4626769_OA_MT_113.matrix.mtx.gz	30.3 Mb
-GSM4626770_OA_MT_116.barcodes.tsv.gz	14.8 Kb
-GSM4626770_OA_MT_116.genes.tsv.gz	251.3 Kb
-GSM4626770_OA_MT_116.matrix.mtx.gz	36.2 Mb
-GSM4626771_OA_MT_118.barcodes.tsv.gz	19.8 Kb
-GSM4626771_OA_MT_118.genes.tsv.gz	251.3 Kb
-GSM4626771_OA_MT_118.matrix.mtx.gz
 
 
 """
