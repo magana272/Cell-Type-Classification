@@ -603,7 +603,7 @@ class Trainer:
         hvg_idx: np.ndarray | None = None
         if n_hvg is not None and 0 < n_hvg < len(ds.gene_names):
             console.print(f'Selecting top {n_hvg} HVGs by variance on train split...')
-            hvg_idx = np.sort(select_hvg(np.asarray(ds.X), n_hvg))
+            hvg_idx = np.sort(select_hvg(ds.X, n_hvg))
             ds.X = np.asarray(ds.X[:, hvg_idx])
             ds_val.X = np.asarray(ds_val.X[:, hvg_idx])
             ds.gene_names = ds.gene_names[hvg_idx]
@@ -1042,7 +1042,9 @@ class Trainer:
                 scaler = pickle.load(f)
         if normalize:
             console.print(f'Applying saved normalization: {normalize}')
-            ds_test.X = _apply_normalization_test(np.asarray(ds_test.X), normalize, scaler)
+            X_test = ds_test.X.toarray() if scipy.sparse.issparse(ds_test.X) else np.asarray(ds_test.X)
+            ds_test.X = _apply_normalization_test(X_test, normalize, scaler)
+            ds_test._sparse = False
 
         n_features = len(ds_test.gene_names)
         n_classes = ds_test.n_classes
