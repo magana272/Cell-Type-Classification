@@ -12,7 +12,7 @@ from allen_brain.models.config import ExperimentConfig
 from allen_brain.models.gnn_train import GraphTrainer, train_graph
 from allen_brain.models.CellTypeGNN import GraphBuilder
 
-DATA_DIR = 'data/10x'
+DATA_DIR = 'data/mPancreas'
 SEED = 42
 BATCH_SIZE = 256
 K_NEIGHBORS = 10
