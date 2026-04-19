@@ -1,83 +1,67 @@
-"""hPancreas — human pancreas (multiple studies).
+"""hPancreas — human pancreas (multiple studies), TOSICA benchmark.
 
-Train: Baron (GSE84133) + Muraro (GSE85241)
-PP	356
-PSC	444
-Delta	793
-Ductal	1290
-Beta	2966
-Acinar	1144
-Alpha	3136
-Epsilon	21
-Endothelial	273
-Macrophage	52
-Schwann	13
-Mast	25
-T_cell	7
-Mesenchymal	80
-MHC class II	0
+Source: TOSICA demo data (figshare.com/projects/TOSICA_demo/158489)
+  Baron (GSE84133) + Muraro (GSE85241) → train
+  Xin (GSE81608) + Segerstolpe (E-MTAB-5061) + Lawlor (GSE86473) → test
 
+Train (10,600 cells):
+  Alpha            3136
+  Beta             2966
+  Ductal           1290
+  Acinar           1144
+  Delta             793
+  PSC               524
+  PP                356
+  Endothelial       273
+  Macrophage         52
+  Mast               25
+  Epsilon            21
+  Schwann            13
+  T_cell              7
 
-Test:  Xin (GSE81608) + Segerstolpe (E-MTAB-5061) + Lawlor (GSE86473)
-PP	282
-PSC	73
-Delta	188
-Ductal	414
-Beta	1006
-Acinar	209
-Alpha	2011
-Epsilon	7
-Endothelial	16
-Macrophage	0
-Schwann	0
-Mast	7
-T_cell	0
-Mesenchymal	0
-MHC class II	5
+Test (4,218 cells):
+  Alpha            2011
+  Beta             1006
+  Ductal            414
+  PP                282
+  Acinar            209
+  Delta             188
+  PSC                73
+  Endothelial        16
+  Epsilon             7
+  Mast                7
+  MHC class II        5
 
-
+14 classes, 3000 HVGs.
 """
 from __future__ import annotations
 
 import os
 
+import anndata as ad
 import numpy as np
 
 from allen_brain.data_sets._utils import (
     condition_split_and_save,
     console,
-    read_h5ad_or_download,
 )
 
 DATA_DIR = 'data/hPancreas'
 LABEL_COL = 'Celltype'
-SPLIT_COL = 'study'
+SPLIT_COL = 'split'
 
-TRAIN_STUDIES = {'Baron', 'Muraro'}
-TEST_STUDIES = {'Xin', 'Segerstolpe', 'Lawlor'}
+# TOSICA demo h5ad files (original study annotations, 3000 HVGs)
+_TRAIN_URL = 'https://ndownloader.figshare.com/files/39010169'
+_TEST_URL = 'https://ndownloader.figshare.com/files/39010166'
 
-# Figshare pancreas benchmark h5ad (all 5 studies with annotations)
-_PANCREAS_URL = 'https://ndownloader.figshare.com/files/24539828'
-_PANCREAS_H5AD = 'data/pancreas/pancreas.h5ad'
-
-TECH_TO_STUDY = {
-    'inDrop1': 'Baron', 'inDrop2': 'Baron',
-    'inDrop3': 'Baron', 'inDrop4': 'Baron',
-    'celseq2': 'Muraro',
-    'smartseq2': 'Segerstolpe',
-    'smarter': 'Xin',
-    'fluidigmc1': 'Lawlor',
-}
-
-# celltype → TOSICA Celltype mapping
+# Normalize TOSICA lowercase labels → Title Case
 CELLTYPE_MAP = {
-    'alpha': 'Alpha', 'beta': 'Beta', 'gamma': 'PP',
-    'delta': 'Delta', 'epsilon': 'Epsilon',
-    'acinar': 'Acinar', 'ductal': 'Ductal',
-    'endothelial': 'Endothelial',
-    'activated_stellate': 'PSC', 'quiescent_stellate': 'PSC',
-    'macrophage': 'Macrophage', 'schwann': 'Schwann',
-    'mast': 'Mast', 't_cell': 'T_cell',
+    'alpha': 'Alpha', 'beta': 'Beta', 'delta': 'Delta',
+    'epsilon': 'Epsilon', 'acinar': 'Acinar', 'ductal': 'Ductal',
+    'endothelial': 'Endothelial', 'macrophage': 'Macrophage',
+    'schwann': 'Schwann', 'mast': 'Mast', 't_cell': 'T_cell',
+    # Already correct case:
+    'PP': 'PP', 'PSC': 'PSC', 'MHC class II': 'MHC class II',
 }
 
 
@@ -88,43 +72,45 @@ def setup(data_dir: str = DATA_DIR, seed: int = 1) -> str:
         console.print(f'Splits already exist in {data_dir}')
         return data_dir
 
-    console.print('[bold]Setting up hPancreas (multi-study)[/bold]')
+    console.print('[bold]Setting up hPancreas (TOSICA benchmark)[/bold]')
 
-    h5ad_path = os.path.join(data_dir, 'hPancreas.h5ad')
-    if os.path.exists(h5ad_path):
-        adata = read_h5ad_or_download(h5ad_path)
-    else:
-        # Download figshare pancreas benchmark h5ad
-        if not os.path.exists(_PANCREAS_H5AD):
-            from allen_brain.cell_data.cell_download import download_h5ad
-            os.makedirs(os.path.dirname(_PANCREAS_H5AD), exist_ok=True)
-            download_h5ad(_PANCREAS_URL, _PANCREAS_H5AD)
+    os.makedirs(data_dir, exist_ok=True)
+    train_path = os.path.join(data_dir, 'demo_train.h5ad')
+    test_path = os.path.join(data_dir, 'demo_test.h5ad')
 
-        import anndata as ad
-        adata = ad.read_h5ad(_PANCREAS_H5AD)
+    from allen_brain.cell_data.cell_download import download_h5ad
 
-        # Map tech → study, drop techs not in the benchmark
-        adata.obs[SPLIT_COL] = adata.obs['tech'].map(TECH_TO_STUDY)
-        adata = adata[adata.obs[SPLIT_COL].notna()].copy()
+    if not os.path.exists(train_path):
+        download_h5ad(_TRAIN_URL, train_path)
+    if not os.path.exists(test_path):
+        download_h5ad(_TEST_URL, test_path)
 
-        # Map celltype → TOSICA Celltype
-        adata.obs[LABEL_COL] = adata.obs['celltype'].map(CELLTYPE_MAP)
-        unmapped = adata.obs.loc[adata.obs[LABEL_COL].isna(), 'celltype']
-        if len(unmapped):
-            console.print(f'[yellow]Dropping {len(unmapped)} cells with '
-                          f'unmapped celltypes: '
-                          f'{dict(unmapped.value_counts())}[/yellow]')
-        adata = adata[adata.obs[LABEL_COL].notna()].copy()
+    adata_train = ad.read_h5ad(train_path)
+    adata_test = ad.read_h5ad(test_path)
 
-        os.makedirs(data_dir, exist_ok=True)
-        adata.write_h5ad(h5ad_path)
-        console.print(f'[green]Saved[/green] {h5ad_path} '
-                      f'({adata.n_obs:,} cells, '
-                      f'{adata.obs[LABEL_COL].nunique()} types)')
+    console.print(f'  train: {adata_train.n_obs:,} cells, '
+                  f'{adata_train.obs[LABEL_COL].nunique()} types')
+    console.print(f'  test:  {adata_test.n_obs:,} cells, '
+                  f'{adata_test.obs[LABEL_COL].nunique()} types')
 
-    split_vals = adata.obs[SPLIT_COL].astype(str).values
-    train_mask = np.isin(split_vals, list(TRAIN_STUDIES))
-    test_mask = np.isin(split_vals, list(TEST_STUDIES))
+    # Normalize cell-type labels to Title Case
+    for adata_part in (adata_train, adata_test):
+        raw = adata_part.obs[LABEL_COL].astype(str)
+        adata_part.obs[LABEL_COL] = raw.map(CELLTYPE_MAP).fillna(raw)
+
+    # Align to shared gene set (should already match for TOSICA demo)
+    shared_genes = adata_train.var_names.intersection(adata_test.var_names)
+    adata_train = adata_train[:, shared_genes].copy()
+    adata_test = adata_test[:, shared_genes].copy()
+
+    # Tag split for condition_split_and_save
+    adata_train.obs[SPLIT_COL] = 'train'
+    adata_test.obs[SPLIT_COL] = 'test'
+    adata = ad.concat([adata_train, adata_test], join='inner')
+    adata.obs_names_make_unique()
+
+    train_mask = (adata.obs[SPLIT_COL] == 'train').values
+    test_mask = (adata.obs[SPLIT_COL] == 'test').values
 
     return condition_split_and_save(
         adata, data_dir, label_col=LABEL_COL,
