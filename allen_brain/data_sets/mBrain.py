@@ -177,48 +177,87 @@ def _download_tabula_muris_brain(study_path: str, data_dir: str) -> None:
 
 
 def _read_dge_sparse(path: str):
-    """Read a Drop-seq DGE text file (genes × cells) into sparse AnnData.
+    """Read a Drop-seq DGE file into sparse AnnData.
 
-    Reads line-by-line to build a COO sparse matrix, avoiding loading the
-    entire dense matrix into memory.
+    Supports two formats:
+      1. MatrixMarket with %%GENES / %%CELLS headers (DropViz .raw.dge.txt.gz)
+      2. Dense TSV/CSV (genes × cells)
     """
     import gzip
 
-    rows, cols, vals = [], [], []
-    gene_names = []
     opener = gzip.open if path.endswith('.gz') else open
 
     with opener(path, 'rt') as f:
         first_line = f.readline().strip()
-        # Auto-detect delimiter (tab or comma)
-        sep = ',' if first_line.count(',') > first_line.count('\t') else '\t'
-        header = first_line.split(sep)
-        cell_names = [c.strip('"') for c in header[1:]]  # skip first column
 
-        gene_idx = 0
-        for line in f:
-            parts = line.strip().split(sep)
-            try:
-                parsed = [int(float(v.strip('"'))) for v in parts[1:]]
-            except ValueError:
-                continue  # skip metadata / annotation rows
-            gene_names.append(parts[0].strip('"'))
-            for cell_idx, v in enumerate(parsed):
-                if v > 0:
-                    rows.append(cell_idx)
-                    cols.append(gene_idx)
-                    vals.append(v)
-            gene_idx += 1
+        # --- Format 1: MatrixMarket with %%GENES header ---
+        if first_line.startswith('%%MatrixMarket'):
+            gene_names = []
+            cell_names = []
+            for line in f:
+                line = line.strip()
+                if line.startswith('%%GENES'):
+                    gene_names = line.split('\t')[1:]
+                elif line.startswith('%%CELLS'):
+                    cell_names = line.split('\t')[1:]
+                elif line.startswith('%'):
+                    continue
+                else:
+                    # Size line: n_rows n_cols n_entries
+                    parts = line.split()
+                    n_genes, n_cells, n_entries = int(parts[0]), int(parts[1]), int(parts[2])
+                    if not cell_names:
+                        cell_names = [str(i) for i in range(n_cells)]
+                    if not gene_names:
+                        gene_names = [str(i) for i in range(n_genes)]
+                    break
 
-    X = scipy.sparse.coo_matrix(
-        (vals, (rows, cols)),
-        shape=(len(cell_names), len(gene_names)),
-        dtype=np.float32,
-    ).tocsr()
+            # Read triplets: gene_idx cell_idx value (1-indexed)
+            rows, cols, vals = [], [], []
+            for line in f:
+                parts = line.strip().split()
+                g, c, v = int(parts[0]) - 1, int(parts[1]) - 1, int(parts[2])
+                rows.append(c)   # cell = row in AnnData
+                cols.append(g)   # gene = column
+                vals.append(v)
+
+            X = scipy.sparse.coo_matrix(
+                (vals, (rows, cols)),
+                shape=(n_cells, n_genes),
+                dtype=np.float32,
+            ).tocsr()
+
+        # --- Format 2: Dense TSV/CSV ---
+        else:
+            sep = ',' if first_line.count(',') > first_line.count('\t') else '\t'
+            header = first_line.split(sep)
+            cell_names = [c.strip('"') for c in header[1:]]
+            gene_names = []
+            rows, cols, vals = [], [], []
+            gene_idx = 0
+            for line in f:
+                parts = line.strip().split(sep)
+                try:
+                    parsed = [int(float(v.strip('"'))) for v in parts[1:]]
+                except ValueError:
+                    continue
+                gene_names.append(parts[0].strip('"'))
+                for cell_idx, v in enumerate(parsed):
+                    if v > 0:
+                        rows.append(cell_idx)
+                        cols.append(gene_idx)
+                        vals.append(v)
+                gene_idx += 1
+
+            X = scipy.sparse.coo_matrix(
+                (vals, (rows, cols)),
+                shape=(len(cell_names), len(gene_names)),
+                dtype=np.float32,
+            ).tocsr()
 
     adata = ad.AnnData(X=X)
-    adata.obs_names = pd.Index(cell_names)
-    adata.var_names = pd.Index(gene_names)
+    adata.obs_names = pd.Index([str(c) for c in cell_names])
+    adata.var_names = pd.Index([str(g) for g in gene_names])
     return adata
 
 
