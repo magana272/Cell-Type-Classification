@@ -614,7 +614,9 @@ class Trainer:
         X_val = ds_val.X.toarray() if scipy.sparse.issparse(ds_val.X) else np.asarray(ds_val.X)
         X_train, X_val, scaler = _apply_normalization(X_train, X_val, normalize)
         ds.X = X_train
+        ds._sparse = False
         ds_val.X = X_val
+        ds_val._sparse = False
 
         pin = device.type == 'cuda'
         train_loader = DataLoader(ds, batch_size=self.cfg['batch_size'], shuffle=True,
