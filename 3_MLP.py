@@ -15,9 +15,9 @@ DATA_DIR = 'data/mPancreas'
 SEED = 1
 BATCH_SIZE = 8192
 EPOCHS = 20
-LR = 0.001
+LR = 0.01
 LRF = 0.01
-NORMALIZE = 'log+standard'
+NORMALIZE = 'None'
 
 cfg = ExperimentConfig(
     model='CellTypeMLP',
@@ -25,6 +25,8 @@ cfg = ExperimentConfig(
     batch_size=BATCH_SIZE,
     epochs=EPOCHS,
     normalize=NORMALIZE,
+    lr=LR,
+    
 )
 
 
