@@ -297,28 +297,24 @@ def _download_rosenberg(study_path: str, data_dir: str) -> None:
     os.remove(mat_path)
 
     # Follow rosen.py format exactly
-    X = scipy.sparse.csr_matrix(mat['DGE'].T)
+    # DGE is already (cells × genes) — no transpose
+    X = scipy.sparse.csr_matrix(mat['DGE'], dtype=np.float32)
     n_cells, n_genes = X.shape
 
-    # MATLAB cell arrays of strings → extract properly
-    def _extract_strings(arr):
-        """Unpack nested MATLAB string arrays into a flat list."""
-        flat = arr.flatten()
-        return [str(x[0]).strip() if hasattr(x, '__len__') else str(x).strip()
-                for x in flat]
-
-    raw_genes = _extract_strings(mat['genes'])
-    # If gene list doesn't match DGE columns, use generic names
-    if len(raw_genes) != n_genes:
-        console.print(f'    [yellow]genes field has {len(raw_genes)} entries '
-                      f'but DGE has {n_genes} columns — using generic names[/yellow]')
-        raw_genes = [f'Gene_{i}' for i in range(n_genes)]
-
-    cluster_assignment = _extract_strings(mat['cluster_assignment'])
+    genes = pd.Series(mat['genes'].flatten()).str.strip(' ')
+    if len(genes) != n_genes:
+        console.print(f'    [yellow]genes={len(genes)} vs DGE cols={n_genes}[/yellow]')
+        genes = pd.Series([f'Gene_{i}' for i in range(n_genes)])
 
     adata = ad.AnnData(X=X)
-    adata.var_names = pd.Index(raw_genes)
-    adata.obs[LABEL_COL] = cluster_assignment[:n_cells]
+    adata.var_names = pd.Index(genes.values.astype(str))
+
+    if 'cluster_assignment' in mat:
+        ca = pd.Series(mat['cluster_assignment'].flatten()).str.strip(' ')
+        adata.obs[LABEL_COL] = ca.values[:n_cells]
+    else:
+        _cluster_adata(adata)
+        adata.obs[LABEL_COL] = adata.obs['Celltype']
 
     adata.var_names_make_unique()
     adata.obs_names_make_unique()
