@@ -189,17 +189,20 @@ def _read_dge_sparse(path: str):
     opener = gzip.open if path.endswith('.gz') else open
 
     with opener(path, 'rt') as f:
-        header = f.readline().strip().split('\t')
-        cell_names = header[1:]  # skip first column ("GENE")
+        first_line = f.readline().strip()
+        # Auto-detect delimiter (tab or comma)
+        sep = ',' if first_line.count(',') > first_line.count('\t') else '\t'
+        header = first_line.split(sep)
+        cell_names = [c.strip('"') for c in header[1:]]  # skip first column
 
         gene_idx = 0
         for line in f:
-            parts = line.strip().split('\t')
+            parts = line.strip().split(sep)
             try:
-                parsed = [int(v) for v in parts[1:]]
+                parsed = [int(float(v.strip('"'))) for v in parts[1:]]
             except ValueError:
                 continue  # skip metadata / annotation rows
-            gene_names.append(parts[0])
+            gene_names.append(parts[0].strip('"'))
             for cell_idx, v in enumerate(parsed):
                 if v > 0:
                     rows.append(cell_idx)
@@ -254,37 +257,14 @@ def _download_rosenberg(study_path: str, data_dir: str) -> None:
     mat = scipy.io.loadmat(mat_path)
     os.remove(mat_path)
 
-    # SPLiT-seq .mat has 'DGE' (sparse matrix) and gene/cell name arrays
-    if 'DGE' in mat:
-        X = scipy.sparse.csr_matrix(mat['DGE'].T)
-    elif 'DGE_MATRIX' in mat:
-        X = scipy.sparse.csr_matrix(mat['DGE_MATRIX'].T)
-    else:
-        # Find the largest sparse matrix
-        for key in mat:
-            if scipy.sparse.issparse(mat[key]):
-                X = scipy.sparse.csr_matrix(mat[key].T)
-                break
-        else:
-            raise ValueError(f'No sparse matrix found in .mat file. Keys: {list(mat.keys())}')
+    # Follow rosen.py format exactly
+    X = scipy.sparse.csr_matrix(mat['DGE'].T)
+    genes = pd.Series(mat['genes'].flatten()).str.strip(' ')
+    cluster_assignment = pd.Series(mat['cluster_assignment'].flatten()).str.strip(' ')
 
     adata = ad.AnnData(X=X)
-
-    # Try to extract gene/cell names
-    for key in ('genes', 'gene_names', 'gene_list'):
-        if key in mat:
-            names = mat[key].flatten()
-            adata.var_names = pd.Index([str(g).strip() if isinstance(g, str) else str(g[0]).strip() for g in names])
-            break
-
-    # Use cluster_assignment from the .mat for cell-type labels
-    if 'cluster_assignment' in mat:
-        labels = [str(c).strip() if isinstance(c, str) else str(c[0]).strip()
-                  for c in mat['cluster_assignment'].flatten()]
-        adata.obs[LABEL_COL] = labels
-    else:
-        _cluster_adata(adata)
-        adata.obs[LABEL_COL] = adata.obs['Celltype']
+    adata.var_names = pd.Index(genes.values.astype(str))
+    adata.obs[LABEL_COL] = cluster_assignment.values
 
     adata.var_names_make_unique()
     adata.obs_names_make_unique()
