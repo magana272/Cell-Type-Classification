@@ -17,6 +17,7 @@ BATCH_SIZE = 8192
 EPOCHS = 20
 LR = 0.01
 LRF = 0.01
+N_HVG = 2000
 NORMALIZE = 'None'
 
 cfg = ExperimentConfig(

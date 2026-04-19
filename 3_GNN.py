@@ -19,7 +19,8 @@ K_NEIGHBORS = 10
 EPOCHS = 200
 LR = 0.001
 LRF = 0.01
-NORMALIZE = 'log+standard'
+HVG  = 2000
+NORMALIZE = 'None'
 
 cfg = ExperimentConfig(
     model='CellTypeGNN',

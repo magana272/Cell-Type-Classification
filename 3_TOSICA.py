@@ -23,7 +23,7 @@ DATA_DIR: str = 'data/mPancreas'
 GMT_PATH: str = 'data/reactome.gmt'
 PROJECT: str = 'tosica_unknown'
 LABEL_COL: str = 'cell_type'
-N_HVG: int = 10_000
+N_HVG: int = 2_000
 EPOCHS: int = 20
 BATCH_SIZE: int = 64
 UNKNOWN_THRESHOLD: float = 0.95
@@ -63,8 +63,9 @@ def main() -> None:
     X_train: np.ndarray = np.asarray(ds_train.X)[mask].astype(np.float32)
     y_train: np.ndarray = np.asarray(ds_train.y)[mask]
     y_str: list[str] = [all_class_names[int(yi)] for yi in y_train]
-
+ 
     train_adata: ad.AnnData = ad.AnnData(X=X_train, var=pd.DataFrame(index=gene_names))
+    train_adata = sc.pp.highly_variable_genes(train_adata, n_top_genes=N_HVG, subset=True)
     # sc.pp.normalize_total(train_adata, target_sum=1e4)
     # sc.pp.log1p(train_adata)
     # sc.pp.scale(train_adata)

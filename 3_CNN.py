@@ -18,7 +18,7 @@ N_HVG = 2000
 EPOCHS = 30
 LR = 0.001
 LRF = 0.01
-NORMALIZE = 'log+standard'
+NORMALIZE = 'None'
 
 cfg = ExperimentConfig(
     model='CellTypeCNN',

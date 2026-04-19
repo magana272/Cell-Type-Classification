@@ -16,7 +16,7 @@ GMT_PATH = 'data/reactome.gmt'
 MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
-
+N_HVG = 2000
 SEED = 1
 BATCH_SIZE = 4096
 EPOCHS = 20
@@ -28,6 +28,7 @@ cfg = ExperimentConfig(
     seed=SEED,
     batch_size=BATCH_SIZE,
     epochs=EPOCHS,
+    n_hvg=N_HVG,
 )
 
 
