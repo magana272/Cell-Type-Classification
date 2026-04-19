@@ -51,72 +51,63 @@ SPLIT_COL = 'state'
 TRAIN_VALUES = {'HEA'}
 TEST_VALUES = {'DIS'}
 
-# Cellranger aggr output — count matrix + analysis/clustering
-_AGGR_URL = (
-    'https://ftp.ncbi.nlm.nih.gov/geo/series/GSE159nnn/GSE159677/suppl/'
-    'GSE159677_AGGREGATEMAPPED-tisCAR6samples_featurebcmatrixfiltered.tar.gz'
-)
-
-# Barcode suffix → condition (from Aggregated.Sample.Meta.txt.gz)
-_SUFFIX_TO_STATE = {
-    '-1': 'HEA', '-2': 'DIS', '-3': 'HEA',
-    '-4': 'DIS', '-5': 'HEA', '-6': 'DIS',
+# Per-sample 10X tar.gz URLs — filename encodes condition (conDIS / conHEA)
+_GEO_SAMPLES = 'https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM4837nnn'
+_SAMPLE_URLS = {
+    'GSM4837523': f'{_GEO_SAMPLES}/GSM4837523/suppl/GSM4837523_02dat20190515tisCARconDIS_featurebcmatrixfiltered.tar.gz',
+    'GSM4837524': f'{_GEO_SAMPLES}/GSM4837524/suppl/GSM4837524_01dat20190515tisCARconHEA_featurebcmatrixfiltered.tar.gz',
+    'GSM4837525': f'{_GEO_SAMPLES}/GSM4837525/suppl/GSM4837525_02dat20190620tisCARconDIS_featurebcmatrixfiltered.tar.gz',
+    'GSM4837526': f'{_GEO_SAMPLES}/GSM4837526/suppl/GSM4837526_01dat20190620tisCARconHEA_featurebcmatrixfiltered.tar.gz',
+    'GSM4837527': f'{_GEO_SAMPLES}/GSM4837527/suppl/GSM4837527_02dat20190717tisCARconDIS_featurebcmatrixfiltered.tar.gz',
+    'GSM4837528': f'{_GEO_SAMPLES}/GSM4837528/suppl/GSM4837528_01dat20190717tisCARconHEA_featurebcmatrixfiltered.tar.gz',
 }
 
 
 def _build_h5ad(h5ad_path: str, data_dir: str) -> None:
-    """Download aggregated cellranger tar and build h5ad."""
+    """Download per-sample 10X tars, parse condition from filename."""
     os.makedirs(data_dir, exist_ok=True)
+    adatas = []
 
-    with tempfile.TemporaryDirectory() as tmp:
-        tar_path = os.path.join(tmp, 'aggr.tar.gz')
-        _download_geo_file(_AGGR_URL, tar_path)
-        with tarfile.open(tar_path) as tf:
-            try:
-                tf.extractall(tmp, filter='data')
-            except TypeError:
-                tf.extractall(tmp)
+    for gsm, url in _SAMPLE_URLS.items():
+        fname = os.path.basename(url)
+        # Parse condition from filename: conDIS → DIS, conHEA → HEA
+        state = 'DIS' if 'conDIS' in fname else 'HEA'
 
-        # Find count matrix and analysis directory
-        mtx_path = bc_path = feat_path = None
-        analysis_dir = None
-        for root, dirs, files in os.walk(tmp):
-            for f in files:
-                fp = os.path.join(root, f)
-                if f.endswith(('.mtx.gz', '.mtx')) and mtx_path is None:
-                    mtx_path = fp
-                elif 'barcodes' in f and f.endswith(('.tsv.gz', '.tsv')):
-                    bc_path = fp
-                elif ('features' in f or 'genes' in f) and f.endswith(('.tsv.gz', '.tsv')):
-                    feat_path = fp
-            if 'analysis' in dirs:
-                analysis_dir = os.path.join(root, 'analysis')
+        with tempfile.TemporaryDirectory() as tmp:
+            tar_path = os.path.join(tmp, 'sample.tar.gz')
+            _download_geo_file(url, tar_path)
+            with tarfile.open(tar_path) as tf:
+                try:
+                    tf.extractall(tmp, filter='data')
+                except TypeError:
+                    tf.extractall(tmp)
 
-        adata = _read_mtx_files(mtx_path, bc_path, feat_path)
-        console.print(f'  Loaded {adata.n_obs:,} cells, {adata.n_vars:,} genes')
+            # Find 10X matrix files
+            mtx_path = bc_path = feat_path = None
+            for root, _dirs, files in os.walk(tmp):
+                for f in files:
+                    fp = os.path.join(root, f)
+                    if f.endswith(('.mtx.gz', '.mtx')) and mtx_path is None:
+                        mtx_path = fp
+                    elif 'barcodes' in f and f.endswith(('.tsv.gz', '.tsv')):
+                        bc_path = fp
+                    elif ('features' in f or 'genes' in f) and f.endswith(('.tsv.gz', '.tsv')):
+                        feat_path = fp
 
-        # Map barcode suffix → condition
-        suffixes = adata.obs_names.str.extract(r'(-\d+)$')[0]
-        adata.obs[SPLIT_COL] = suffixes.map(_SUFFIX_TO_STATE).values
+            adata = _read_mtx_files(mtx_path, bc_path, feat_path)
+            adata.obs[SPLIT_COL] = state
+            adata.obs_names = gsm + '_' + adata.obs_names.astype(str)
+            adatas.append(adata)
+            console.print(f'  {gsm} ({state}): {adata.n_obs:,} cells')
 
-        # Read cellranger clustering from analysis directory
-        if analysis_dir:
-            for root, _dirs, files in os.walk(analysis_dir):
-                for f in sorted(files):
-                    if f == 'clusters.csv':
-                        clust_df = pd.read_csv(os.path.join(root, f))
-                        n = clust_df['Cluster'].nunique()
-                        console.print(f'  Found clustering: {n} clusters')
-                        adata.obs[LABEL_COL] = (
-                            'Cluster_' + clust_df['Cluster'].astype(str).values
-                        )
+    adata = ad.concat(adatas, join='inner')
+    adata.var_names_make_unique()
 
-        if LABEL_COL not in adata.obs.columns:
-            _cluster_adata(adata)
-            adata.obs[LABEL_COL] = adata.obs['Celltype']
+    # Cluster for cell-type labels
+    _cluster_adata(adata)
 
     adata.write_h5ad(h5ad_path)
-    console.print(f'  Saved: {adata.obs[LABEL_COL].nunique()} types')
+    console.print(f'  Saved: {adata.n_obs:,} cells, {adata.obs[LABEL_COL].nunique()} types')
 
 
 def setup(data_dir: str = DATA_DIR, seed: int = 1) -> str:

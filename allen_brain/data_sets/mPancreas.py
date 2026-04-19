@@ -71,6 +71,12 @@ LABEL_COL = 'Celltype'
 SPLIT_COL = 'day'
 TEST_DAY = '15.5'
 
+# Direct download URL (bypasses GEOparse)
+_H5AD_URL = (
+    'https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE132188'
+    '&format=file&file=GSE132188%5Fadata%2Eh5ad%2Eh5'
+)
+
 
 def setup(data_dir: str = DATA_DIR, seed: int = 1) -> str:
     """Download, split, and save mPancreas dataset."""
@@ -82,7 +88,7 @@ def setup(data_dir: str = DATA_DIR, seed: int = 1) -> str:
         return data_dir
 
     console.print(f'[bold]Setting up mPancreas ({GEO})[/bold]')
-    adata = read_h5ad_or_download(h5ad_path, accession=GEO)
+    adata = read_h5ad_or_download(h5ad_path, url=_H5AD_URL)
 
     # Build Celltype from fine + broad cluster annotations:
     # Use fine types (Fev+ subtypes, Ngn3 subtypes, etc.) but replace
