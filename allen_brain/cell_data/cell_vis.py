@@ -684,3 +684,95 @@ class ModelComparisonVisualizer:
         plt.savefig(path, dpi=150)
         plt.close()
         console.print(f'[green]Saved[/green] {path}')
+
+    @staticmethod
+    def plot_annotator_comparison_heatmap(
+        combined_accuracy: dict[str, dict[str, float | None]],
+        our_model_names: list[str],
+        save_dir: str,
+        filename: str = 'annotator_comparison_heatmap.png',
+    ) -> None:
+        """Heatmap: rows = methods, cols = datasets, color = accuracy.
+
+        Our models are highlighted with bold labels.
+        """
+        datasets = list(combined_accuracy.keys())
+        all_methods: set[str] = set()
+        for d in combined_accuracy.values():
+            all_methods.update(d.keys())
+        # Sort: our models first, then published by mean accuracy descending
+        published = sorted(
+            all_methods - set(our_model_names),
+            key=lambda m: np.nanmean([
+                combined_accuracy[ds].get(m) or np.nan for ds in datasets]),
+            reverse=True,
+        )
+        methods = our_model_names + published
+
+        matrix = np.full((len(methods), len(datasets)), np.nan)
+        for j, ds in enumerate(datasets):
+            for i, m in enumerate(methods):
+                v = combined_accuracy[ds].get(m)
+                if v is not None:
+                    matrix[i, j] = v
+
+        fig, ax = plt.subplots(
+            figsize=(max(8, len(datasets) * 2.5), max(6, len(methods) * 0.4)))
+        sns.heatmap(matrix, annot=True, fmt='.3f', cmap='YlGn',
+                    xticklabels=datasets, yticklabels=methods,
+                    ax=ax, vmin=0, vmax=1, linewidths=0.5)
+        # Bold our model labels
+        for i, label in enumerate(ax.get_yticklabels()):
+            if label.get_text() in our_model_names:
+                label.set_fontweight('bold')
+                label.set_color('darkblue')
+        ax.set_title('Cell Type Annotation Accuracy: Our Models vs Published Methods')
+        plt.tight_layout()
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, filename)
+        plt.savefig(path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        console.print(f'[green]Saved[/green] {path}')
+
+    @staticmethod
+    def plot_mean_accuracy_bar(
+        combined_accuracy: dict[str, dict[str, float | None]],
+        our_model_names: list[str],
+        save_dir: str,
+        filename: str = 'mean_accuracy_comparison.png',
+    ) -> None:
+        """Horizontal bar chart of mean accuracy across datasets, sorted."""
+        datasets = list(combined_accuracy.keys())
+        all_methods: set[str] = set()
+        for d in combined_accuracy.values():
+            all_methods.update(d.keys())
+
+        means: list[tuple[str, float]] = []
+        for m in all_methods:
+            vals = [combined_accuracy[ds].get(m) for ds in datasets]
+            valid = [v for v in vals if v is not None]
+            if valid:
+                means.append((m, np.mean(valid)))
+        means.sort(key=lambda x: x[1])
+
+        names = [m for m, _ in means]
+        values = [v for _, v in means]
+        colors = ['#2171b5' if n in our_model_names else '#bdbdbd'
+                  for n in names]
+
+        fig, ax = plt.subplots(figsize=(10, max(6, len(names) * 0.35)))
+        ax.barh(range(len(names)), values, color=colors)
+        ax.set_yticks(range(len(names)))
+        ax.set_yticklabels(names, fontsize=8)
+        for i, n in enumerate(names):
+            if n in our_model_names:
+                ax.get_yticklabels()[i].set_fontweight('bold')
+        ax.set_xlabel('Mean Accuracy')
+        ax.set_title('Mean Accuracy Across TOSICA Benchmark Datasets')
+        ax.set_xlim(0, 1.0)
+        plt.tight_layout()
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, filename)
+        plt.savefig(path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        console.print(f'[green]Saved[/green] {path}')

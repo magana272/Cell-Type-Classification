@@ -126,9 +126,6 @@ def prediect(adata, model_weight_path, project, mask_path, laten=False,
     gene2token.index = pathway['0']              # rows = pathway names
     gene2token.to_csv(project_path+'/gene2token_weights.csv')  # save for downstream analysis
 
-    # ── Phase 4: Initialize accumulators ────────────────────────────────
-    # NOTE: these are overwritten every batch; lines 75-81 are effectively dead code
-    # from an earlier version that tried to accumulate across batches
     latent = torch.empty([0,embed_dim]).cpu()
     att = torch.empty([0,(len(pathway))]).cpu()
     predict_class = np.empty(shape=0)

@@ -9,17 +9,19 @@ import os
 from rich.console import Console
 from rich.panel import Panel
 
+from allen_brain.TOSICA.train import set_seed
 from allen_brain.cell_data.cell_dataset import make_dataset
 from allen_brain.cell_data.cell_load import ALL_DATASETS
 from allen_brain.cell_data.cell_vis import DatasetVisualizer
 
-SEED = 42
+SEED = 1
 console = Console()
 
 DATASETS = [(info['dir'], name) for name, info in ALL_DATASETS.items()]
 
 
 def run_visualizations(data_dir: str, tag: str):
+    set_seed(SEED)
     """Run the full visualization suite for one dataset."""
     console.print(Panel(
         f"[bold]{tag.upper()}[/bold]  ·  {data_dir}",
@@ -74,6 +76,7 @@ def run_visualizations(data_dir: str, tag: str):
 
 
 def main():
+    set_seed(SEED)
     for data_dir, tag in DATASETS:
         run_visualizations(data_dir, tag)
     console.print("\nAll visualizations complete.")

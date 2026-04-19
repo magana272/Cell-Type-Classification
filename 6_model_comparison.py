@@ -23,7 +23,7 @@ from allen_brain.cell_data.cell_vis import ModelComparisonVisualizer
 from allen_brain.models.CellTypeGNN import GraphBuilder
 from allen_brain.models.gnn_train import _collect_graph_probabilities
 
-DATA_DIR: str = 'data/10x'
+DATA_DIR: str = 'data/mPancreas'
 SAVE_DIR: str = 'figures'
 BATCH_SIZE: int = 1024
 

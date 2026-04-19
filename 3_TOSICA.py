@@ -5,6 +5,9 @@ from __future__ import annotations
 import os
 import sys
 
+
+from allen_brain.TOSICA.train import set_seed
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'TOSICA'))
 
 import numpy as np
@@ -16,7 +19,7 @@ import TOSICA
 from allen_brain.cell_data.cell_dataset import make_dataset, GeneExpressionDataset
 from allen_brain.cell_data.cell_preprocess import select_hvg
 
-DATA_DIR: str = 'data/10x'
+DATA_DIR: str = 'data/mPancreas'
 GMT_PATH: str = 'data/reactome.gmt'
 PROJECT: str = 'tosica_unknown'
 LABEL_COL: str = 'cell_type'
@@ -24,9 +27,15 @@ N_HVG: int = 10_000
 EPOCHS: int = 20
 BATCH_SIZE: int = 64
 UNKNOWN_THRESHOLD: float = 0.95
+SEED: int = 1
+
+# def train(adata, gmt_path, project=None,pre_weights='', 
+# 
+# label_name='Celltype',max_g=300,max_gs=300,mask_ratio =0.015, n_unannotated = 1,batch_size=8, embed_dim=48,depth=2,num_heads=4,lr=0.001, epochs= 10, lrf=0.01):
 
 
 def main() -> None:
+    set_seed(SEED)
     ds_train: GeneExpressionDataset = make_dataset(DATA_DIR, split='train')
     ds_test: GeneExpressionDataset = make_dataset(DATA_DIR, split='test')
 

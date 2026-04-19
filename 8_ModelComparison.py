@@ -17,7 +17,7 @@ from allen_brain.models.CellTypeAttention import TOSICA as my_implementation_TOS
 from allen_brain.models.CellTypeCNN import CellTypeCNN
 from allen_brain.models.CellTypeGNN import CellTypeGNN, GraphBuilder
 from allen_brain.models.CellTypeMLP import MLP_Model
-from allen_brain.TOSICA.train import todense
+from allen_brain.TOSICA.train import todense, splitDataSet
 # Torch imports
 import torch
 import torch.nn as nn
@@ -90,56 +90,55 @@ MODELS: dict[str, type[nn.Module]] = {
     'CNN': CellTypeCNN
 }
 
-def split_dataset(adata: AnnData, label_name: str = 'subclass_label', train_ratio: float = 0.7, val_ratio: float = 0.15,
-                  save_dir: str | None = None) -> tuple[np.ndarray, np.ndarray]:
-    """Split adata into train / val / test sets (default 70/15/15).
+# def split_dataset(adata: AnnData, label_name: str = 'subclass_label', train_ratio: float = 0.7, val_ratio: float = 0.15,
+#                   save_dir: str | None = None) -> tuple[np.ndarray, np.ndarray]:
+#     """Split adata into train / val / test sets (default 70/15/15).
 
-    If save_dir is provided, saves splits to .npy files incrementally
-    to avoid holding all splits in memory at once.
-    """
-    label_encoder: LabelEncoder = LabelEncoder()
-    genes: np.ndarray = np.array(adata.var_names)
+#     If save_dir is provided, saves splits to .npy files incrementally
+#     to avoid holding all splits in memory at once.
+#     """
+#     label_encoder: LabelEncoder = LabelEncoder()
+#     genes: np.ndarray = np.array(adata.var_names)
 
-    labels: np.ndarray = label_encoder.fit_transform(adata.obs[label_name].astype('str').values)
-    inverse: np.ndarray = label_encoder.inverse_transform(range(labels.max() + 1))
-    print(f"Encoded labels: {inverse}")
-    X: np.ndarray = np.asarray(todense(adata), dtype=np.float32)
-    print(f"Original data shape: {X.shape}, labels shape: {labels.shape}")
+#     labels: np.ndarray = label_encoder.fit_transform(adata.obs[label_name].astype('str').values)
+#     inverse: np.ndarray = label_encoder.inverse_transform(range(labels.max() + 1))
+#     print(f"Encoded labels: {inverse}")
+#     X: np.ndarray = np.asarray(todense(adata), dtype=np.float32)
+#     print(f"Original data shape: {X.shape}, labels shape: {labels.shape}")
 
-    # Balance populations: downsample large classes to the median class size
-    ct_names: np.ndarray
-    ct_counts: np.ndarray
-    ct_names, ct_counts = np.unique(labels, return_counts=True)
-    max_per_class: int = int(np.median(ct_counts))
-    print(f"Class counts: min={ct_counts.min()}, median={max_per_class}, max={ct_counts.max()}")
-    balanced_idx: list[np.ndarray] = []
-    for ct in ct_names:
-        ct_idx: np.ndarray = np.where(labels == ct)[0]
-        balanced_idx.append(np.random.choice(ct_idx, min(len(ct_idx), max_per_class), replace=False))
-    balanced_idx_arr: np.ndarray = np.concatenate(balanced_idx)
-    X = X[balanced_idx_arr]
-    labels = labels[balanced_idx_arr]
-    print(f"Balanced: {len(labels)} samples, {len(ct_names)} classes, {max_per_class} per class")
+#     # Balance populations: downsample large classes to the median class size
+#     ct_names: np.ndarray
+#     ct_counts: np.ndarray
+#     ct_names, ct_counts = np.unique(labels, return_counts=True)
+#     max_per_class: int = int(np.median(ct_counts))
+#     print(f"Class counts: min={ct_counts.min()}, median={max_per_class}, max={ct_counts.max()}")
+#     balanced_idx: list[np.ndarray] = []
+#     for ct in ct_names:
+#         ct_idx: np.ndarray = np.where(labels == ct)[0]
+#         balanced_idx.append(np.random.choice(ct_idx, min(len(ct_idx), max_per_class), replace=False))
+#     balanced_idx_arr: np.ndarray = np.concatenate(balanced_idx)
+#     X = X[balanced_idx_arr]
+#     labels = labels[balanced_idx_arr]
+#     print(f"Balanced: {len(labels)} samples, {len(ct_names)} classes, {max_per_class} per class")
 
-    n: int = len(X)
-    n_train: int = int(n * train_ratio)
-    n_val: int = int(n * val_ratio)
-    print(f"Total samples: {n}, genes: {X.shape[1]}, classes: {len(inverse)}")
+#     n: int = len(X)
+#     n_train: int = int(n * train_ratio)
+#     n_val: int = int(n * val_ratio)
+#     print(f"Total samples: {n}, genes: {X.shape[1]}, classes: {len(inverse)}")
 
-    indices: np.ndarray = np.random.permutation(n)
-    train_idx: np.ndarray = indices[:n_train]
-    val_idx: np.ndarray = indices[n_train:n_train + n_val]
-    test_idx: np.ndarray = indices[n_train + n_val:]
-    print(f"Train samples: {len(train_idx)}, Val samples: {len(val_idx)}, Test samples: {len(test_idx)}")
+#     indices: np.ndarray = np.random.permutation(n)
+#     train_idx: np.ndarray = indices[:n_train]
+#     val_idx: np.ndarray = indices[n_train:n_train + n_val]
+#     test_idx: np.ndarray = indices[n_train + n_val:]
+#     print(f"Train samples: {len(train_idx)}, Val samples: {len(val_idx)}, Test samples: {len(test_idx)}")
 
-    # Save each split to disk one at a time, then free it
-    splits: list[tuple[str, np.ndarray]] = [('train', train_idx), ('val', val_idx), ('test', test_idx)]
-    for name, idx in splits:
-        np.save(os.path.join(save_dir, f'exp_{name}.npy'), X[idx])
-        np.save(os.path.join(save_dir, f'label_{name}.npy'), labels[idx].astype(np.int64))
-    del X, labels
+#     splits: list[tuple[str, np.ndarray]] = [('train', train_idx), ('val', val_idx), ('test', test_idx)]
+#     for name, idx in splits:
+#         np.save(os.path.join(save_dir, f'exp_{name}.npy'), X[idx])
+#         np.save(os.path.join(save_dir, f'label_{name}.npy'), labels[idx].astype(np.int64))
+#     del X, labels
 
-    return inverse, genes
+#     return inverse, genes
 
 
 def _forward_model(model: nn.Module, exp: torch.Tensor, model_type: str, edge_index: torch.Tensor | None = None) -> torch.Tensor:
@@ -254,16 +253,16 @@ def fit_model(adata: AnnData, gmt_path: str | None, project: str | None = None, 
     genes: np.ndarray = np.array(adata.var_names)
     if splits_exist:
         inverse: np.ndarray = pd.read_csv(project_path + '/label_dictionary.csv', index_col=0).values.flatten()
+        exp_train: np.ndarray = np.load(project_path + '/exp_train.npy')
+        label_train: np.ndarray = np.load(project_path + '/label_train.npy')
+        exp_val: np.ndarray = np.load(project_path + '/exp_val.npy')
+        label_val: np.ndarray = np.load(project_path + '/label_val.npy')
         print('Split data loaded!')
     else:
         print('Split data not found, creating new split...')
-        inverse, _ = split_dataset(adata, label_name, save_dir=project_path)
+        exp_train, label_train, exp_val, label_val, inverse, genes = splitDataSet(adata, label_name, save_dir=project_path)
         pd.DataFrame(inverse, columns=[label_name]).to_csv(project_path + '/label_dictionary.csv', quoting=None)
         print('Split data created and saved!')
-    exp_train: np.ndarray = np.load(project_path + '/exp_train.npy')
-    label_train: np.ndarray = np.load(project_path + '/label_train.npy')
-    exp_val: np.ndarray = np.load(project_path + '/exp_val.npy')
-    label_val: np.ndarray = np.load(project_path + '/label_val.npy')
     if gmt_path is None:
         mask: np.ndarray = np.random.binomial(1, mask_ratio, size=(len(genes), max_gs))
         pathway: list[str] = list()

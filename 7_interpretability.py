@@ -1,4 +1,32 @@
-"""Interpretability analysis for all 4 model architectures."""
+"""Interpretability analysis for all 4 model architectures.
+One of the most common demands in single-cell analysis is the transfer of identified cell population from an original 
+reference to newly generated data, which may come from different batch and biological state (e.g., disease). 
+
+To demonstrate the applicability and interpretability of TOSICA on such a task, 
+we prepare two sets of pan-cancer tumor infiltrating immune cells data, myeloid48 and T49 cells, respectively. 
+
+In the myeloid dataset, a total of 71,159 myeloid cells come from tumors, adjacent non-cancer tissues, 
+peripheral blood of 43 patients across 9 common cancer types. Among them, kidney cancer (KIDNEY, 28,930 cells), uterine corpus endometrial carcinoma 
+(UCEC, 9816 cells) and esophageal carcinoma (ESCA, 8154 cells) are used as reference dataset (Fig. 4a) and myeloma (MYE, 7861 cells), 
+thyroid carcinoma (THCA, 5939), ovarian or fallopian tube carcinoma (OV-FTC, 4002 cells), pancreatic adenocarcinoma (PAAD, 3093 cells), 
+colon cancer (CRC, 2725 cells), and lymphoma (LYM, 639 cells) are used as query dataset (Fig. 4a, b). 
+
+REACTOME pathway50 knowledgebase is used to build the model. 
+
+Then, 8 evaluation metrics 
+    (ASW, graph connectivity and k-nearest-neighbor batch effect test (kBET) for batch effect removal and NMI
+    Adjusted Rand Index (ARI),
+    ASW and isolated label F1 score for biological variation retention)
+    
+are computed to verify the integration ability by scIB47. scIB ranks TOSICA the second out of all 11 applicable 
+data integration methods evaluated on all metrics combined 
+
+(overall score = 0.6 x biology conservation + 0.4 x batch removal) (Supplementary Fig. 12a). 
+
+Note that Seurat-based methods, including Seurat v3 CCA and Seurat v3 RPCA, are unable to integrate datasets from more than 85 batches, 
+these methods are thus not applicable for comparison.
+
+"""
 from __future__ import annotations
 
 import os
@@ -25,7 +53,7 @@ from allen_brain.cell_data.cell_dataset import make_dataset
 from allen_brain.models.CellTypeAttention import PathwayMaskBuilder
 from allen_brain.models.CellTypeGNN import GraphBuilder
 
-DATA_DIR: str = 'data/10x'
+DATA_DIR: str = 'data/mPancreas'
 SAVE_DIR: str = 'figures'
 BATCH_SIZE: int = 512
 

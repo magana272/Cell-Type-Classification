@@ -251,7 +251,7 @@ class GraphTrainer:
         Returns (best_val_acc, ckpt_path, merged_params).
         """
         cfg = self.cfg
-        saved: dict[str, Any] = load_hyperparameters(cfg['model'], hp_dir)
+        saved: dict[str, Any] = load_hyperparameters(cfg['model'], hp_dir) if hp_dir is not None else {}
         bp: dict[str, Any] = {**saved}
         for k in ('epochs', 'batch_size', 'seed'):
             if k in cfg:

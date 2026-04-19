@@ -59,6 +59,19 @@ ALL_DATASETS: dict[str, DatasetConfig] = {
                                   label_col='cell_ontology_class', min_cells=100),
     'lung':         DatasetConfig(dir='data/lung',         loader='h5ad',
                                   label_col='cell_type',     min_cells=50),
+    # TOSICA benchmark datasets (condition-based splits, see allen_brain/data_sets/)
+    'hArtery':      DatasetConfig(dir='data/hArtery',      loader='h5ad',
+                                  label_col='Celltype',          min_cells=50),
+    'hBone':        DatasetConfig(dir='data/hBone',        loader='h5ad',
+                                  label_col='Celltype',          min_cells=50),
+    'hPancreas':    DatasetConfig(dir='data/hPancreas',    loader='h5ad',
+                                  label_col='Celltype',          min_cells=50),
+    'mBrain':       DatasetConfig(dir='data/mBrain',       loader='h5ad',
+                                  label_col='cell_ontology_class', min_cells=50),
+    'mPancreas':    DatasetConfig(dir='data/mPancreas',    loader='h5ad',
+                                  label_col='Celltype',          min_cells=50),
+    'mAtlas':       DatasetConfig(dir='data/mAtlas',       loader='h5ad',
+                                  label_col='cell_ontology_class', min_cells=50),
 }
 
 CANONICAL_LABEL_MAP: dict[str, str] = {

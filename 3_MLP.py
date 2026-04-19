@@ -1,28 +1,60 @@
+import math
+import os
+import pickle
+
+import numpy as np
+import torch
+import torch.optim as optim
+import torch.optim.lr_scheduler as lr_scheduler
+
+from allen_brain.TOSICA.train import set_seed
 from allen_brain.models import train as T
 from allen_brain.models.config import ExperimentConfig
 
-DATA_DIR = 'data/10x'
+DATA_DIR = 'data/mPancreas'
+SEED = 1
+BATCH_SIZE = 8192
+EPOCHS = 20
+LR = 0.001
+LRF = 0.01
+NORMALIZE = 'log+standard'
 
 cfg = ExperimentConfig(
     model='CellTypeMLP',
-    seed=42,
-    batch_size=8192,
-    n_hvg=0,
-    optimizer='adamw',
-    lr=3e-4,
-    weight_decay=1e-6,
-    epochs=20,
-    loss='cross_entropy',
-    label_smoothing=0.1,
-    normalize='log+standard',
+    seed=SEED,
+    batch_size=BATCH_SIZE,
+    epochs=EPOCHS,
+    normalize=NORMALIZE,
 )
 
 
 def main() -> None:
+    set_seed(SEED)
     trainer = T.Trainer(cfg)
-    best_acc, ckpt, best_params = trainer.train_single(
-        DATA_DIR, squeeze_channel=True)
-    T.save_hyperparameters('CellTypeMLP', best_params, cfg)
+    train_loader, val_loader, hvg_idx, scaler = trainer.make_dataloaders(
+        DATA_DIR, normalize=NORMALIZE)
+    ds = train_loader.dataset
+
+    model = T.build_model('CellTypeMLP', len(ds.gene_names), ds.n_classes)
+
+    criterion = torch.nn.CrossEntropyLoss()
+    pg = [p for p in model.parameters() if p.requires_grad]
+    optimizer = optim.SGD(pg, lr=LR, momentum=0.9, weight_decay=5E-5)
+    lf = lambda x: ((1 + math.cos(x * math.pi / EPOCHS)) / 2) * (1 - LRF) + LRF
+    scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
+
+    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    ckpt_dir = os.path.dirname(ckpt)
+    if scaler is not None:
+        with open(os.path.join(ckpt_dir, 'scaler.pkl'), 'wb') as f:
+            pickle.dump(scaler, f)
+    with open(os.path.join(ckpt_dir, 'normalize.txt'), 'w') as f:
+        f.write(NORMALIZE)
+
+    T.print_header()
+    T.train(model, (train_loader, val_loader), criterion, optimizer, scheduler,
+            EPOCHS, writer, ckpt, squeeze_channel=True)
+
     metrics = trainer.evaluate(DATA_DIR, ckpt, squeeze_channel=True)
     T.append_results_csv('MLP', metrics)
 
