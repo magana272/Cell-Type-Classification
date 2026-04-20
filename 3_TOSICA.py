@@ -69,10 +69,6 @@ def main() -> None:
     y_str: list[str] = [all_class_names[int(yi)] for yi in y_train]
  
     train_adata: ad.AnnData = ad.AnnData(X=X_train, var=pd.DataFrame(index=gene_names))
-    train_adata = sc.pp.highly_variable_genes(train_adata, n_top_genes=N_HVG, subset=True)
-    # sc.pp.normalize_total(train_adata, target_sum=1e4)
-    # sc.pp.log1p(train_adata)
-    # sc.pp.scale(train_adata)
     sc.pp.highly_variable_genes(train_adata, n_top_genes=N_HVG, subset=True)
     train_adata.obs[LABEL_COL] = y_str
 

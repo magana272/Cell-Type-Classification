@@ -75,7 +75,13 @@ class GraphBuilder:
     def _torch_knn(
         X_all: np.ndarray, k: int, batch_size: int = 256,
     ) -> np.ndarray:
-        X = torch.from_numpy(X_all).to('cuda')
+        if torch.cuda.is_available():
+            device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            device = torch.device('mps')
+        else:
+            device = torch.device('cpu')
+        X = torch.from_numpy(X_all).to(device)
         X = X / X.norm(dim=1, keepdim=True)
         indices = torch.empty(X.shape[0], k + 1, dtype=torch.long)
         for i in range(0, X.shape[0], batch_size):
@@ -214,7 +220,7 @@ class CellTypeGNN(nn.Module):
         x = self.encoder(x)
         for block in self.blocks:
             x = block(x, edge_index)
-        return F.gelu(self.conv_out(x, edge_index))
+        return x
 
 
 
