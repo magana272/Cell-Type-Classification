@@ -1,6 +1,6 @@
 """Shared training/evaluation workflow for all 5 models on a single dataset.
 
-Called by 8_hPancreas.py, 8_mPancreas.py, 8_mAtlas.py with dataset-specific config.
+Called by 5_hPancreas.py, 5_mPancreas.py, 5_mAtlas.py with dataset-specific config.
 """
 from __future__ import annotations
 
