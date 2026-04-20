@@ -90,12 +90,17 @@ def main() -> None:
 
     test_adata: ad.AnnData = ad.AnnData(X=X_test, var=pd.DataFrame(index=gene_names))
 
+    # Avoid batch-size-1 edge case (torch.squeeze in TOSICA.pre removes batch dim)
+    bs: int = BATCH_SIZE
+    while len(ds_test) > 1 and len(ds_test) % bs == 1:
+        bs += 1
+
     result: ad.AnnData = TOSICA.pre(
         test_adata,
         model_weight_path=f'./{PROJECT}/model-{EPOCHS - 1}.pth',
         project=PROJECT,
         cutoff=UNKNOWN_THRESHOLD,
-        batch_size=BATCH_SIZE,
+        batch_size=bs,
     )
 
     predictions: np.ndarray = result.obs['Prediction'].values.astype(str)
