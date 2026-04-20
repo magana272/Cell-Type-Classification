@@ -147,7 +147,7 @@ class TOSICA(nn.Module):
 
         self.cls_token = nn.Parameter(torch.randn(1, embed_dim, 1))
 
-        self.pos_embed = nn.Parameter(torch.randn(1, embed_dim, n_pathways + 1) * 0.01)
+        # self.pos_embed = nn.Parameter(torch.randn(1, embed_dim, n_pathways + 1) * 0.01)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=embed_dim,
@@ -177,7 +177,7 @@ class TOSICA(nn.Module):
         tokens = self.embedding(x)
         cls = self.cls_token.expand(batch, -1, -1)
         tokens = torch.cat([cls, tokens], dim=2)
-        tokens = tokens + self.pos_embed
+        # tokens = tokens + self.pos_embed
         tokens = tokens.permute(0, 2, 1)
         out = self.transformer(tokens)
         cls_out = out[:, 0, :]
