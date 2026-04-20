@@ -58,8 +58,8 @@ DATA_DIR: str = 'data/mPancreas'
 SAVE_DIR: str = 'figures'
 BATCH_SIZE: int = 512
 
-# GMT config (must match 4_Transformer.py)
-GMT_PATH: str = 'data/reactome.gmt'
+# GMT config (must match 3_Transformer.py)
+GMT_PATH: str = 'allen_brain/TOSICA/resources/m_reactome.gmt'
 MAX_PATHWAYS: int = 300
 MIN_PATHWAY_OVERLAP: int = 5
 MAX_GENE_SET_SIZE: int = 300
