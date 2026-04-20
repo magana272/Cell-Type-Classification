@@ -15,7 +15,7 @@ import pandas as pd
 import scipy.sparse
 import anndata as ad
 import scanpy as sc
-import TOSICA
+import allen_brain.TOSICA as TOSICA
 
 from allen_brain.cell_data.cell_dataset import make_dataset, GeneExpressionDataset
 from allen_brain.cell_data.cell_preprocess import select_hvg
