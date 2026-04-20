@@ -12,7 +12,10 @@ from allen_brain.models.CellTypeAttention import PathwayMaskBuilder
 from allen_brain.cell_data.cell_dataset import make_dataset
 
 DATA_DIR = 'data/mPancreas'
-GMT_PATH = 'allen_brain/TOSICA/resources/m_reactome.gmt'
+_ROOT = os.path.dirname(os.path.abspath(__file__))
+GMT_PATH = os.path.join(_ROOT, 'allen_brain', 'TOSICA', 'resources', 'm_reactome.gmt')
+GMT_URL = ('https://data.broadinstitute.org/gsea-msigdb/msigdb/'
+           'release/2023.2.Mm/m2.cp.reactome.v2023.2.Mm.symbols.gmt')
 MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
@@ -35,7 +38,7 @@ cfg = ExperimentConfig(
 def _build_pathway_kwargs(gene_names: list[str]) -> dict:
     """Build extra_model_kwargs for TOSICA from (HVG-filtered) gene names."""
     mask, n_pathways = PathwayMaskBuilder(
-        gmt_path=GMT_PATH,
+        gmt_path=GMT_PATH, gmt_url=GMT_URL,
         min_overlap=MIN_PATHWAY_OVERLAP,
         max_pathways=MAX_PATHWAYS, max_gene_set_size=MAX_GENE_SET_SIZE
     ).build_mask(gene_names)
