@@ -126,6 +126,25 @@ def _apply_normalization_test(X_test: np.ndarray, normalize: str | None,
     return X_test
 
 
+def balance_populations(X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Oversample each class to match the largest class (capped).
+
+    Mirrors ``allen_brain.TOSICA.train.balance_populations`` so all models
+    train on the same balanced distribution.
+    """
+    classes, counts = np.unique(y, return_counts=True)
+    max_val = min(counts.max(), int(2_000_000 / len(classes)))
+    X_parts: list[np.ndarray] = []
+    y_parts: list[np.ndarray] = []
+    for c in classes:
+        mask = y == c
+        X_c = X[mask]
+        idx = np.random.choice(len(X_c), max_val, replace=len(X_c) < max_val)
+        X_parts.append(X_c[idx])
+        y_parts.append(np.full(max_val, c, dtype=y.dtype))
+    return np.concatenate(X_parts), np.concatenate(y_parts)
+
+
 def class_weights(ds: GeneExpressionDataset, device: torch.device = DEVICE) -> torch.Tensor:
     counts = np.bincount(ds.y, minlength=ds.n_classes).astype(np.float32)
     w = torch.tensor(1.0 / (counts + 1e-6), dtype=torch.float32).to(device)
@@ -616,7 +635,11 @@ class Trainer:
         X_train = ds.X.toarray() if scipy.sparse.issparse(ds.X) else np.asarray(ds.X)
         X_val = ds_val.X.toarray() if scipy.sparse.issparse(ds_val.X) else np.asarray(ds_val.X)
         X_train, X_val, scaler = _apply_normalization(X_train, X_val, normalize)
+
+        # Balance training populations (oversample minority classes)
+        X_train, y_train = balance_populations(X_train, np.asarray(ds.y))
         ds.X = X_train
+        ds.y = y_train
         ds._sparse = False
         ds_val.X = X_val
         ds_val._sparse = False
@@ -626,7 +649,7 @@ class Trainer:
                                   drop_last=drop_last_train, pin_memory=pin)
         val_loader = DataLoader(ds_val, batch_size=self.cfg['batch_size'], shuffle=False,
                                 drop_last=False, pin_memory=pin)
-        console.print(f'train: {len(ds)} cells, {ds.n_classes} classes, {len(ds.gene_names)} genes')
+        console.print(f'train: {len(ds)} cells (balanced), {ds.n_classes} classes, {len(ds.gene_names)} genes')
         console.print(f'val:   {len(ds_val)} cells')
         return train_loader, val_loader, hvg_idx, scaler
 

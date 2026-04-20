@@ -101,6 +101,7 @@ def main() -> None:
         project=PROJECT,
         cutoff=UNKNOWN_THRESHOLD,
         batch_size=bs,
+        laten=True,  # use CLS embeddings to avoid torch.squeeze bug in pre.py
     )
 
     predictions: np.ndarray = result.obs['Prediction'].values.astype(str)

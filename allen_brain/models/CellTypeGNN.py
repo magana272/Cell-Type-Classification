@@ -111,6 +111,15 @@ class GraphBuilder:
     def build_graph_data(self, data_dir: str) -> Data:
         """Load data and build a PyG Data object with k-NN edges and split masks."""
         X_all, y_all, sizes = self.load_combined_xy(data_dir)
+
+        # Balance training populations (oversample minority classes)
+        from allen_brain.models.train import balance_populations
+        n_tr = sizes['train']
+        X_tr_bal, y_tr_bal = balance_populations(X_all[:n_tr], y_all[:n_tr])
+        X_all = np.concatenate([X_tr_bal, X_all[n_tr:]])
+        y_all = np.concatenate([y_tr_bal, y_all[n_tr:]])
+        sizes['train'] = len(X_tr_bal)
+
         tr_m, vl_m, te_m = self.build_masks(sizes)
         normalize = self.normalize
 
