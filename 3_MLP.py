@@ -17,7 +17,7 @@ BATCH_SIZE = 8192
 EPOCHS = 20
 LR = 0.01
 LRF = 0.01
-N_HVG = 2000
+N_HVG = 10000
 NORMALIZE = 'None'
 
 cfg = ExperimentConfig(
@@ -35,7 +35,7 @@ def main() -> None:
     set_seed(SEED)
     trainer = T.Trainer(cfg)
     train_loader, val_loader, hvg_idx, scaler = trainer.make_dataloaders(
-        DATA_DIR, normalize=NORMALIZE)
+        DATA_DIR, n_hvg=N_HVG, normalize=NORMALIZE)
     ds = train_loader.dataset
 
     model = T.build_model('CellTypeMLP', len(ds.gene_names), ds.n_classes)
@@ -49,6 +49,8 @@ def main() -> None:
     writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
     ckpt_dir = os.path.dirname(ckpt)
     T._save_model_kwargs(ckpt_dir, {})
+    if hvg_idx is not None:
+        np.save(os.path.join(ckpt_dir, 'hvg_indices.npy'), hvg_idx)
     if scaler is not None:
         with open(os.path.join(ckpt_dir, 'scaler.pkl'), 'wb') as f:
             pickle.dump(scaler, f)

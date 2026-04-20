@@ -16,7 +16,7 @@ GMT_PATH = 'data/reactome.gmt'
 MAX_PATHWAYS = 300
 MIN_PATHWAY_OVERLAP = 5
 MAX_GENE_SET_SIZE = 300
-N_HVG = 2000
+N_HVG = 10000
 SEED = 1
 BATCH_SIZE = 4096
 EPOCHS = 20
@@ -32,23 +32,22 @@ cfg = ExperimentConfig(
 )
 
 
-def _build_pathway_kwargs() -> dict:
-    """Build extra_model_kwargs for TOSICA from training gene names."""
-    ds = make_dataset(DATA_DIR, split='train')
+def _build_pathway_kwargs(gene_names: list[str]) -> dict:
+    """Build extra_model_kwargs for TOSICA from (HVG-filtered) gene names."""
     mask, n_pathways = PathwayMaskBuilder(
         gmt_path=GMT_PATH, min_overlap=MIN_PATHWAY_OVERLAP,
         max_pathways=MAX_PATHWAYS, max_gene_set_size=MAX_GENE_SET_SIZE
-    ).build_mask([str(g) for g in ds.gene_names])
+    ).build_mask(gene_names)
     return dict(mask=mask, n_pathways=n_pathways)
 
 
 def main() -> None:
     set_seed(SEED)
     trainer = T.Trainer(cfg)
-    train_loader, val_loader, _, _ = trainer.make_dataloaders(DATA_DIR)
+    train_loader, val_loader, hvg_idx, _ = trainer.make_dataloaders(DATA_DIR, n_hvg=N_HVG)
     ds = train_loader.dataset
 
-    extra_kw = _build_pathway_kwargs()
+    extra_kw = _build_pathway_kwargs([str(g) for g in ds.gene_names])
     extra_kw.update(n_layers=2)
     model = T.build_model('CellTypeTOSICA', len(ds.gene_names), ds.n_classes, **extra_kw)
 
@@ -60,6 +59,9 @@ def main() -> None:
 
     writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
     ckpt_dir = os.path.dirname(ckpt)
+    if hvg_idx is not None:
+        import numpy as np
+        np.save(os.path.join(ckpt_dir, 'hvg_indices.npy'), hvg_idx)
     T._save_model_kwargs(ckpt_dir, extra_kw)
 
     T.print_header()

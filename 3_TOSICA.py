@@ -24,12 +24,11 @@ DATA_DIR: str = 'data/mPancreas'
 GMT_PATH: str = 'data/reactome.gmt'
 PROJECT: str = 'tosica_unknown'
 LABEL_COL: str = 'cell_type'
-N_HVG: int = 2_000
+N_HVG: int = 10_000
 EPOCHS: int = 20
 BATCH_SIZE: int = 64
 UNKNOWN_THRESHOLD: float = 0.95
 SEED: int = 1
-N_HVG = 2000
 
 # def train(adata, gmt_path, project=None,pre_weights='', 
 # 

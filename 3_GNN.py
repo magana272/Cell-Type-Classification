@@ -19,7 +19,7 @@ K_NEIGHBORS = 10
 EPOCHS = 20
 LR = 0.001
 LRF = 0.01
-HVG  = 2000
+N_HVG = 10000
 NORMALIZE = 'None'
 
 cfg = ExperimentConfig(
@@ -36,7 +36,7 @@ cfg = ExperimentConfig(
 def main() -> None:
     set_seed(SEED)
     gb = GraphBuilder(k_neighbors=K_NEIGHBORS, normalize=NORMALIZE)
-    data = gb.build_graph_data(DATA_DIR).to(T.DEVICE)
+    data = gb.build_graph_data(DATA_DIR, n_hvg=N_HVG).to(T.DEVICE)
     n_classes: int = int(data.y.max().item()) + 1
     class_names: list[str] = list(np.load(f'{DATA_DIR}/class_names.npy', allow_pickle=True))
     n_features: int = data.x.shape[1]
@@ -50,7 +50,7 @@ def main() -> None:
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     writer, ckpt = T.make_writer_and_ckpt(cfg, n_features)
-    T._save_model_kwargs(os.path.dirname(ckpt), {'k_neighbors': K_NEIGHBORS})
+    T._save_model_kwargs(os.path.dirname(ckpt), {})
 
     T.print_header()
     train_graph(model, data, criterion, optimizer, scheduler,

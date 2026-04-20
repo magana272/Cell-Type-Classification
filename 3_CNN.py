@@ -14,7 +14,7 @@ from allen_brain.models.config import ExperimentConfig
 DATA_DIR = 'data/mPancreas'
 SEED = 1
 BATCH_SIZE = 16384
-N_HVG = 2000
+N_HVG = 10000
 EPOCHS = 20
 LR = 0.001
 LRF = 0.01

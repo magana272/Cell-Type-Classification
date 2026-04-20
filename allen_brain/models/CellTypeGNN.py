@@ -108,9 +108,17 @@ class GraphBuilder:
         edge_index = torch.tensor(np.stack([src_sym, dst_sym], axis=0), dtype=torch.long)
         return torch.unique(edge_index, dim=1)
 
-    def build_graph_data(self, data_dir: str) -> Data:
+    def build_graph_data(self, data_dir: str, n_hvg: int = 0) -> Data:
         """Load data and build a PyG Data object with k-NN edges and split masks."""
         X_all, y_all, sizes = self.load_combined_xy(data_dir)
+
+        # HVG selection (based on train split variance)
+        if n_hvg and 0 < n_hvg < X_all.shape[1]:
+            from allen_brain.cell_data.cell_preprocess import select_hvg
+            n_tr = sizes['train']
+            hvg_idx = np.sort(select_hvg(X_all[:n_tr], n_hvg))
+            X_all = X_all[:, hvg_idx]
+            console.print(f'GNN: selected top {n_hvg} HVGs ({X_all.shape[1]} genes)')
 
         # Balance training populations (oversample minority classes)
         from allen_brain.models.train import balance_populations
