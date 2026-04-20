@@ -59,7 +59,10 @@ SAVE_DIR: str = 'figures'
 BATCH_SIZE: int = 512
 
 # GMT config (must match 3_Transformer.py)
-GMT_PATH: str = 'allen_brain/TOSICA/resources/m_reactome.gmt'
+_ROOT: str = os.path.dirname(os.path.abspath(__file__))
+GMT_PATH: str = os.path.join(_ROOT, 'allen_brain', 'TOSICA', 'resources', 'm_reactome.gmt')
+GMT_URL: str = ('https://data.broadinstitute.org/gsea-msigdb/msigdb/'
+                'release/2023.2.Mm/m2.cp.reactome.v2023.2.Mm.symbols.gmt')
 MAX_PATHWAYS: int = 300
 MIN_PATHWAY_OVERLAP: int = 5
 MAX_GENE_SET_SIZE: int = 300
@@ -85,7 +88,7 @@ def interpret_tosica(save_dir: str) -> None:
 
     gene_names: list[str] = [str(g) for g in ds_test.gene_names]
     pw_builder = PathwayMaskBuilder(
-        gmt_path=GMT_PATH, min_overlap=MIN_PATHWAY_OVERLAP,
+        gmt_path=GMT_PATH, gmt_url=GMT_URL, min_overlap=MIN_PATHWAY_OVERLAP,
         max_pathways=MAX_PATHWAYS, max_gene_set_size=MAX_GENE_SET_SIZE)
     mask: torch.Tensor
     n_pathways: int
@@ -490,7 +493,7 @@ def compare_gene_importance(save_dir: str) -> None:
         ds = make_dataset(DATA_DIR, split='test')
         gene_names: list[str] = [str(g) for g in ds.gene_names]
         pw_builder = PathwayMaskBuilder(
-            gmt_path=GMT_PATH, min_overlap=MIN_PATHWAY_OVERLAP,
+            gmt_path=GMT_PATH, gmt_url=GMT_URL, min_overlap=MIN_PATHWAY_OVERLAP,
             max_pathways=MAX_PATHWAYS, max_gene_set_size=MAX_GENE_SET_SIZE)
         kept: list[tuple[str, list[str]]] = pw_builder.select_pathways(set(gene_names))
         # Collect mean attention

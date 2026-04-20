@@ -1,10 +1,9 @@
-"""Unknown cell type discovery using TOSICA."""
+"""Cell type classification using external TOSICA library."""
 
 from __future__ import annotations
 
 import os
 import sys
-
 
 from allen_brain.TOSICA.train import set_seed
 
@@ -19,20 +18,17 @@ import allen_brain.TOSICA as TOSICA
 
 from allen_brain.cell_data.cell_dataset import make_dataset, GeneExpressionDataset
 from allen_brain.cell_data.cell_preprocess import select_hvg
+from allen_brain.models.train import _compute_metrics, append_results_csv
 
 DATA_DIR: str = 'data/mPancreas'
-GMT_PATH: str = 'data/reactome.gmt'
-PROJECT: str = 'tosica_unknown'
+_ROOT: str = os.path.dirname(os.path.abspath(__file__))
+GMT_PATH: str = os.path.join(_ROOT, 'allen_brain', 'TOSICA', 'resources', 'm_reactome.gmt')
+PROJECT: str = 'tosica_run'
 LABEL_COL: str = 'cell_type'
 N_HVG: int = 10_000
 EPOCHS: int = 20
 BATCH_SIZE: int = 64
-UNKNOWN_THRESHOLD: float = 0.95
 SEED: int = 1
-
-# def train(adata, gmt_path, project=None,pre_weights='', 
-# 
-# label_name='Celltype',max_g=300,max_gs=300,mask_ratio =0.015, n_unannotated = 1,batch_size=8, embed_dim=48,depth=2,num_heads=4,lr=0.001, epochs= 10, lrf=0.01):
 
 
 def main() -> None:
@@ -51,24 +47,12 @@ def main() -> None:
 
     gene_names: list[str] = [str(g) for g in ds_train.gene_names]
     all_class_names: list[str] = list(ds_train.class_names)
-    n_classes: int = ds_train.n_classes
 
-    counts: np.ndarray = np.bincount(np.asarray(ds_train.y), minlength=n_classes)
-    ranked: np.ndarray = np.argsort(counts)[::-1]
-    held_out_idx: int = next(
-        (int(i) for i in ranked if 'IT' not in all_class_names[i].upper()),
-        int(ranked[0]),
-    )
-    held_out_name: str = all_class_names[held_out_idx]
-    print(f'Holding out: {held_out_name} ({counts[held_out_idx]} train cells)')
+    # Build training AnnData (all classes, same split as other models)
+    X_train: np.ndarray = np.asarray(ds_train.X).astype(np.float32)
+    y_str: list[str] = [all_class_names[int(yi)] for yi in ds_train.y]
 
-    mask: np.ndarray = ds_train.y != held_out_idx
-    X_train: np.ndarray = np.asarray(ds_train.X)[mask].astype(np.float32)
-    y_train: np.ndarray = np.asarray(ds_train.y)[mask]
-    y_str: list[str] = [all_class_names[int(yi)] for yi in y_train]
- 
     train_adata: ad.AnnData = ad.AnnData(X=X_train, var=pd.DataFrame(index=gene_names))
-    sc.pp.highly_variable_genes(train_adata, n_top_genes=N_HVG, subset=True)
     train_adata.obs[LABEL_COL] = y_str
 
     TOSICA.train(
@@ -80,10 +64,9 @@ def main() -> None:
         epochs=EPOCHS,
         max_gs=300,
         max_g=300,
-        
     )
 
-    # Predict on full test set
+    # Predict on test set
     X_test: np.ndarray = np.asarray(ds_test.X).astype(np.float32)
     y_test: np.ndarray = np.asarray(ds_test.y)
 
@@ -98,38 +81,18 @@ def main() -> None:
         test_adata,
         model_weight_path=f'./{PROJECT}/model-{EPOCHS - 1}.pth',
         project=PROJECT,
-        cutoff=UNKNOWN_THRESHOLD,
         batch_size=bs,
-        laten=True,  # use CLS embeddings to avoid torch.squeeze bug in pre.py
+        laten=True,
     )
 
+    # Map string predictions back to integer labels
     predictions: np.ndarray = result.obs['Prediction'].values.astype(str)
-    probabilities: np.ndarray = result.obs['Probability'].values.astype(float)
-    is_held: np.ndarray = y_test == held_out_idx
-    unknown_mask: np.ndarray = predictions == 'Unknown'
+    name_to_idx: dict[str, int] = {n: i for i, n in enumerate(all_class_names)}
+    y_pred_int: np.ndarray = np.array([name_to_idx.get(p, -1) for p in predictions])
 
-    true_names: np.ndarray = np.array([all_class_names[int(yi)] for yi in y_test])
-    known_true: np.ndarray = true_names[~is_held]
-    known_pred: np.ndarray = predictions[~is_held]
-    acc: float = (known_pred == known_true).mean()
-
-    tp: int = int((is_held & unknown_mask).sum())
-    fp: int = int((~is_held & unknown_mask).sum())
-    fn: int = int((is_held & ~unknown_mask).sum())
-
-    print(f'Known-class accuracy: {acc:.4f}')
-    print(f'Unknown detection — TP={tp}  FP={fp}  FN={fn}')
-    print(f'  Precision: {tp / max(tp + fp, 1):.4f}  '
-          f'Recall: {tp / max(tp + fn, 1):.4f}')
-
-    umap_adata: ad.AnnData = result.copy()
-    n_comps: int = min(30, umap_adata.shape[1] - 1)
-    sc.tl.pca(umap_adata, n_comps=n_comps)
-    sc.pp.neighbors(umap_adata, n_neighbors=15, n_pcs=n_comps)
-    sc.tl.umap(umap_adata)
-
-    sc.pl.umap(umap_adata, color='Prediction', show=True)
-    sc.pl.umap(umap_adata, color='Probability', show=True)
+    # Standard evaluation (same format as other 3_*.py scripts)
+    metrics = _compute_metrics(y_test, y_pred_int, all_class_names, save_dir=PROJECT)
+    append_results_csv('TOSICA', metrics)
 
 
 if __name__ == '__main__':
