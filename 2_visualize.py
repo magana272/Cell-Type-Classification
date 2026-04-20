@@ -23,6 +23,11 @@ DATASETS = [(info['dir'], name) for name, info in ALL_DATASETS.items()]
 def run_visualizations(data_dir: str, tag: str):
     set_seed(SEED)
     """Run the full visualization suite for one dataset."""
+    if not (os.path.exists(os.path.join(data_dir, 'X_train.npy'))
+            or os.path.exists(os.path.join(data_dir, 'X_train.npz'))):
+        console.print(f"  [yellow]No data for {tag}, skipping[/yellow]")
+        return
+
     console.print(Panel(
         f"[bold]{tag.upper()}[/bold]  ·  {data_dir}",
         title="Dataset", border_style="cyan", expand=False,

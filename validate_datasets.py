@@ -4,20 +4,6 @@ import os
 
 # Expected counts from each dataset module's docstring
 EXPECTED = {
-    'hArtery': {
-        'label_col': 'Celltype',
-        'train': {'T': 2769, 'Fib': 1648, 'EC': 2843, 'SMC': 1080, 'Myeloid': 1166,
-                  'B': 439, 'NK': 394, 'MSC': 388, 'Plasma': 155, 'Mast': 78},
-        'test': {'T': 13323, 'Fib': 2816, 'EC': 3117, 'SMC': 2801, 'Myeloid': 8941,
-                 'B': 1169, 'NK': 1110, 'MSC': 857, 'Plasma': 814, 'Mast': 451},
-    },
-    'hBone': {
-        'label_col': 'Celltype',
-        'train': {'HomC': 6930, 'preFC': 497, 'RegC': 3385, 'RepC': 669,
-                  'HTC': 2474, 'preHTC': 201, 'FC': 459},
-        'test': {'HomC': 397, 'preFC': 4423, 'RegC': 184, 'RepC': 2211,
-                 'HTC': 50, 'preHTC': 1994, 'FC': 2266},
-    },
     'hPancreas': {
         'label_col': 'Celltype',
         'train': {'Alpha': 3136, 'Beta': 2966, 'Ductal': 1290, 'Acinar': 1144,
@@ -51,17 +37,6 @@ EXPECTED = {
         # Too many types to list — just check totals
         'train_total': 34027,
         'test_total': 76797,
-    },
-    'mBrain': {
-        'label_col': 'cell_ontology_class',
-        'train': {'astrocyte': 3843, 'brain pericyte': 767, 'endothelial cell': 2987,
-                  'ependymal cell': 119, 'macrophage': 170, 'microglial cell': 4669,
-                  'neuron': 28241, 'olfactory ensheathing cell': 16,
-                  'oligodendrocyte': 7178, 'oligodendrocyte precursor cell': 811},
-        'test': {'astrocyte': 1059, 'brain pericyte': 281, 'endothelial cell': 392,
-                 'ependymal cell': 79, 'macrophage': 96, 'microglial cell': 275,
-                 'neuron': 3584, 'olfactory ensheathing cell': 107,
-                 'oligodendrocyte': 1485, 'oligodendrocyte precursor cell': 36},
     },
 }
 

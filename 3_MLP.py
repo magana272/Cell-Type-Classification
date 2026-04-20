@@ -48,6 +48,7 @@ def main() -> None:
 
     writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
     ckpt_dir = os.path.dirname(ckpt)
+    T._save_model_kwargs(ckpt_dir, {})
     if scaler is not None:
         with open(os.path.join(ckpt_dir, 'scaler.pkl'), 'wb') as f:
             pickle.dump(scaler, f)

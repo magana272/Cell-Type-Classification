@@ -555,6 +555,7 @@ def _compute_metrics(y_true: np.ndarray, y_pred: np.ndarray,
     console.print(Panel('[bold]EVALUATION RESULTS[/bold]',
                         border_style='cyan', expand=False))
     report = classification_report(y_true, y_pred, target_names=class_names,
+                                   labels=range(len(class_names)),
                                    zero_division=0)
     console.print(report)
     console.print(f'Accuracy: [bold]{acc:.4f}[/bold]')
@@ -1027,7 +1028,9 @@ class Trainer:
         hvg_path = os.path.join(ckpt_dir, 'hvg_indices.npy')
         if os.path.exists(hvg_path):
             hvg_idx = np.load(hvg_path)
-            ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
+            X_sub = ds_test.X[:, hvg_idx]
+            ds_test.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+            ds_test._sparse = False
             ds_test.gene_names = ds_test.gene_names[hvg_idx]
             console.print(f'Applied HVG selection: {len(hvg_idx)} genes')
 
@@ -1037,6 +1040,8 @@ class Trainer:
         if os.path.exists(norm_path):
             with open(norm_path) as f:
                 normalize = f.read().strip()
+            if normalize in ('None', 'none', ''):
+                normalize = None
         scaler: StandardScaler | None = None
         scaler_path = os.path.join(ckpt_dir, 'scaler.pkl')
         if os.path.exists(scaler_path):

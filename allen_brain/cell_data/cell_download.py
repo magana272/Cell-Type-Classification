@@ -35,13 +35,7 @@ ALLEN_BRAIN_DATASETS = {
 
 # ---- Benchmark h5ad datasets (sync streaming download) --------------------
 
-H5AD_SOURCES: dict[str, str] = {
-    # name -> URL (figshare ndownloader handles redirects on GET)
-    "pancreas":      "https://ndownloader.figshare.com/files/24539828",
-    "tabula_muris":  "https://ndownloader.figshare.com/files/13092380",  # gzipped
-    "lung":          "https://ndownloader.figshare.com/files/24539942",
-    # PBMC uses scanpy built-in — no URL needed
-}
+H5AD_SOURCES: dict[str, str] = {}
 
 
 

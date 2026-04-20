@@ -50,6 +50,7 @@ def main() -> None:
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     writer, ckpt = T.make_writer_and_ckpt(cfg, n_features)
+    T._save_model_kwargs(os.path.dirname(ckpt), {'k_neighbors': K_NEIGHBORS})
 
     T.print_header()
     train_graph(model, data, criterion, optimizer, scheduler,

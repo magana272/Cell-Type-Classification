@@ -7,19 +7,13 @@ ready for ``GeneExpressionDataset``.
 from __future__ import annotations
 
 from allen_brain.data_sets import (
-    hArtery,
-    hBone,
     hPancreas,
     mAtlas,
-    mBrain,
     mPancreas,
 )
 
 TOSICA_DATASETS: dict[str, object] = {
-    'hArtery': hArtery,
-    'hBone': hBone,
     'hPancreas': hPancreas,
-    'mBrain': mBrain,
     'mPancreas': mPancreas,
     'mAtlas': mAtlas,
 }

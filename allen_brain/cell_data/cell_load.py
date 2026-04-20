@@ -51,23 +51,9 @@ TRAIN_FRAC, VAL_FRAC, TEST_FRAC = 0.80, 0.10, 0.10
 ALL_DATASETS: dict[str, DatasetConfig] = {
     '10x':          DatasetConfig(dir='data/10x',          loader='csv'),
     'smartseq':     DatasetConfig(dir='data/smartseq',     loader='csv'),
-    'pbmc':         DatasetConfig(dir='data/pbmc',         loader='h5ad',
-                                  label_col='cell_type',          min_cells=30),
-    'pancreas':     DatasetConfig(dir='data/pancreas',     loader='h5ad',
-                                  label_col='cell_type',          min_cells=50),
-    'tabula_muris': DatasetConfig(dir='data/tabula_muris', loader='h5ad',
-                                  label_col='cell_ontology_class', min_cells=100),
-    'lung':         DatasetConfig(dir='data/lung',         loader='h5ad',
-                                  label_col='cell_type',     min_cells=50),
     # TOSICA benchmark datasets (condition-based splits, see allen_brain/data_sets/)
-    'hArtery':      DatasetConfig(dir='data/hArtery',      loader='h5ad',
-                                  label_col='Celltype',          min_cells=50),
-    'hBone':        DatasetConfig(dir='data/hBone',        loader='h5ad',
-                                  label_col='Celltype',          min_cells=50),
     'hPancreas':    DatasetConfig(dir='data/hPancreas',    loader='h5ad',
                                   label_col='Celltype',          min_cells=50),
-    'mBrain':       DatasetConfig(dir='data/mBrain',       loader='h5ad',
-                                  label_col='cell_ontology_class', min_cells=50),
     'mPancreas':    DatasetConfig(dir='data/mPancreas',    loader='h5ad',
                                   label_col='Celltype',          min_cells=50),
     'mAtlas':       DatasetConfig(dir='data/mAtlas',       loader='h5ad',
@@ -273,55 +259,3 @@ def load_h5ad_dataset(
     return out_dir
 
 
-def load_pbmc(seed: int = 42) -> str:
-    """Load PBMC dataset. Falls back to scanpy built-in if h5ad not found."""
-    h5ad = 'data/pbmc/pbmc.h5ad'
-    if not os.path.exists(h5ad):
-        os.makedirs('data/pbmc', exist_ok=True)
-        console.print('Downloading PBMC via scanpy ...')
-        import scanpy as sc
-        adata = sc.datasets.pbmc3k_processed()
-        # Rename louvain clusters to cell_type for consistency
-        adata.obs['cell_type'] = adata.obs['louvain'].astype(str)
-        adata.write_h5ad(h5ad)
-    return load_h5ad_dataset(h5ad, 'data/pbmc',
-                             label_column='cell_type', min_cells=30, seed=seed)
-
-
-def load_pancreas(seed: int = 42) -> str:
-    """Load human pancreas dataset (Baron et al.) from figshare."""
-    from allen_brain.cell_data.cell_download import H5AD_SOURCES, download_h5ad
-    cfg = ALL_DATASETS['pancreas']
-    h5ad = os.path.join(cfg['dir'], 'pancreas.h5ad')
-    if not os.path.exists(h5ad):
-        console.print('Downloading Baron human pancreas from figshare ...')
-        download_h5ad(H5AD_SOURCES['pancreas'], h5ad)
-    return load_h5ad_dataset(h5ad, cfg['dir'],
-                             label_column="celltype",
-                             min_cells=cfg['min_cells'], seed=seed)
-
-
-def load_tabula_muris(seed: int = 42) -> str:
-    """Load Tabula Muris (mouse, droplet) from figshare."""
-    from allen_brain.cell_data.cell_download import H5AD_SOURCES, download_h5ad
-    cfg = ALL_DATASETS['tabula_muris']
-    h5ad = os.path.join(cfg['dir'], 'tabula_muris.h5ad')
-    if not os.path.exists(h5ad):
-        console.print('Downloading Tabula Muris droplet from figshare ...')
-        download_h5ad(H5AD_SOURCES['tabula_muris'], h5ad)
-    return load_h5ad_dataset(h5ad, cfg['dir'],
-                             label_column=cfg['label_col'],
-                             min_cells=cfg['min_cells'], seed=seed)
-
-
-def load_lung(seed: int = 42) -> str:
-    """Load human lung dataset (Adams et al. IPF) from figshare."""
-    from allen_brain.cell_data.cell_download import H5AD_SOURCES, download_h5ad
-    cfg = ALL_DATASETS['lung']
-    h5ad = os.path.join(cfg['dir'], 'lung.h5ad')
-    if not os.path.exists(h5ad):
-        console.print('Downloading human lung atlas from figshare ...')
-        download_h5ad(H5AD_SOURCES['lung'], h5ad)
-    return load_h5ad_dataset(h5ad, cfg['dir'],
-                             label_column=cfg['label_col'],
-                             min_cells=cfg['min_cells'], seed=seed)

@@ -59,12 +59,15 @@ def main() -> None:
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    ckpt_dir = os.path.dirname(ckpt)
+    T._save_model_kwargs(ckpt_dir, extra_kw)
 
     T.print_header()
     T.train(model, (train_loader, val_loader), criterion, optimizer, scheduler,
             EPOCHS, writer, ckpt, squeeze_channel=True)
 
-    metrics = trainer.evaluate(DATA_DIR, ckpt, squeeze_channel=True)
+    metrics = trainer.evaluate(DATA_DIR, ckpt, squeeze_channel=True,
+                               extra_model_kwargs=extra_kw)
     T.append_results_csv('Transformer', metrics)
 
 

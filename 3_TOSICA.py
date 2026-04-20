@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'TOS
 
 import numpy as np
 import pandas as pd
+import scipy.sparse
 import anndata as ad
 import scanpy as sc
 import TOSICA
@@ -41,9 +42,12 @@ def main() -> None:
     ds_test: GeneExpressionDataset = make_dataset(DATA_DIR, split='test')
 
     if N_HVG and 0 < N_HVG < len(ds_train.gene_names):
-        hvg_idx: np.ndarray = np.sort(select_hvg(np.asarray(ds_train.X), N_HVG))
+        X_train_dense = ds_train.X.toarray() if scipy.sparse.issparse(ds_train.X) else np.asarray(ds_train.X)
+        hvg_idx: np.ndarray = np.sort(select_hvg(X_train_dense, N_HVG))
         for ds in (ds_train, ds_test):
-            ds.X = np.asarray(ds.X[:, hvg_idx])
+            X_sub = ds.X[:, hvg_idx]
+            ds.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+            ds._sparse = False
             ds.gene_names = ds.gene_names[hvg_idx]
 
     gene_names: list[str] = [str(g) for g in ds_train.gene_names]

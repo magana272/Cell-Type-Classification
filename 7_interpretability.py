@@ -35,6 +35,7 @@ from collections.abc import Callable
 from typing import Any
 
 import numpy as np
+import scipy.sparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F_torch
@@ -77,7 +78,9 @@ def interpret_tosica(save_dir: str) -> None:
     hvg_path: str = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
     if os.path.exists(hvg_path):
         hvg_idx: np.ndarray = np.load(hvg_path)
-        ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
+        X_sub = ds_test.X[:, hvg_idx]
+        ds_test.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+        ds_test._sparse = False
         ds_test.gene_names = ds_test.gene_names[hvg_idx]
 
     gene_names: list[str] = [str(g) for g in ds_test.gene_names]
@@ -152,9 +155,10 @@ def interpret_tosica(save_dir: str) -> None:
     for i, c in enumerate(top_classes):
         ax = axes[i]
         class_attn: np.ndarray = mean_attn[c]
-        top_pw: np.ndarray = np.argsort(class_attn)[::-1][:10]
-        ax.barh(range(10), class_attn[top_pw])
-        ax.set_yticks(range(10))
+        n_show: int = min(10, len(pathway_names))
+        top_pw: np.ndarray = np.argsort(class_attn)[::-1][:n_show]
+        ax.barh(range(n_show), class_attn[top_pw])
+        ax.set_yticks(range(n_show))
         ax.set_yticklabels([pathway_names[j] for j in top_pw], fontsize=7)
         ax.set_title(f'{class_names[c]}')
         ax.set_xlabel('Mean Attention')
@@ -333,7 +337,9 @@ def interpret_mlp(save_dir: str) -> None:
     hvg_path: str = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
     if os.path.exists(hvg_path):
         hvg_idx: np.ndarray = np.load(hvg_path)
-        ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
+        X_sub = ds_test.X[:, hvg_idx]
+        ds_test.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+        ds_test._sparse = False
         ds_test.gene_names = ds_test.gene_names[hvg_idx]
 
     saved_kw: dict[str, Any] = T._load_model_kwargs(ckpt, model_name='CellTypeMLP')
@@ -363,7 +369,9 @@ def interpret_cnn(save_dir: str) -> None:
     hvg_path: str = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
     if os.path.exists(hvg_path):
         hvg_idx: np.ndarray = np.load(hvg_path)
-        ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
+        X_sub = ds_test.X[:, hvg_idx]
+        ds_test.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+        ds_test._sparse = False
         ds_test.gene_names = ds_test.gene_names[hvg_idx]
 
     saved_kw: dict[str, Any] = T._load_model_kwargs(ckpt, model_name='CellTypeCNN')
@@ -433,7 +441,9 @@ def compare_gene_importance(save_dir: str) -> None:
         hvg_path: str = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
         if os.path.exists(hvg_path):
             hvg_idx: np.ndarray = np.load(hvg_path)
-            ds.X = np.asarray(ds.X[:, hvg_idx])
+            X_sub = ds.X[:, hvg_idx]
+            ds.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+            ds._sparse = False
             ds.gene_names = ds.gene_names[hvg_idx]
         saved_kw: dict[str, Any] = T._load_model_kwargs(ckpt, model_name='CellTypeMLP')
         model: nn.Module = T.build_model('CellTypeMLP', len(ds.gene_names), ds.n_classes, **saved_kw)
@@ -451,7 +461,9 @@ def compare_gene_importance(save_dir: str) -> None:
         hvg_path = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
         if os.path.exists(hvg_path):
             hvg_idx = np.load(hvg_path)
-            ds.X = np.asarray(ds.X[:, hvg_idx])
+            X_sub = ds.X[:, hvg_idx]
+            ds.X = X_sub.toarray() if scipy.sparse.issparse(X_sub) else np.asarray(X_sub)
+            ds._sparse = False
             ds.gene_names = ds.gene_names[hvg_idx]
         saved_kw = T._load_model_kwargs(ckpt, model_name='CellTypeCNN')
         model = T.build_model('CellTypeCNN', len(ds.gene_names), ds.n_classes, **saved_kw)

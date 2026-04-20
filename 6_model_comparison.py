@@ -65,11 +65,14 @@ def _load_and_predict(
         y_pred: np.ndarray = y_probs.argmax(1)
         class_names: list[str] = list(np.load(f'{DATA_DIR}/class_names.npy', allow_pickle=True))
     else:
+        import scipy.sparse as _sp
         ds_test = make_dataset(DATA_DIR, split='test')
         hvg_path: str = os.path.join(os.path.dirname(ckpt), 'hvg_indices.npy')
         if os.path.exists(hvg_path):
             hvg_idx: np.ndarray = np.load(hvg_path)
-            ds_test.X = np.asarray(ds_test.X[:, hvg_idx])
+            X_sub = ds_test.X[:, hvg_idx]
+            ds_test.X = X_sub.toarray() if _sp.issparse(X_sub) else np.asarray(X_sub)
+            ds_test._sparse = False
             ds_test.gene_names = ds_test.gene_names[hvg_idx]
         import pickle as _pickle
         _normalize: str | None = None
@@ -77,14 +80,17 @@ def _load_and_predict(
         if os.path.exists(_norm_path):
             with open(_norm_path) as _f:
                 _normalize = _f.read().strip() or None
+            if _normalize in ('None', 'none'):
+                _normalize = None
         _scaler: Any = None
         _scaler_path: str = os.path.join(os.path.dirname(ckpt), 'scaler.pkl')
         if os.path.exists(_scaler_path):
             with open(_scaler_path, 'rb') as _f:
                 _scaler = _pickle.load(_f)
         if _normalize:
-            ds_test.X = T._apply_normalization_test(
-                np.asarray(ds_test.X, dtype=np.float32), _normalize, _scaler)
+            X_test = ds_test.X.toarray() if _sp.issparse(ds_test.X) else np.asarray(ds_test.X, dtype=np.float32)
+            ds_test.X = T._apply_normalization_test(X_test, _normalize, _scaler)
+            ds_test._sparse = False
         n_features = len(ds_test.gene_names)
         model = T.build_model(model_cls_name, n_features, ds_test.n_classes, **saved_kw)
         model.load_state_dict(torch.load(ckpt, map_location=T.DEVICE, weights_only=True))

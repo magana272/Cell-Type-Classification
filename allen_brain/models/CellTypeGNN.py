@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import numpy as np
+import scipy.sparse
 import torch
 import torch.nn.functional as F
 from rich.console import Console
@@ -35,14 +36,21 @@ class GraphBuilder:
             y_parts[split] = np.load(os.path.join(data_dir, f'y_{split}.npy'))
             sizes[split] = len(y_parts[split])
         n_total = sum(sizes.values())
-        X_train_mm = np.load(os.path.join(data_dir, 'X_train.npy'), mmap_mode='r')
+
+        def _load_X(split: str) -> np.ndarray:
+            npz = os.path.join(data_dir, f'X_{split}.npz')
+            npy = os.path.join(data_dir, f'X_{split}.npy')
+            if os.path.exists(npz):
+                return scipy.sparse.load_npz(npz).toarray()
+            return np.load(npy, mmap_mode='r')
+
+        X_train_mm = _load_X('train')
         n_features = X_train_mm.shape[1]
 
         X_all = np.empty((n_total, n_features), dtype=np.float32)
         offset = 0
         for split in ('train', 'val', 'test'):
-            X_mm = (X_train_mm if split == 'train'
-                    else np.load(os.path.join(data_dir, f'X_{split}.npy'), mmap_mode='r'))
+            X_mm = X_train_mm if split == 'train' else _load_X(split)
             X_all[offset:offset + sizes[split]] = X_mm
             offset += sizes[split]
             del X_mm

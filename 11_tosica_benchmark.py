@@ -1,8 +1,8 @@
 """Compare our 4 models against 19 published annotators on TOSICA benchmarks.
 
-Trains MLP, CNN, Transformer (TOSICA), and GNN on the 6 TOSICA benchmark
-datasets, then merges results with published accuracy from Chen et al. (2023)
-and generates comparison figures.
+Trains MLP, CNN, Transformer (TOSICA), and GNN on the 3 TOSICA benchmark
+datasets (hPancreas, mPancreas, mAtlas), then merges results with published
+accuracy from Chen et al. (2023) and generates comparison figures.
 """
 from __future__ import annotations
 
@@ -39,7 +39,6 @@ OUR_MODEL_NAMES: list[str] = ['Ours-MLP', 'Ours-CNN', 'Ours-Transformer', 'Ours-
 def main() -> None:
     os.makedirs(SAVE_DIR, exist_ok=True)
 
-    # --- 1. Ensure datasets are set up --------------------------------------
     console.print(Panel('[bold]TOSICA Benchmark: Setup Datasets[/bold]',
                         border_style='cyan'))
     for ds_name, mod in TOSICA_DATASETS.items():
@@ -51,7 +50,6 @@ def main() -> None:
             except Exception as e:
                 console.print(f'[red]Failed to set up {ds_name}: {e}[/red]')
 
-    # --- 2. Train & evaluate our 4 models on each dataset --------------------
     console.print(Panel('[bold]TOSICA Benchmark: Train & Evaluate[/bold]',
                         border_style='cyan'))
 
