@@ -7,7 +7,6 @@ import scipy.sparse
 import torch
 from torch.utils.data import Dataset
 
-from .cell_preprocess import preprocess_hvg
 from sklearn.preprocessing import LabelEncoder
 
 

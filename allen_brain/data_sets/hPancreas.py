@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 
 import anndata as ad
-import numpy as np
 
 from allen_brain.data_sets._utils import (
     condition_split_and_save,
