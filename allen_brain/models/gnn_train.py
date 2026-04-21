@@ -1,9 +1,3 @@
-"""GNN-specific training, tuning, and evaluation.
-
-Extracted from train.py — all graph-based training logic lives here.
-Shared utilities (build_model, build_optimizer, etc.) are imported from train.py.
-"""
-
 from __future__ import annotations
 
 import os
@@ -28,7 +22,6 @@ from allen_brain.models.train import (
     load_hyperparameters, _compute_metrics,
 )
 from allen_brain.models.CellTypeGNN import GraphBuilder
-
 
 
 def _graph_step(
@@ -98,13 +91,11 @@ def train_graph(
     return best_acc
 
 
-
 def _collect_graph_probabilities(
     model: nn.Module,
     data: Data,
     mask: torch.Tensor,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Run graph inference and collect softmax probabilities for masked nodes."""
     model.eval()
     with torch.no_grad():
         logits = model(data.x, data.edge_index)
@@ -113,15 +104,10 @@ def _collect_graph_probabilities(
     return probs, labels
 
 
-
 class GraphTrainer:
-    """GNN-specific training orchestration backed by an ``ExperimentConfig``."""
-
     def __init__(self, cfg: ExperimentConfig, device: torch.device = DEVICE) -> None:
         self.cfg = cfg
         self.device = device
-
-    # -- hyperparameter search ------------------------------------------------
 
     def run_hparam_search(
         self,
@@ -180,8 +166,6 @@ class GraphTrainer:
         graph_cache.clear()
         return result
 
-    # -- full tuning + final training ----------------------------------------
-
     def train_with_tuning(
         self,
         data_dir: str,
@@ -236,8 +220,6 @@ class GraphTrainer:
         console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
         return best, ckpt, bp
 
-    # -- single run with saved hparams ---------------------------------------
-
     def train_single(
         self,
         data_dir: str,
@@ -246,10 +228,6 @@ class GraphTrainer:
         weights: torch.Tensor,
         hp_dir: str = 'finalhyperparameter',
     ) -> tuple[float, str, dict[str, Any]]:
-        """Single graph training run using saved best hyperparameters (no search).
-
-        Returns (best_val_acc, ckpt_path, merged_params).
-        """
         cfg = self.cfg
         saved: dict[str, Any] = load_hyperparameters(cfg['model'], hp_dir) if hp_dir is not None else {}
         bp: dict[str, Any] = {**saved}
@@ -297,8 +275,6 @@ class GraphTrainer:
         console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
         return best, ckpt, bp
 
-    # -- evaluation -----------------------------------------------------------
-
     def evaluate(
         self,
         data: Data,
@@ -307,7 +283,6 @@ class GraphTrainer:
         n_classes: int,
         class_names: list[str] | None = None,
     ) -> EvalMetrics:
-        """Load best checkpoint and evaluate graph model on test mask with full metrics."""
         cfg = self.cfg
         saved_kw: dict[str, Any] = _load_model_kwargs(ckpt_path, model_name=cfg['model'])
         model: nn.Module = build_model(cfg['model'], n_features, n_classes, **saved_kw)
@@ -338,4 +313,3 @@ class GraphTrainer:
             recall_weighted=raw_metrics['recall_weighted'],
             confusion_matrix=raw_metrics.get('confusion_matrix'),
         )
-

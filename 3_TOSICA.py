@@ -1,5 +1,3 @@
-"""Cell type classification using external TOSICA library."""
-
 from __future__ import annotations
 
 import os
@@ -13,7 +11,6 @@ import numpy as np
 import pandas as pd
 import scipy.sparse
 import anndata as ad
-import scanpy as sc
 import allen_brain.TOSICA as TOSICA
 
 from allen_brain.cell_data.cell_dataset import make_dataset, GeneExpressionDataset
@@ -48,7 +45,6 @@ def main() -> None:
     gene_names: list[str] = [str(g) for g in ds_train.gene_names]
     all_class_names: list[str] = list(ds_train.class_names)
 
-    # Build training AnnData (all classes, same split as other models)
     X_train: np.ndarray = np.asarray(ds_train.X).astype(np.float32)
     y_str: list[str] = [all_class_names[int(yi)] for yi in ds_train.y]
 
@@ -66,13 +62,11 @@ def main() -> None:
         max_g=300,
     )
 
-    # Predict on test set
     X_test: np.ndarray = np.asarray(ds_test.X).astype(np.float32)
     y_test: np.ndarray = np.asarray(ds_test.y)
 
     test_adata: ad.AnnData = ad.AnnData(X=X_test, var=pd.DataFrame(index=gene_names))
 
-    # Avoid batch-size-1 edge case (torch.squeeze in TOSICA.pre removes batch dim)
     bs: int = BATCH_SIZE
     while len(ds_test) > 1 and len(ds_test) % bs == 1:
         bs += 1
@@ -85,12 +79,10 @@ def main() -> None:
         laten=True,
     )
 
-    # Map string predictions back to integer labels
     predictions: np.ndarray = result.obs['Prediction'].values.astype(str)
     name_to_idx: dict[str, int] = {n: i for i, n in enumerate(all_class_names)}
     y_pred_int: np.ndarray = np.array([name_to_idx.get(p, -1) for p in predictions])
 
-    # Standard evaluation (same format as other 3_*.py scripts)
     metrics = _compute_metrics(y_test, y_pred_int, all_class_names, save_dir=PROJECT)
     append_results_csv('TOSICA', metrics)
 

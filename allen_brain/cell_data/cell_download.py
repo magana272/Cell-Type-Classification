@@ -1,9 +1,3 @@
-"""Dataset download utilities.
-
-Two download strategies:
-- Async parallel range requests for large S3 files (Allen Brain CSVs).
-- Synchronous streaming for figshare/GEO URLs (h5ad benchmarks).
-"""
 from __future__ import annotations
 
 import asyncio
@@ -16,11 +10,9 @@ import aiohttp
 import certifi
 from tqdm.auto import tqdm
 
-CHUNK_SIZE = 1 << 20        # 1 MiB
-RANGE_SIZE = 16 << 20       # 16 MiB per range request
+CHUNK_SIZE = 1 << 20
+RANGE_SIZE = 16 << 20
 MAX_CONCURRENT_RANGES = 16
-
-# ---- Allen Brain CSV datasets (async parallel download) -------------------
 
 ALLEN_BRAIN_DATASETS = {
     "10x": {
@@ -33,14 +25,10 @@ ALLEN_BRAIN_DATASETS = {
     },
 }
 
-# ---- Benchmark h5ad datasets (sync streaming download) --------------------
-
 H5AD_SOURCES: dict[str, str] = {}
 
 
-
 def download_url(url: str, dest: str) -> None:
-    """Stream *url* to *dest* with a progress bar.  Handles redirects."""
     import requests
 
     os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
@@ -67,17 +55,14 @@ def download_url(url: str, dest: str) -> None:
 
 
 def download_h5ad(url: str, dest: str) -> None:
-    """Download an h5ad file, auto-decompressing if gzipped."""
     os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
     if os.path.exists(dest):
         tqdm.write(f"[skip] {os.path.basename(dest)} already exists")
         return
 
-    # Download to a temp path first
     tmp = dest + ".dl"
     download_url(url, tmp)
 
-    # Check for gzip magic bytes
     with open(tmp, "rb") as f:
         magic = f.read(2)
 
@@ -88,7 +73,6 @@ def download_h5ad(url: str, dest: str) -> None:
         os.remove(tmp)
     else:
         os.replace(tmp, dest)
-
 
 
 async def _content_length(session: aiohttp.ClientSession, url: str) -> int:
@@ -169,7 +153,6 @@ def _copy_file(src: str, dest: str) -> None:
 
 
 async def _download_allen_brain_async(root: str = "data") -> None:
-    """Download Allen Brain CSV datasets via async range requests."""
     timeout = aiohttp.ClientTimeout(total=None, sock_read=300)
     ssl_ctx = ssl.create_default_context(cafile=certifi.where())
     connector = aiohttp.TCPConnector(
@@ -208,16 +191,12 @@ async def _download_allen_brain_async(root: str = "data") -> None:
             )
 
 
-
 def download_data(root: str = "data") -> None:
-    """Download Allen Brain CSV datasets (async parallel)."""
     asyncio.run(_download_allen_brain_async(root))
 
 
-# Keep old name for backward compat
 download_data_async = _download_allen_brain_async
 
-# Alias used by cell_load.py
 download_url_to_file = download_url
 
 

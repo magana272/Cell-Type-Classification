@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+from typing import Any
+
+import optuna
 import torch
 from torch import nn
 
 from allen_brain.models.blocks import SEBlock as MLP_SEBlock
+from allen_brain.models.config import (
+    TrainConfig,
+    MLPHParams,
+    MLPModelKwargs,
+)
 
 
 class MLPBlock(nn.Module):
-    """Simple MLP block: Linear -> ReLU -> Dropout."""
-
     def __init__(self, in_ch: int, out_ch: int, dropout: float = 0.2) -> None:
         super().__init__()
         self.fc = nn.Sequential(
@@ -22,8 +28,6 @@ class MLPBlock(nn.Module):
 
 
 class MLP_Model(nn.Module):
-    """MLP with variable depth, SE attention on first layer."""
-
     def __init__(
         self,
         input_dim: int,
@@ -55,20 +59,7 @@ class MLP_Model(nn.Module):
         return self.classifier(x)
 
 
-
-from typing import Any
-
-import optuna
-
-from allen_brain.models.config import (
-    TrainConfig,
-    MLPHParams,
-    MLPModelKwargs,
-)
-
-
 class MLPTrainConfig(TrainConfig):
-
     def suggest_hparams(self, trial: optuna.trial.Trial) -> MLPHParams:
         lr = trial.suggest_float('lr', 2e-5, 2e-4, log=True)
         wd = trial.suggest_float('weight_decay', 1e-7, 5e-6, log=True)

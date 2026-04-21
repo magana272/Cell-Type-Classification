@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import numpy as np
+import optuna
 import scipy.sparse
 import torch
 import torch.nn.functional as F
@@ -11,13 +13,16 @@ from torch import nn
 from torch_geometric.data import Data
 from torch_geometric.nn import SAGEConv
 
+from allen_brain.models.config import (
+    TrainConfig,
+    GNNHParams,
+    GNNModelKwargs,
+)
+
 console = Console()
 
 
-
 class GraphBuilder:
-    """Builds PyG ``Data`` objects for GNN training and evaluation."""
-
     def __init__(
         self,
         k_neighbors: int = 15,
@@ -29,7 +34,6 @@ class GraphBuilder:
     def load_combined_xy(
         self, data_dir: str,
     ) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
-        """Load all splits into a single pre-allocated X buffer."""
         sizes: dict[str, int] = {}
         y_parts: dict[str, np.ndarray] = {}
         for split in ('train', 'val', 'test'):
@@ -62,7 +66,6 @@ class GraphBuilder:
     def build_masks(
         sizes: dict[str, int],
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Create boolean train/val/test masks from split sizes."""
         n_total = sum(sizes.values())
         masks = {s: torch.zeros(n_total, dtype=torch.bool) for s in ('train', 'val', 'test')}
         offset = 0
@@ -91,7 +94,6 @@ class GraphBuilder:
 
     @staticmethod
     def build_knn_edges(X_all: np.ndarray, k: int) -> torch.Tensor:
-        """Build symmetric k-NN edge index using cosine distance."""
         n_total = X_all.shape[0]
         console.print(f'Building k={k} cosine-NN graph on {n_total:,} cells...')
         indices = GraphBuilder._torch_knn(X_all, k)
@@ -109,10 +111,8 @@ class GraphBuilder:
         return torch.unique(edge_index, dim=1)
 
     def build_graph_data(self, data_dir: str, n_hvg: int = 0) -> Data:
-        """Load data and build a PyG Data object with k-NN edges and split masks."""
         X_all, y_all, sizes = self.load_combined_xy(data_dir)
 
-        # HVG selection (based on train split variance)
         if n_hvg and 0 < n_hvg < X_all.shape[1]:
             from allen_brain.cell_data.cell_preprocess import select_hvg
             n_tr = sizes['train']
@@ -120,7 +120,6 @@ class GraphBuilder:
             X_all = X_all[:, hvg_idx]
             console.print(f'GNN: selected top {n_hvg} HVGs ({X_all.shape[1]} genes)')
 
-        # Balance training populations (oversample minority classes)
         from allen_brain.models.train import balance_populations
         n_tr = sizes['train']
         X_tr_bal, y_tr_bal = balance_populations(X_all[:n_tr], y_all[:n_tr])
@@ -157,7 +156,6 @@ class GraphBuilder:
     def build_eval_graph(
         X: np.ndarray, y: np.ndarray, k_neighbors: int = 15,
     ) -> Data:
-        """Build a PyG Data object for evaluation (all nodes are test)."""
         edge_index = GraphBuilder.build_knn_edges(X, k_neighbors)
         n = X.shape[0]
         return Data(x=torch.from_numpy(X), edge_index=edge_index,
@@ -171,7 +169,6 @@ class GraphBuilder:
         n_classes: int,
         device: torch.device | None = None,
     ) -> torch.Tensor:
-        """Compute balanced class weights using only masked (training) nodes."""
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         counts = np.bincount(y[mask].cpu().numpy(), minlength=n_classes).astype(np.float32)
@@ -179,10 +176,7 @@ class GraphBuilder:
         return w / w.sum() * n_classes
 
 
-
 class ResidualSAGEBlock(nn.Module):
-    """SAGEConv with LayerNorm, GELU, and a residual projection."""
-
     def __init__(self, in_dim: int, out_dim: int, dropout: float = 0.3) -> None:
         super().__init__()
         self.conv    = SAGEConv(in_dim, out_dim)
@@ -199,7 +193,6 @@ class ResidualSAGEBlock(nn.Module):
 
 
 class CellTypeGNN(nn.Module):
-
     def __init__(
         self,
         in_dim: int,
@@ -233,27 +226,13 @@ class CellTypeGNN(nn.Module):
         return self.classifier(x)
 
     def embed(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
-        """Pre-classifier embedding (for UMAP / transfer)."""
         x = self.encoder(x)
         for block in self.blocks:
             x = block(x, edge_index)
         return x
 
 
-
-from typing import Any
-
-import optuna
-
-from allen_brain.models.config import (
-    TrainConfig,
-    GNNHParams,
-    GNNModelKwargs,
-)
-
-
 class GNNTrainConfig(TrainConfig):
-
     def suggest_hparams(self, trial: optuna.trial.Trial) -> GNNHParams:
         lr = trial.suggest_float('lr', 5e-4, 5e-3, log=True)
         wd = trial.suggest_float('weight_decay', 1e-7, 5e-6, log=True)

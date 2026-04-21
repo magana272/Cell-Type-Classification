@@ -1,11 +1,3 @@
-"""Base types for per-model training configuration.
-
-Provides the abstract ``TrainConfig`` class that each model must subclass,
-along with shared ``BaseHParams`` / ``BaseModelKwargs`` dataclasses,
-``ExperimentConfig`` (replaces raw cfg dicts), ``EvalMetrics``, and
-concrete per-model dataclass variants.
-"""
-
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,11 +8,8 @@ import numpy as np
 import optuna
 
 
-
 @dataclass
 class BaseHParams:
-    """Fields shared by every model's Optuna search space."""
-
     lr: float
     weight_decay: float
     dropout: float
@@ -59,7 +48,6 @@ class TransformerHParams(BaseHParams):
     embed_dim: int = 48
 
 
-
 @dataclass
 class BaseModelKwargs:
     dropout: float
@@ -93,31 +81,22 @@ class TransformerModelKwargs(BaseModelKwargs):
     embed_dim: int = 48
 
 
-
 class TrainConfig(ABC):
-    """Interface that each model's training configuration must implement."""
-
     @abstractmethod
     def suggest_hparams(self, trial: optuna.trial.Trial) -> BaseHParams:
-        """Return an Optuna-sampled hyperparameter set."""
         ...
 
     @abstractmethod
     def model_kwargs_from_params(self, params: BaseHParams) -> BaseModelKwargs:
-        """Extract model constructor kwargs from a full hparam set."""
         ...
 
     @abstractmethod
     def infer_model_kwargs(self, state_dict: dict[str, Any]) -> dict[str, Any]:
-        """Infer architectural kwargs from a saved ``state_dict``."""
         ...
-
 
 
 @dataclass
 class ExperimentConfig:
-    """Full experiment configuration — replaces raw ``cfg`` dicts throughout."""
-
     model: str
     seed: int = 42
     batch_size: int = 8192
@@ -139,11 +118,9 @@ class ExperimentConfig:
         return asdict(self)
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Dict-style .get() for backward compatibility."""
         return getattr(self, key, default)
 
     def __getitem__(self, key: str) -> Any:
-        """Dict-style [] access for backward compatibility."""
         try:
             return getattr(self, key)
         except AttributeError:
@@ -153,11 +130,8 @@ class ExperimentConfig:
         return hasattr(self, key)
 
 
-
 @dataclass
 class EvalMetrics:
-    """Structured evaluation results — replaces raw metrics dicts."""
-
     accuracy: float
     f1_macro: float
     f1_weighted: float
@@ -174,7 +148,6 @@ class EvalMetrics:
         return d
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Dict-style .get() for backward compatibility."""
         return getattr(self, key, default)
 
     def __getitem__(self, key: str) -> Any:
@@ -186,19 +159,9 @@ class EvalMetrics:
     def __contains__(self, key: str) -> bool:
         return hasattr(self, key)
 
+
 @dataclass
 class ModelPredictions:
-    """
-    Raw model outputs for a single model on a single dataset.
-    Parameters:
-        y_true: np.ndarray
-        y_pred: np.ndarray
-        y_probs: np.ndarray
-        class_names: list[str]
-        n_classes: int
-    
-    """
-
     y_true: np.ndarray
     y_pred: np.ndarray
     y_probs: np.ndarray

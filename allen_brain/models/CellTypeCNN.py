@@ -1,15 +1,21 @@
 from __future__ import annotations
 
+from typing import Any
+
+import optuna
 import torch
 import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
 
 from allen_brain.models.blocks import SEBlock as MLP_SEBlock
+from allen_brain.models.config import (
+    TrainConfig,
+    CNNHParams,
+    CNNModelKwargs,
+)
 
 
 class ResBlock(nn.Module):
-    """Pre-activation residual block: BN -> ReLU -> Conv -> BN -> ReLU -> Conv + SE."""
-
     def __init__(
         self, in_ch: int, out_ch: int, kernel: int = 5, dropout: float = 0.2,
     ) -> None:
@@ -34,8 +40,6 @@ class ResBlock(nn.Module):
 
 
 class CellTypeCNN(nn.Module):
-    """Residual 1D-CNN with variable depth, widening channels, SE attention, and dual-pool head."""
-
     def __init__(
         self,
         seq_len: int,
@@ -91,20 +95,7 @@ class CellTypeCNN(nn.Module):
         return self.classifier(x)
 
 
-
-from typing import Any
-
-import optuna
-
-from allen_brain.models.config import (
-    TrainConfig,
-    CNNHParams,
-    CNNModelKwargs,
-)
-
-
 class CNNTrainConfig(TrainConfig):
-
     def suggest_hparams(self, trial: optuna.trial.Trial) -> CNNHParams:
         lr = trial.suggest_float('lr', 2e-3, 2e-2, log=True)
         wd = trial.suggest_float('weight_decay', 5e-5, 5e-4, log=True)

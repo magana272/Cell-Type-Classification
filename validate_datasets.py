@@ -1,8 +1,6 @@
-"""Validate TOSICA benchmark dataset splits against expected counts."""
 import numpy as np
 import os
 
-# Expected counts from each dataset module's docstring
 EXPECTED = {
     'hPancreas': {
         'label_col': 'Celltype',
@@ -34,7 +32,6 @@ EXPECTED = {
     },
     'mAtlas': {
         'label_col': 'cell_ontology_class',
-        # Too many types to list — just check totals
         'train_total': 34027,
         'test_total': 76797,
     },
@@ -64,7 +61,6 @@ def validate(data_root='data'):
               f'train+val={len(y_trainval):,}, test={len(ye):,}')
         print(f'{"="*60}')
 
-        # Check per-class counts
         if 'train' in exp:
             exp_train, exp_test = exp['train'], exp['test']
             exp_total_train = sum(exp_train.values())
@@ -89,7 +85,6 @@ def validate(data_root='data'):
                   f'{"✓" if exp_total_test == len(ye) else f"✗ (got {len(ye)})"}')
             results[name] = 'MATCH' if ok else 'MISMATCH'
         else:
-            # Just check totals
             et = exp.get('train_total', 0)
             ee = exp.get('test_total', 0)
             t_ok = et == len(y_trainval)

@@ -1,7 +1,3 @@
-"""Shared training/evaluation workflow for all 5 models on a single dataset.
-
-Called by 5_hPancreas.py, 5_mPancreas.py, 5_mAtlas.py with dataset-specific config.
-"""
 from __future__ import annotations
 
 import math
@@ -31,14 +27,12 @@ console = Console()
 
 _ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# Shared defaults
 SEED = 1
 N_HVG = 10_000
 EPOCHS = 20
 LRF = 0.01
 NORMALIZE = 'None'
 
-# GMT paths
 MOUSE_GMT = os.path.join(_ROOT, 'allen_brain', 'TOSICA', 'resources', 'm_reactome.gmt')
 HUMAN_GMT = os.path.join(_ROOT, 'allen_brain', 'TOSICA', 'resources', 'reactome.gmt')
 MOUSE_GMT_URL = ('https://data.broadinstitute.org/gsea-msigdb/msigdb/'
@@ -173,7 +167,6 @@ def train_transformer(data_dir: str, tag: str, gmt_path: str, gmt_url: str,
 def train_tosica(data_dir: str, tag: str, gmt_path: str, csv_path: str) -> None:
     console.print(Panel(f'[bold]TOSICA — {tag}[/bold]', border_style='cyan'))
     import anndata as ad
-    import scanpy as sc
     sys.path.insert(0, os.path.join(_ROOT, 'TOSICA'))
     import allen_brain.TOSICA as TOSICA
     from allen_brain.models.train import _compute_metrics
@@ -228,7 +221,6 @@ def train_tosica(data_dir: str, tag: str, gmt_path: str, csv_path: str) -> None:
 
 
 def compare_to_baselines(tag: str, csv_path: str) -> None:
-    """Print a ranked table comparing our models to published TOSICA baselines."""
     from rich.table import Table
     from allen_brain.cell_data.tosica_baselines import PUBLISHED_ACCURACY
 
@@ -237,19 +229,16 @@ def compare_to_baselines(tag: str, csv_path: str) -> None:
         console.print(f'[yellow]No published baselines for {tag}[/yellow]')
         return
 
-    # Load our results
     ours: dict[str, float] = {}
     if os.path.exists(csv_path):
         df = pd.read_csv(csv_path)
         for _, row in df.iterrows():
             ours[row['model']] = row['accuracy']
 
-    # Merge: published + ours
     combined: dict[str, float | None] = dict(published)
     for model_name, acc in ours.items():
         combined[f'Ours-{model_name}'] = acc
 
-    # Sort by accuracy descending
     ranked = sorted(combined.items(), key=lambda x: x[1] if x[1] is not None else -1,
                     reverse=True)
 
@@ -270,7 +259,6 @@ def compare_to_baselines(tag: str, csv_path: str) -> None:
 
 def run_all(data_dir: str, tag: str, gmt_path: str, gmt_url: str,
             csv_path: str = 'results.csv') -> None:
-    """Train and evaluate all 5 models on one dataset, then compare to baselines."""
     console.print(Panel(f'[bold green]Dataset: {tag}[/bold green]  ·  {data_dir}',
                         border_style='green'))
     set_seed(SEED)

@@ -1,7 +1,3 @@
-"""Published cell-type annotation accuracy from TOSICA paper (Chen et al., Nat Commun 2023).
-
-Source: Supplementary Data 3. Accuracy and rank of methods across datasets.
-"""
 from __future__ import annotations
 
 BENCHMARK_METHODS: list[str] = [

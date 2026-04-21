@@ -11,10 +11,6 @@ console = Console()
 
 
 def _gene_filter(X_val: np.ndarray | scipy.sparse.spmatrix, min_gene_frac: float) -> np.ndarray:
-    """Keep genes expressed (>0) in at least max(3, frac * n_val) val cells.
-
-    Runs on GPU when available; returns a numpy index array.
-    """
     min_cells = max(3, int(min_gene_frac * X_val.shape[0]))
     if scipy.sparse.issparse(X_val):
         X_val = np.asarray(X_val.todense())
@@ -27,7 +23,6 @@ def _gene_filter(X_val: np.ndarray | scipy.sparse.spmatrix, min_gene_frac: float
 
 
 def select_hvg(X_val_filtered: np.ndarray | scipy.sparse.spmatrix, n_hvg: int) -> np.ndarray:
-    """Top-variance genes from log-normalized data, sorted by descending variance."""
     if scipy.sparse.issparse(X_val_filtered):
         X_val_filtered = np.asarray(X_val_filtered.todense())
     X_t = torch.as_tensor(X_val_filtered, dtype=torch.float32)
@@ -44,11 +39,6 @@ def select_hvg(X_val_filtered: np.ndarray | scipy.sparse.spmatrix, n_hvg: int) -
 
 def _normalize(X: np.ndarray, filtered_idx: np.ndarray,
                hvg_local: np.ndarray, chunk: int = 4096) -> np.ndarray:
-    """Library-size normalize + log1p, keeping only HVG columns.
-
-    Library size is summed over filtered genes; only HVG columns are returned.
-    Runs on GPU when available; returns a numpy array.
-    """
     filt_t = torch.as_tensor(filtered_idx, dtype=torch.long, device=_DEVICE)
     hvg_t = torch.as_tensor(hvg_local, dtype=torch.long, device=_DEVICE)
     out = np.empty((len(X), hvg_local.size), dtype=np.float32)
@@ -72,10 +62,6 @@ def preprocess_hvg(
     n_hvg: int = 2000,
     min_gene_frac: float = 0.01,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, StandardScaler]:
-    """Gene filter -> HVG selection -> log-norm -> StandardScaler.
-
-    Returns (X_train, X_val, X_test, hvg_gene_names, scaler).
-    """
     filtered_idx = _gene_filter(X_val, min_gene_frac)
     hvg_local = select_hvg(X_val[:, filtered_idx], n_hvg)
     hvg_gene_idx = filtered_idx[hvg_local]
@@ -98,19 +84,10 @@ def align_genes(
     gene_names_source: np.ndarray,
     gene_names_target: np.ndarray,
 ) -> tuple[np.ndarray, int]:
-    """Reindex X_source columns to match gene_names_target order.
-
-    Genes in target but missing from source get zero-filled.
-    Genes in source but missing from target are dropped.
-    Runs on GPU when available; returns a numpy array.
-
-    Returns X_aligned (n_samples, len(gene_names_target)) and overlap count.
-    """
     source_map = {g: i for i, g in enumerate(gene_names_source)}
     n_samples = X_source.shape[0]
     n_target = len(gene_names_target)
 
-    # Build mapping: target col j -> source col, or -1 if missing
     src_indices = []
     matched = 0
     for gene in gene_names_target:

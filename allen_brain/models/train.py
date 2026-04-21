@@ -1,5 +1,3 @@
-"""Shared training utilities: dataloaders, class weights, epoch loop, checkpointing, evaluation."""
-
 from __future__ import annotations
 
 import gc
@@ -43,24 +41,14 @@ _OPTIMIZERS: dict[str, type[optim.Optimizer]] = {
 }
 
 
-
 def _resolve_optimizer(name_or_cls: str | type[optim.Optimizer]) -> type[optim.Optimizer]:
-    """Resolve optimizer string or class to a class."""
     if isinstance(name_or_cls, str):
         return _OPTIMIZERS[name_or_cls]
     return name_or_cls
 
 
 def count_parameters(model: nn.Module) -> int:
-    """Count trainable parameters in a model."""
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-
-def estimate_vram(model: nn.Module, batch_size: int, n_features: int) -> int:
-    """Rough lower-bound VRAM estimate (bytes) for training a model."""
-    param_bytes = sum(p.numel() * p.element_size() for p in model.parameters())
-    activation_bytes = batch_size * n_features * 4
-    return param_bytes + activation_bytes
 
 
 def build_model(model_name: str, n_features: int, n_classes: int,
@@ -84,7 +72,6 @@ def make_writer_and_ckpt(cfg: ExperimentConfig | dict[str, Any],
 
 
 def _log_normalize(X: np.ndarray) -> np.ndarray:
-    """Library-size normalize + log1p: log1p(X / lib_size * 1e4)."""
     X = np.asarray(X, dtype=np.float32)
     lib = X.sum(axis=1, keepdims=True)
     lib = np.maximum(lib, 1.0)
@@ -93,11 +80,6 @@ def _log_normalize(X: np.ndarray) -> np.ndarray:
 
 def _apply_normalization(X_train: np.ndarray, X_val: np.ndarray,
                          normalize: str | None) -> tuple[np.ndarray, np.ndarray, StandardScaler | None]:
-    """Apply normalization to train/val arrays.
-
-    normalize: None, 'log', 'standard', or 'log+standard'.
-    Returns (X_train, X_val, scaler_or_None).
-    """
     if not normalize or normalize == 'none':
         return X_train, X_val, None
 
@@ -118,7 +100,6 @@ def _apply_normalization(X_train: np.ndarray, X_val: np.ndarray,
 
 def _apply_normalization_test(X_test: np.ndarray, normalize: str | None,
                               scaler: StandardScaler | None) -> np.ndarray:
-    """Apply the same normalization to a test array."""
     if not normalize or normalize == 'none':
         return X_test
     if normalize in ('log', 'log+standard'):
@@ -129,11 +110,6 @@ def _apply_normalization_test(X_test: np.ndarray, normalize: str | None,
 
 
 def balance_populations(X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Oversample each class to match the largest class (capped).
-
-    Mirrors ``allen_brain.TOSICA.train.balance_populations`` so all models
-    train on the same balanced distribution.
-    """
     classes, counts = np.unique(y, return_counts=True)
     max_val = min(counts.max(), int(2_000_000 / len(classes)))
     X_parts: list[np.ndarray] = []
@@ -216,7 +192,6 @@ def run_epoch(model: nn.Module, loader: DataLoader, criterion: nn.Module,
                         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                         optimizer.step()
                         optimizer.zero_grad(set_to_none=True)
-                    # Record unscaled loss for metrics
                     total_loss += loss.item() * accumulation_steps * len(yb)
                 else:
                     loss, logits = train_batch(model, xb, yb, criterion, optimizer)
@@ -276,11 +251,6 @@ def _step_epoch(model: nn.Module,
 
 
 def suggest_hparams(trial: optuna.trial.Trial, model_name: str) -> BaseHParams:
-    """Suggest hyperparameters via per-model TrainConfig registry.
-
-    Each model defines its own ranges in its TrainConfig subclass.
-    Falls back to a wide generic search for unknown models.
-    """
     from allen_brain.models import get_train_config
     from allen_brain.models.config import BaseHParams
 
@@ -288,7 +258,6 @@ def suggest_hparams(trial: optuna.trial.Trial, model_name: str) -> BaseHParams:
     if tc is not None:
         return tc.suggest_hparams(trial)
 
-    # Fallback: wide search for unknown models
     lr = trial.suggest_float('lr', 1e-5, 1e-2, log=True)
     wd = trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True)
     dropout = trial.suggest_float('dropout', 0.05, 0.5)
@@ -307,7 +276,6 @@ def suggest_hparams(trial: optuna.trial.Trial, model_name: str) -> BaseHParams:
 
 
 def _model_kwargs_from_params(params: BaseHParams, model_name: str) -> dict[str, Any]:
-    """Extract model constructor kwargs via per-model TrainConfig registry."""
     from allen_brain.models import get_train_config
 
     tc = get_train_config(model_name)
@@ -387,10 +355,7 @@ def train(model: nn.Module,
     return best_acc
 
 
-
 def _save_model_kwargs(ckpt_dir: str, model_kw: dict[str, Any]) -> None:
-    """Save model constructor kwargs as JSON next to the checkpoint."""
-    # Filter out non-serialisable values (e.g. torch.Tensor masks)
     serialisable = {k: v for k, v in model_kw.items()
                     if isinstance(v, (int, float, str, bool, type(None)))}
     with open(os.path.join(ckpt_dir, 'model_kwargs.json'), 'w') as f:
@@ -398,7 +363,6 @@ def _save_model_kwargs(ckpt_dir: str, model_kw: dict[str, Any]) -> None:
 
 
 def _infer_model_kwargs(model_name: str, ckpt_path: str) -> dict[str, Any]:
-    """Infer architectural kwargs via per-model TrainConfig registry."""
     sd = torch.load(ckpt_path, map_location='cpu', weights_only=True)
     from allen_brain.models import get_train_config
     tc = get_train_config(model_name)
@@ -408,7 +372,6 @@ def _infer_model_kwargs(model_name: str, ckpt_path: str) -> dict[str, Any]:
 
 
 def _load_model_kwargs(ckpt_path: str, model_name: str | None = None) -> dict[str, Any]:
-    """Load saved model kwargs, falling back to inference from state_dict."""
     p = os.path.join(os.path.dirname(ckpt_path), 'model_kwargs.json')
     if os.path.exists(p):
         with open(p) as f:
@@ -422,16 +385,7 @@ def _load_model_kwargs(ckpt_path: str, model_name: str | None = None) -> dict[st
     return {}
 
 
-
 def find_best_ckpt(model_name: str, data_tag: str | None = None) -> str | None:
-    """Find the most recent best_model.pt for a given model name.
-
-    Parameters
-    ----------
-    data_tag : optional str
-        If provided, only return checkpoints whose path contains this tag
-        (e.g. 'pbmc', '10x').
-    """
     pattern = f'runs/{model_name}/*/best_model.pt'
     matches = sorted(glob.glob(pattern), key=os.path.getmtime)
     matches = [m for m in matches if '/tune/' not in m]
@@ -443,7 +397,6 @@ def find_best_ckpt(model_name: str, data_tag: str | None = None) -> str | None:
 def save_hyperparameters(model_name: str, best_params: dict[str, Any],
                          cfg: ExperimentConfig | dict[str, Any],
                          save_dir: str = 'finalhyperparameter') -> None:
-    """Write best hyperparameters to a human-readable text file."""
     os.makedirs(save_dir, exist_ok=True)
     merged = cfg.to_dict() if isinstance(cfg, ExperimentConfig) else dict(cfg)
     merged.pop('device', None)
@@ -458,10 +411,6 @@ def save_hyperparameters(model_name: str, best_params: dict[str, Any],
 
 def load_hyperparameters(model_name: str,
                          hp_dir: str = 'finalhyperparameter') -> dict[str, Any]:
-    """Load best hyperparameters from a saved text file.
-
-    Returns a dict (empty if file not found).
-    """
     path = os.path.join(hp_dir, f'{model_name}_hyperparameters.txt')
     if not os.path.exists(path):
         console.print(f'[yellow]No saved hyperparameters at {path}[/yellow]')
@@ -492,7 +441,6 @@ def load_hyperparameters(model_name: str,
 
 def append_results_csv(model_name: str, metrics: EvalMetrics | dict[str, Any],
                        csv_path: str = 'results.csv') -> None:
-    """Append one row of evaluation metrics to results CSV."""
     row: dict[str, Any] = {'model': model_name}
     m = metrics.to_dict() if isinstance(metrics, EvalMetrics) else metrics
     for k, v in m.items():
@@ -501,7 +449,6 @@ def append_results_csv(model_name: str, metrics: EvalMetrics | dict[str, Any],
     df_new = pd.DataFrame([row])
     if os.path.exists(csv_path):
         df_old = pd.read_csv(csv_path)
-        # Replace existing row for same model, or append
         df_old = df_old[df_old['model'] != model_name]
         df = pd.concat([df_old, df_new], ignore_index=True)
     else:
@@ -510,10 +457,8 @@ def append_results_csv(model_name: str, metrics: EvalMetrics | dict[str, Any],
     console.print(f'Results for {model_name} written to {csv_path}')
 
 
-
 def _save_confusion_matrix(cm: np.ndarray, class_names: list[str],
                            save_path: str) -> None:
-    """Save a confusion matrix heatmap as a PNG."""
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                 xticklabels=class_names, yticklabels=class_names, ax=ax)
@@ -530,7 +475,6 @@ def _collect_predictions(model: nn.Module, loader: DataLoader,
                          squeeze_channel: bool = False,
                          device: torch.device = DEVICE,
                          ) -> tuple[np.ndarray, np.ndarray]:
-    """Run inference and collect all predictions and labels."""
     model.eval()
     all_preds: list[torch.Tensor] = []
     all_labels: list[torch.Tensor] = []
@@ -548,7 +492,6 @@ def _collect_probabilities(model: nn.Module, loader: DataLoader,
                            squeeze_channel: bool = False,
                            device: torch.device = DEVICE,
                            ) -> tuple[np.ndarray, np.ndarray]:
-    """Run inference and collect softmax probabilities and labels."""
     model.eval()
     all_probs: list[torch.Tensor] = []
     all_labels: list[torch.Tensor] = []
@@ -565,7 +508,6 @@ def _collect_probabilities(model: nn.Module, loader: DataLoader,
 def _compute_metrics(y_true: np.ndarray, y_pred: np.ndarray,
                      class_names: list[str],
                      save_dir: str | None = None) -> EvalMetrics:
-    """Compute full classification metrics and optionally save confusion matrix."""
     acc = float((y_pred == y_true).mean())
     f1_mac = float(f1_score(y_true, y_pred, average='macro', zero_division=0))
     f1_w = float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
@@ -605,14 +547,9 @@ def _compute_metrics(y_true: np.ndarray, y_pred: np.ndarray,
     )
 
 
-
 class Trainer:
-    """High-level training orchestrator backed by an :class:`ExperimentConfig`."""
-
     def __init__(self, cfg: ExperimentConfig) -> None:
         self.cfg = cfg
-
-    # -- dataloaders --
 
     def make_dataloaders(
         self,
@@ -635,12 +572,10 @@ class Trainer:
             ds.gene_names = ds.gene_names[hvg_idx]
             ds_val.gene_names = ds_val.gene_names[hvg_idx]
 
-        # Apply normalization – densify sparse matrices first
         X_train = ds.X.toarray() if scipy.sparse.issparse(ds.X) else np.asarray(ds.X)
         X_val = ds_val.X.toarray() if scipy.sparse.issparse(ds_val.X) else np.asarray(ds_val.X)
         X_train, X_val, scaler = _apply_normalization(X_train, X_val, normalize)
 
-        # Balance training populations (oversample minority classes)
         X_train, y_train = balance_populations(X_train, np.asarray(ds.y))
         ds.X = X_train
         ds.y = y_train
@@ -657,8 +592,6 @@ class Trainer:
         console.print(f'val:   {len(ds_val)} cells')
         return train_loader, val_loader, hvg_idx, scaler
 
-    # -- hparam search --
-
     def run_hparam_search(
         self,
         ds: GeneExpressionDataset,
@@ -670,15 +603,6 @@ class Trainer:
         n_hvg_range: tuple[int, int, int] | None = None,
         extra_model_kwargs: dict[str, Any] | None = None,
     ) -> dict[str, Any] | None:
-        """Optuna hparam search over all hyperparameters.
-
-        Parameters
-        ----------
-        n_hvg_range : tuple (min, max, step), optional
-            When provided, n_hvg is tuned alongside other params.
-        extra_model_kwargs : dict, optional
-            Extra kwargs forwarded to build_model (e.g. mask, n_pathways for TOSICA).
-        """
         cfg = self.cfg
         base_normalize = cfg.get('normalize') or 'none'
         default_weights = class_weights(ds)
@@ -743,8 +667,6 @@ class Trainer:
 
         return run_optuna_study(cfg, objective, n_trials, tune_epochs)
 
-    # -- train with tuning --
-
     def train_with_tuning(
         self,
         data_dir: str,
@@ -767,7 +689,6 @@ class Trainer:
             data_dir=data_dir, n_hvg_range=n_hvg_range,
             extra_model_kwargs=extra_model_kwargs)
 
-        # Apply best params (fall back to cfg defaults)
         bp: dict[str, Any] = best_params or {}
         lr = bp.get('lr', cfg['lr'])
         wd = bp.get('weight_decay', cfg['weight_decay'])
@@ -780,14 +701,12 @@ class Trainer:
         if normalize == 'none':
             normalize = None
 
-        # Rebuild dataloaders with best n_hvg + normalize
         best_n_hvg = bp.get('n_hvg', cfg.get('n_hvg'))
         train_loader, val_loader, hvg_idx, scaler = self.make_dataloaders(
             data_dir, n_hvg=best_n_hvg, normalize=normalize)
         loaders = (train_loader, val_loader)
         ds = train_loader.dataset
 
-        # Build model with best architectural params
         model_kw: dict[str, Any] = dict(dropout=dropout)
         for k in ('n_layers', 'hidden_dim', 'n_stages', 'n_heads', 'embed_dim'):
             if k in bp:
@@ -822,8 +741,6 @@ class Trainer:
         console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
         return best, ckpt, bp
 
-    # -- train with grid --
-
     def train_with_grid(
         self,
         data_dir: str,
@@ -832,20 +749,10 @@ class Trainer:
         tune_epochs: int,
         extra_model_kwargs: dict[str, Any] | None = None,
     ) -> tuple[float, str, dict[str, Any]]:
-        """Deterministic grid search: train each config for tune_epochs, then
-        do full training with the winner.
-
-        Parameters
-        ----------
-        grid : list[dict]
-            Each dict has keys: lr, weight_decay, dropout, label_smoothing,
-            optimizer, loss, focal_gamma, normalize, and model-specific
-            architectural keys (n_layers, hidden_dim, etc.).
-        """
         cfg = self.cfg
         extra_kw = extra_model_kwargs or {}
         best_idx, best_val_acc = 0, -1.0
-        cached_normalize: object = object()  # sentinel
+        cached_normalize: object = object()
         loaders: tuple[DataLoader, DataLoader] | None = None
         ds: GeneExpressionDataset | None = None
 
@@ -904,7 +811,6 @@ class Trainer:
                 del model, optimizer, scheduler, writer
                 _cuda_cleanup()
 
-        # --- Phase 2: full training with winner ---
         bp = grid[best_idx]
         console.print(Panel(f'[bold green]Winner: config {best_idx+1}[/bold green] '
                             f'(val_acc={best_val_acc:.4f})\n{bp}',
@@ -961,8 +867,6 @@ class Trainer:
         console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
         return best, ckpt, bp
 
-    # -- train single --
-
     def train_single(
         self,
         data_dir: str,
@@ -970,14 +874,9 @@ class Trainer:
         extra_model_kwargs: dict[str, Any] | None = None,
         hp_dir: str = 'finalhyperparameter',
     ) -> tuple[float, str, dict[str, Any]]:
-        """Single training run using saved best hyperparameters (no search).
-
-        Returns (best_val_acc, ckpt_path, merged_params).
-        """
         cfg = self.cfg
         saved = load_hyperparameters(cfg['model'], hp_dir) if hp_dir is not None else {}
         bp: dict[str, Any] = {**saved}
-        # cfg overrides for session-specific settings
         for k in ('epochs', 'batch_size', 'accumulation_steps', 'seed'):
             if k in cfg:
                 bp[k] = cfg[k]
@@ -1034,8 +933,6 @@ class Trainer:
         console.print(f'\nBest validation accuracy: [bold green]{best:.4f}[/bold green]')
         return best, ckpt, bp
 
-    # -- evaluate --
-
     def evaluate(
         self,
         data_dir: str,
@@ -1043,15 +940,10 @@ class Trainer:
         squeeze_channel: bool = False,
         extra_model_kwargs: dict[str, Any] | None = None,
     ) -> EvalMetrics:
-        """Load best checkpoint and evaluate on test set with full metrics.
-
-        Returns EvalMetrics with accuracy, f1, precision, recall, confusion_matrix.
-        """
         cfg = self.cfg
         ds_test = make_dataset(data_dir, split='test')
         ckpt_dir = os.path.dirname(ckpt_path)
 
-        # Apply HVG indices if saved during training
         hvg_path = os.path.join(ckpt_dir, 'hvg_indices.npy')
         if os.path.exists(hvg_path):
             hvg_idx = np.load(hvg_path)
@@ -1061,7 +953,6 @@ class Trainer:
             ds_test.gene_names = ds_test.gene_names[hvg_idx]
             console.print(f'Applied HVG selection: {len(hvg_idx)} genes')
 
-        # Apply normalization if saved during training
         normalize: str | None = None
         norm_path = os.path.join(ckpt_dir, 'normalize.txt')
         if os.path.exists(norm_path):
@@ -1084,7 +975,6 @@ class Trainer:
         n_classes = ds_test.n_classes
         class_names = list(ds_test.class_names)
 
-        # Merge saved architectural kwargs with any extra kwargs (e.g. mask)
         saved_kw = _load_model_kwargs(ckpt_path, model_name=cfg['model'])
         if extra_model_kwargs:
             saved_kw.update(extra_model_kwargs)
@@ -1100,4 +990,3 @@ class Trainer:
         y_pred, y_true = _collect_predictions(model, test_loader, squeeze_channel)
         save_dir = os.path.dirname(ckpt_path)
         return _compute_metrics(y_true, y_pred, class_names, save_dir)
-

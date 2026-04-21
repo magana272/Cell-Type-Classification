@@ -1,5 +1,3 @@
-"""Loss functions for cell-type classification."""
-
 from __future__ import annotations
 
 import torch
@@ -8,11 +6,6 @@ import torch.nn.functional as F
 
 
 class FocalLoss(nn.Module):
-    """Focal loss for class-imbalanced classification.
-
-    FL(p_t) = -alpha_t * (1 - p_t)^gamma * log(p_t)
-    """
-
     def __init__(
         self,
         weight: torch.Tensor | None = None,
@@ -44,7 +37,6 @@ def build_criterion(
     label_smoothing: float = 0.0,
     gamma: float = 2.0,
 ) -> nn.Module:
-    """Factory for loss functions."""
     if loss_name == 'cross_entropy':
         return nn.CrossEntropyLoss(weight=weight,
                                    label_smoothing=label_smoothing)

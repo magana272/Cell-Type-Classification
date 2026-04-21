@@ -1,17 +1,4 @@
-"""
-models — Model registry and factory for cell-type classifiers.
-
-Supported model names:
-    CellTypeCNN         5-block 1D CNN  (seq_len, n_classes)
-    CellTypeCNN_3Layer  3-block 1D CNN  (seq_len, n_classes)
-    TOSICA              Transformer     (n_genes, n_pathways, n_classes, mask, ...)
-
-Usage:
-    from models import get_model, AVAILABLE_MODELS, needs_channel_dim
-"""
-
 import torch
-import numpy as np
 
 from .config import TrainConfig
 from .CellTypeMLP import MLP_Model, TRAIN_CONFIG as _mlp_tc
@@ -19,31 +6,16 @@ from .CellTypeCNN import CellTypeCNN, ResBlock, TRAIN_CONFIG as _cnn_tc
 from .CellTypeAttention import TOSICA, MaskedEmbedding, TRAIN_CONFIG as _tosica_tc
 from .CellTypeGNN import CellTypeGNN, TRAIN_CONFIG as _gnn_tc
 
-__all__ = [
-    "CellTypeCNN",
-    "CellTypeMLP",
-    "ResBlock",
-    "SEBlock",
-    "MLPBlock",
-    "CellTypeTOSICA",
-    "MaskedEmbedding",
-    "AVAILABLE_MODELS",
-    "get_model",
-    "needs_channel_dim",
-]
-
 AVAILABLE_MODELS = ["CellTypeCNN", "CellTypeTOSICA", "CellTypeMLP", "CellTypeGNN"]
 
 _CHANNEL_DIM_MODELS = {"CellTypeCNN"}
 
 
 def needs_channel_dim(model_name: str) -> bool:
-    """Return True if the model expects a leading channel dimension."""
     return model_name in _CHANNEL_DIM_MODELS
 
 
 def _identity_mask(n_genes: int) -> torch.Tensor:
-    """Create a default identity-like pathway mask (each gene = its own pathway)."""
     return torch.eye(n_genes)
 
 
@@ -62,20 +34,6 @@ def get_model(
     dropout: float = 0.1,
     use_checkpointing: bool = False,
 ) -> torch.nn.Module:
-    """
-    Instantiate a model by name.
-
-    Parameters
-    ----------
-    name       : one of AVAILABLE_MODELS
-    n_genes    : number of input genes (= seq_len for CNNs, = n_genes for TOSICA)
-    n_classes  : number of cell-type classes
-    mask       : (n_genes, n_pathways) binary tensor for TOSICA  (optional)
-    n_pathways : override pathway count; defaults to n_genes when mask is None
-    n_layers   : depth for MLP, TOSICA, GNN
-    n_stages   : depth for CNN (number of ResBlock stages)
-    hidden_dim : hidden dimension for MLP (default 512) and GNN (default 256)
-    """
     if name == "CellTypeCNN":
         return CellTypeCNN(seq_len=n_genes, n_classes=n_classes,
                            dropout=dropout, n_stages=n_stages,
@@ -122,5 +80,4 @@ TRAIN_CONFIGS: dict[str, TrainConfig] = {
 
 
 def get_train_config(name: str) -> TrainConfig | None:
-    """Look up model-specific training config by name."""
     return TRAIN_CONFIGS.get(name)

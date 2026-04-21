@@ -9,7 +9,6 @@ from allen_brain.TOSICA.train import set_seed
 from allen_brain.models import train as T
 from allen_brain.models.config import ExperimentConfig
 from allen_brain.models.CellTypeAttention import PathwayMaskBuilder
-from allen_brain.cell_data.cell_dataset import make_dataset
 
 DATA_DIR = 'data/mPancreas'
 _ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +35,6 @@ cfg = ExperimentConfig(
 
 
 def _build_pathway_kwargs(gene_names: list[str]) -> dict:
-    """Build extra_model_kwargs for TOSICA from (HVG-filtered) gene names."""
     mask, n_pathways = PathwayMaskBuilder(
         gmt_path=GMT_PATH, gmt_url=GMT_URL,
         min_overlap=MIN_PATHWAY_OVERLAP,

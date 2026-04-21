@@ -1,9 +1,3 @@
-"""
-3_visualize.py
-Visualize both 10x and SmartSeq datasets.
-Generates: class distribution, PCA, UMAP, heatmap, violin, and CV^2 plots.
-All figures are saved under figures/*.png.
-"""
 import os
 
 from rich.console import Console
@@ -22,7 +16,6 @@ DATASETS = [(info['dir'], name) for name, info in ALL_DATASETS.items()]
 
 def run_visualizations(data_dir: str, tag: str):
     set_seed(SEED)
-    """Run the full visualization suite for one dataset."""
     if not (os.path.exists(os.path.join(data_dir, 'X_train.npy'))
             or os.path.exists(os.path.join(data_dir, 'X_train.npz'))):
         console.print(f"  [yellow]No data for {tag}, skipping[/yellow]")

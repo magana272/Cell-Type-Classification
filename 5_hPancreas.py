@@ -1,4 +1,3 @@
-"""Train & evaluate all 5 models on hPancreas (human — uses human Reactome GMT)."""
 from run_all_models import run_all, HUMAN_GMT, HUMAN_GMT_URL
 
 DATA_DIR = 'data/hPancreas'

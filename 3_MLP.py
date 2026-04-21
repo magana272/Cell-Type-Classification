@@ -27,7 +27,6 @@ cfg = ExperimentConfig(
     epochs=EPOCHS,
     normalize=NORMALIZE,
     lr=LR,
-    
 )
 
 

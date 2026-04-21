@@ -3,25 +3,29 @@ from __future__ import annotations
 import math
 import os
 from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
+import optuna
 import requests
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from rich.console import Console
 
-console = Console()
+from allen_brain.models.config import (
+    TrainConfig,
+    TransformerHParams,
+    TransformerModelKwargs,
+)
 
+console = Console()
 
 _DEFAULT_GMT_URL = ('https://data.broadinstitute.org/gsea-msigdb/msigdb/'
                     'release/2023.2.Hs/c2.cp.reactome.v2023.2.Hs.symbols.gmt')
 
 
-
 class PathwayMaskBuilder:
-    """Downloads GMT files and builds (n_genes, n_pathways) binary masks."""
-
     def __init__(
         self,
         gmt_path: str = 'data/reactome.gmt',
@@ -89,7 +93,6 @@ class PathwayMaskBuilder:
         return torch.from_numpy(mask)
 
     def build_mask(self, gene_names: Sequence[str]) -> tuple[torch.Tensor, int]:
-        """Build a (n_genes, n_pathways) binary mask from Reactome pathways."""
         if not self.download_gmt():
             return torch.eye(len(gene_names)), len(gene_names)
         gmt = self.parse_gmt()
@@ -103,10 +106,7 @@ class PathwayMaskBuilder:
         return mask, len(kept)
 
 
-# Backward-compat module-level wrappers
-
 class MaskedEmbedding(nn.Module):
-
     def __init__(
         self, n_genes: int, n_pathways: int, embed_dim: int, mask: torch.Tensor,
     ) -> None:
@@ -125,7 +125,6 @@ class MaskedEmbedding(nn.Module):
 
 
 class TOSICA(nn.Module):
-
     def __init__(
         self,
         n_genes: int,
@@ -144,10 +143,7 @@ class TOSICA(nn.Module):
         self.unknown_threshold = unknown_threshold
 
         self.embedding = MaskedEmbedding(n_genes, n_pathways, embed_dim, mask)
-
         self.cls_token = nn.Parameter(torch.randn(1, embed_dim, 1))
-
-        # self.pos_embed = nn.Parameter(torch.randn(1, embed_dim, n_pathways + 1) * 0.01)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=embed_dim,
@@ -159,8 +155,6 @@ class TOSICA(nn.Module):
             norm_first=True,
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-
-        self._attn_weights: torch.Tensor | None = None
 
         self.classifier = nn.Sequential(
             nn.LayerNorm(embed_dim),
@@ -177,7 +171,6 @@ class TOSICA(nn.Module):
         tokens = self.embedding(x)
         cls = self.cls_token.expand(batch, -1, -1)
         tokens = torch.cat([cls, tokens], dim=2)
-        # tokens = tokens + self.pos_embed
         tokens = tokens.permute(0, 2, 1)
         out = self.transformer(tokens)
         cls_out = out[:, 0, :]
@@ -204,20 +197,7 @@ class TOSICA(nn.Module):
         return preds, max_p
 
 
-
-from typing import Any
-
-import optuna
-
-from allen_brain.models.config import (
-    TrainConfig,
-    TransformerHParams,
-    TransformerModelKwargs,
-) 
-
-
 class TransformerTrainConfig(TrainConfig):
-
     def suggest_hparams(self, trial: optuna.trial.Trial) -> TransformerHParams:
         lr = trial.suggest_float('lr', 2e-3, 2e-2, log=True)
         wd = trial.suggest_float('weight_decay', 2e-4, 2e-3, log=True)

@@ -12,12 +12,6 @@ from sklearn.preprocessing import LabelEncoder
 
 
 class GeneExpressionDataset(Dataset):
-    """Lazy row-wise view over an (N, G) expression matrix.
-
-    Supports both dense (.npy, memory-mapped) and sparse (.npz, CSR) storage.
-    ``__getitem__`` always returns a dense tensor regardless of backing format.
-    """
-
     X: np.ndarray | scipy.sparse.csr_matrix
 
     def __init__(
@@ -76,8 +70,6 @@ def load_label_encoder(le_path: str) -> LabelEncoder | None:
 
 
 def make_split_dataset(data_dir: str, split: str = 'train') -> GeneExpressionDataset:
-    """Load .npy or .npz splits and return a GeneExpressionDataset."""
-    # Prefer sparse .npz if available, fall back to dense .npy
     npz_path = os.path.join(data_dir, f'X_{split}.npz')
     npy_path = os.path.join(data_dir, f'X_{split}.npy')
     X_path = npz_path if os.path.exists(npz_path) else npy_path
@@ -96,7 +88,6 @@ def make_split_dataset(data_dir: str, split: str = 'train') -> GeneExpressionDat
 
 
 def make_dataset(data_dir: str, split: str = 'train') -> GeneExpressionDataset:
-    """Load a specific split and return a GeneExpressionDataset."""
     if split not in ('train', 'val', 'test'):
         raise ValueError(f"Invalid split '{split}', expected 'train', 'val', 'test'")
     return make_split_dataset(data_dir, split=split)

@@ -3,7 +3,6 @@ from __future__ import annotations
 import gc
 import os
 import pickle
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import numpy as np
@@ -16,18 +15,14 @@ from sklearn.preprocessing import LabelEncoder
 console = Console()
 
 
-
 @dataclass
 class DatasetConfig:
-    """Per-dataset metadata for the registry."""
-
     dir: str
-    loader: str  # 'csv' or 'h5ad'
+    loader: str
     label_col: str = 'subclass_label'
     min_cells: int = 200
 
     def __getitem__(self, key: str) -> str | int:
-        """Dict-style access for backward compatibility."""
         return getattr(self, key)
 
     def get(self, key: str, default: str | int | None = None) -> str | int | None:
@@ -51,7 +46,6 @@ TRAIN_FRAC, VAL_FRAC, TEST_FRAC = 0.80, 0.10, 0.10
 ALL_DATASETS: dict[str, DatasetConfig] = {
     '10x':          DatasetConfig(dir='data/10x',          loader='csv'),
     'smartseq':     DatasetConfig(dir='data/smartseq',     loader='csv'),
-    # TOSICA benchmark datasets (condition-based splits, see allen_brain/data_sets/)
     'hPancreas':    DatasetConfig(dir='data/hPancreas',    loader='h5ad',
                                   label_col='Celltype',          min_cells=50),
     'mPancreas':    DatasetConfig(dir='data/mPancreas',    loader='h5ad',
@@ -175,7 +169,6 @@ def load_smartseq(seed: int = 42) -> str:
     return load_dataset(DEFAULT_SMARTSEQ_PATHS, seed)
 
 
-
 def load_h5ad_dataset(
     h5ad_path: str,
     out_dir: str,
@@ -183,12 +176,6 @@ def load_h5ad_dataset(
     min_cells: int = 50,
     seed: int = 42,
 ) -> str:
-    """Load an h5ad file -> filter by min cells -> stratified split -> save.
-
-    Saves sparse (.npz) when the source h5ad has a sparse matrix, or
-    dense (.npy) otherwise.  Downstream ``GeneExpressionDataset`` handles both.
-    """
-    # Check for both sparse (.npz) and dense (.npy) formats
     if (os.path.exists(os.path.join(out_dir, 'X_train.npy'))
             or os.path.exists(os.path.join(out_dir, 'X_train.npz'))):
         console.print(f'Splits already exist in {out_dir}')
@@ -200,7 +187,6 @@ def load_h5ad_dataset(
     adata = ad.read_h5ad(h5ad_path)
     is_sparse = scipy.sparse.issparse(adata.X)
 
-    # Labels
     if label_column not in adata.obs.columns:
         available = list(adata.obs.columns)
         raise KeyError(
@@ -209,7 +195,6 @@ def load_h5ad_dataset(
     labels = adata.obs[label_column].astype(str).values
     gene_names = np.array(adata.var_names)
 
-    # Filter classes with too few cells
     counts = pd.Series(labels).value_counts()
     keep_classes = counts[counts >= min_cells].index
     cell_mask = np.isin(labels, keep_classes)
@@ -257,5 +242,3 @@ def load_h5ad_dataset(
     console.print(f'[green]Saved[/green] splits to {out_dir}'
                   f'{" (sparse .npz)" if is_sparse else ""}')
     return out_dir
-
-

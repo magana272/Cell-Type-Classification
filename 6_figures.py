@@ -1,8 +1,3 @@
-"""Generate all figures for the final report.
-
-Produces publication-quality (300 DPI) figures in figures/ for LaTeX inclusion.
-Requires trained model checkpoints and results CSVs from 5_*.py runs.
-"""
 from __future__ import annotations
 
 import os
@@ -25,7 +20,6 @@ SAVE_DIR = 'figures'
 DPI = 300
 SEED = 42
 
-# Consistent styling
 plt.rcParams.update({
     'font.size': 10,
     'axes.titlesize': 12,
@@ -51,10 +45,6 @@ def _save(fig: plt.Figure, name: str) -> None:
     console.print(f'[green]Saved[/green] {path}')
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Figure 1: Dataset class distributions (side-by-side)
-# ═══════════════════════════════════════════════════════════════════════════
-
 def fig_dataset_overview() -> None:
     console.print('[bold]Fig 1: Dataset overview[/bold]')
     fig, axes = plt.subplots(1, 3, figsize=(16, 5))
@@ -79,10 +69,6 @@ def fig_dataset_overview() -> None:
     _save(fig, 'fig_dataset_overview.png')
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Figure 2-3: UMAP of training sets
-# ═══════════════════════════════════════════════════════════════════════════
-
 def fig_umap(data_dir: str, tag: str) -> None:
     console.print(f'[bold]Fig: UMAP {tag}[/bold]')
     ds = make_dataset(data_dir, split='train')
@@ -94,10 +80,6 @@ def fig_umap(data_dir: str, tag: str) -> None:
                   save_path=os.path.join(SAVE_DIR, f'fig_{tag}_umap.png'))
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Figure 4-5: Results bar charts (our models + top published)
-# ═══════════════════════════════════════════════════════════════════════════
-
 def fig_results_bar(csv_path: str, dataset: str, tag: str) -> None:
     console.print(f'[bold]Fig: Results bar {tag}[/bold]')
     if not os.path.exists(csv_path):
@@ -105,17 +87,14 @@ def fig_results_bar(csv_path: str, dataset: str, tag: str) -> None:
         return
 
     df = pd.read_csv(csv_path)
-    # Extract our model accuracies
     our_acc: dict[str, float] = {}
     for _, row in df.iterrows():
         name = row['model'].replace(f'_{dataset}', '')
         our_acc[name] = row['accuracy']
 
-    # Top published baselines
     published = PUBLISHED_ACCURACY.get(dataset, {})
     top_pub = sorted(published.items(), key=lambda x: x[1] or 0, reverse=True)[:5]
 
-    # Combine
     methods: list[str] = []
     accs: list[float] = []
     colors: list[str] = []
@@ -130,7 +109,6 @@ def fig_results_bar(csv_path: str, dataset: str, tag: str) -> None:
             accs.append(our_acc[name])
             colors.append(OUR_COLORS[name])
 
-    # Sort by accuracy
     order = np.argsort(accs)[::-1]
     methods = [methods[i] for i in order]
     accs = [accs[i] for i in order]
@@ -144,17 +122,12 @@ def fig_results_bar(csv_path: str, dataset: str, tag: str) -> None:
     ax.set_title(f'{dataset}: Model Comparison')
     ax.set_xlim(0, 1.05)
     ax.invert_yaxis()
-    # Add value labels
     for bar, acc in zip(bars, accs):
         ax.text(bar.get_width() + 0.01, bar.get_y() + bar.get_height()/2,
                 f'{acc:.3f}', va='center', fontsize=7)
     plt.tight_layout()
     _save(fig, f'fig_{tag}_results.png')
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# Figure 8: Leaderboard heatmap (methods × datasets)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def fig_leaderboard() -> None:
     console.print('[bold]Fig: Leaderboard heatmap[/bold]')
@@ -164,7 +137,6 @@ def fig_leaderboard() -> None:
                'mPancreas': 'results_mPancreas.csv',
                'mAtlas': 'results_mAtlas.csv'}
 
-    # Collect all methods
     all_methods: dict[str, dict[str, float | None]] = {}
 
     for ds_name in datasets:
@@ -179,12 +151,10 @@ def fig_leaderboard() -> None:
                 name = f"Ours-{row['model'].replace(f'_{ds_name}', '')}"
                 all_methods.setdefault(name, {})[ds_name] = row['accuracy']
 
-    # Build matrix
     methods_sorted = sorted(all_methods.keys(),
                             key=lambda m: np.nanmean([
                                 all_methods[m].get(d) or 0 for d in datasets
                             ]), reverse=True)
-    # Keep top 15 + all ours
     ours = [m for m in methods_sorted if m.startswith('Ours-')]
     others = [m for m in methods_sorted if not m.startswith('Ours-')][:12]
     methods_show = others + ours
@@ -201,7 +171,6 @@ def fig_leaderboard() -> None:
                 xticklabels=datasets, yticklabels=methods_show,
                 ax=ax, vmin=0, vmax=1, cbar_kws={'label': 'Accuracy'})
     ax.set_title('Accuracy: All Methods vs. Datasets')
-    # Bold our methods
     for i, label in enumerate(ax.get_yticklabels()):
         if label.get_text().startswith('Ours-'):
             label.set_fontweight('bold')
@@ -209,10 +178,6 @@ def fig_leaderboard() -> None:
     plt.tight_layout()
     _save(fig, 'fig_leaderboard.png')
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# Figure 9: Model comparison grouped bar (accuracy + F1 macro + F1 weighted)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def fig_model_comparison() -> None:
     console.print('[bold]Fig: Model comparison[/bold]')
@@ -259,32 +224,23 @@ def fig_model_comparison() -> None:
     _save(fig, 'fig_model_comparison.png')
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Main
-# ═══════════════════════════════════════════════════════════════════════════
-
 def main() -> None:
     os.makedirs(SAVE_DIR, exist_ok=True)
 
-    # Dataset overview
     fig_dataset_overview()
 
-    # UMAPs
     for data_dir, tag in [('data/hPancreas', 'hpan'), ('data/mPancreas', 'mpan'),
                            ('data/mAtlas', 'matlas')]:
         if os.path.exists(os.path.join(data_dir, 'X_train.npy')) or \
            os.path.exists(os.path.join(data_dir, 'X_train.npz')):
             fig_umap(data_dir, tag)
 
-    # Results bars
     fig_results_bar('results_hPancreas.csv', 'hPancreas', 'hpan')
     fig_results_bar('results_mPancreas.csv', 'mPancreas', 'mpan')
     fig_results_bar('results_mAtlas.csv', 'mAtlas', 'matlas')
 
-    # Leaderboard
     fig_leaderboard()
 
-    # Model comparison
     fig_model_comparison()
 
     console.print('\n[bold green]All figures generated.[/bold green]')

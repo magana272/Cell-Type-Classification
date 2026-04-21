@@ -1,4 +1,3 @@
-"""Train & evaluate all 5 models on mPancreas (mouse — uses mouse Reactome GMT)."""
 from run_all_models import run_all, MOUSE_GMT, MOUSE_GMT_URL
 
 DATA_DIR = 'data/mPancreas'

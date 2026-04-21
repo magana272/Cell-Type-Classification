@@ -1,4 +1,3 @@
-"""Model comparison: AUC curves, accuracy bar charts, confusion matrices, per-class F1."""
 from __future__ import annotations
 
 import os
@@ -9,12 +8,10 @@ from rich.console import Console
 from rich.panel import Panel
 
 console: Console = Console()
-import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 import matplotlib
 matplotlib.use('Agg')
-from sklearn.metrics import confusion_matrix
 
 from allen_brain.models import train as T
 from allen_brain.models.config import ModelPredictions
@@ -40,7 +37,6 @@ def _load_and_predict(
     squeeze_channel: bool,
     is_graph: bool,
 ) -> ModelPredictions | None:
-    """Load best checkpoint and collect probabilities + predictions on test set."""
     ckpt: str | None = T.find_best_ckpt(model_cls_name, data_tag='mPancreas')
     if ckpt is None:
         return None

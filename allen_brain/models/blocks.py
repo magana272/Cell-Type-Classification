@@ -1,5 +1,3 @@
-"""Shared building blocks used across multiple model architectures."""
-
 from __future__ import annotations
 
 import torch
@@ -7,8 +5,6 @@ from torch import nn
 
 
 class SEBlock(nn.Module):
-    """Squeeze-and-Excitation block for 1D feature maps."""
-
     def __init__(self, channels: int, reduction: int = 8) -> None:
         super().__init__()
         hidden = max(channels // reduction, 4)

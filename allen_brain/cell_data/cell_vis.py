@@ -50,14 +50,10 @@ def _ensure_dir(path: str) -> None:
 
 
 def _palette(n: int) -> list[tuple[float, ...]]:
-    """Return a colour palette that scales beyond 20 classes."""
     return sns.color_palette('tab20', n) if n <= 20 else sns.color_palette('husl', n)
 
 
-
 class DatasetVisualizer:
-    """Visualization suite for GeneExpressionDataset."""
-
     def __init__(
         self,
         ds: cell_dataset.GeneExpressionDataset,
@@ -364,11 +360,9 @@ class DatasetVisualizer:
         return top_hvg_names, top_hvg_ratios
 
 
-
 def get_top_hvg_genes(
     X: np.ndarray, gene_names: np.ndarray, top_n: int = 20,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Top HVGs via variance of log-normalized expression."""
     X = _to_numpy(X)
     gene_names = np.asarray(gene_names)
     top_indices = cell_preprocess.select_hvg(X, top_n)
@@ -378,7 +372,6 @@ def get_top_hvg_genes(
 def _compute_cv2_stats(
     X: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Compute per-gene mean, variance, and CV^2 on library-normalized data."""
     lib = np.maximum(X.sum(axis=1, keepdims=True, dtype=np.float64), 1.0)
     X_norm = (X / lib * 1e4).astype(np.float32)
     mean = X_norm.mean(axis=0).astype(np.float64)
@@ -393,7 +386,6 @@ def _compute_cv2_stats(
 def _fit_cv2_trend(
     log_mean: np.ndarray, log_cv2: np.ndarray, frac: float = 0.3,
 ) -> tuple[np.ndarray, np.ndarray, Any]:
-    """Fit a LOWESS trend to log10(CV^2) vs log10(mean)."""
     from statsmodels.nonparametric.smoothers_lowess import lowess as sm_lowess
     from scipy.interpolate import interp1d
 
@@ -408,10 +400,7 @@ def _fit_cv2_trend(
     return trend_log_mean, trend_log_cv2, trend_fn
 
 
-
 class ModelComparisonVisualizer:
-    """Plots for comparing multiple trained models (ROC, confusion, F1, etc.)."""
-
     def __init__(
         self,
         results: dict[str, ModelPredictions],
@@ -421,10 +410,7 @@ class ModelComparisonVisualizer:
         self.fig_dir = fig_dir
         os.makedirs(fig_dir, exist_ok=True)
 
-    # -- ROC ----------------------------------------------------------------
-
     def plot_roc_per_model(self, save_path: str | None = None) -> None:
-        """2x2 grid of per-class ROC curves, one subplot per model."""
         if not self.results:
             return
         if save_path is None:
@@ -457,7 +443,6 @@ class ModelComparisonVisualizer:
         console.print(f'[green]Saved[/green] {save_path}')
 
     def plot_roc_comparison(self, save_path: str | None = None) -> None:
-        """Single plot with macro-avg ROC per model overlaid."""
         if not self.results:
             return
         if save_path is None:
@@ -486,10 +471,7 @@ class ModelComparisonVisualizer:
         plt.close(fig)
         console.print(f'[green]Saved[/green] {save_path}')
 
-    # -- Confusion matrices -------------------------------------------------
-
     def plot_confusion_matrices(self, save_path: str | None = None) -> None:
-        """Grid of normalized confusion matrix heatmaps, one per model."""
         if not self.results:
             return
         if save_path is None:
@@ -518,10 +500,7 @@ class ModelComparisonVisualizer:
         plt.close(fig)
         console.print(f'[green]Saved[/green] {save_path}')
 
-    # -- Per-class F1 -------------------------------------------------------
-
     def plot_per_class_f1(self, save_path: str | None = None) -> None:
-        """Grouped bar chart of per-class F1 across models."""
         if not self.results:
             return
         if save_path is None:
@@ -555,14 +534,11 @@ class ModelComparisonVisualizer:
         plt.close(fig)
         console.print(f'[green]Saved[/green] {save_path}')
 
-    # -- Accuracy / metrics bar chart from CSV ------------------------------
-
     @staticmethod
     def plot_accuracy_comparison(
         save_dir: str,
         csv_path: str = 'results.csv',
     ) -> None:
-        """Grouped bar chart of accuracy, F1-macro, F1-weighted from CSV."""
         if not os.path.exists(csv_path):
             console.print(f'[yellow]{csv_path} not found[/yellow], skipping')
             return
@@ -589,14 +565,11 @@ class ModelComparisonVisualizer:
         plt.close(fig)
         console.print(f'[green]Saved[/green] {path}')
 
-    # -- Metrics table as figure --------------------------------------------
-
     @staticmethod
     def plot_metrics_table(
         save_dir: str,
         csv_path: str = 'results.csv',
     ) -> None:
-        """Render a metrics table as a figure."""
         if not os.path.exists(csv_path):
             return
         df = pd.read_csv(csv_path)
@@ -616,8 +589,6 @@ class ModelComparisonVisualizer:
         plt.close(fig)
         console.print(f'[green]Saved[/green] {path}')
 
-    # -- Metric heatmap (datasets x models) ---------------------------------
-
     @staticmethod
     def plot_metric_heatmap(
         all_results: dict[str, dict[str, EvalMetrics | None]],
@@ -628,7 +599,6 @@ class ModelComparisonVisualizer:
         cmap: str = 'YlGn',
         filename: str | None = None,
     ) -> None:
-        """Generic datasets-x-models heatmap for any EvalMetrics field."""
         datasets = list(all_results.keys())
         matrix = np.full((len(datasets), len(model_names)), np.nan)
         for i, ds in enumerate(datasets):
@@ -649,15 +619,12 @@ class ModelComparisonVisualizer:
         plt.close()
         console.print(f'[green]Saved[/green] {path}')
 
-    # -- Confusion matrices from EvalMetrics (multi-dataset) ----------------
-
     @staticmethod
     def plot_eval_confusion_matrices(
         model_results: dict[str, EvalMetrics | None],
         save_dir: str,
         suptitle: str | None = None,
     ) -> None:
-        """Plot confusion matrix grid from EvalMetrics dicts."""
         items = [(k, v) for k, v in model_results.items()
                  if v is not None and v.confusion_matrix is not None]
         if not items:
@@ -695,15 +662,10 @@ class ModelComparisonVisualizer:
         save_dir: str,
         filename: str = 'annotator_comparison_heatmap.png',
     ) -> None:
-        """Heatmap: rows = methods, cols = datasets, color = accuracy.
-
-        Our models are highlighted with bold labels.
-        """
         datasets = list(combined_accuracy.keys())
         all_methods: set[str] = set()
         for d in combined_accuracy.values():
             all_methods.update(d.keys())
-        # Sort: our models first, then published by mean accuracy descending
         published = sorted(
             all_methods - set(our_model_names),
             key=lambda m: np.nanmean([
@@ -724,7 +686,6 @@ class ModelComparisonVisualizer:
         sns.heatmap(matrix, annot=True, fmt='.3f', cmap='YlGn',
                     xticklabels=datasets, yticklabels=methods,
                     ax=ax, vmin=0, vmax=1, linewidths=0.5)
-        # Bold our model labels
         for i, label in enumerate(ax.get_yticklabels()):
             if label.get_text() in our_model_names:
                 label.set_fontweight('bold')
@@ -744,7 +705,6 @@ class ModelComparisonVisualizer:
         save_dir: str,
         filename: str = 'mean_accuracy_comparison.png',
     ) -> None:
-        """Horizontal bar chart of mean accuracy across datasets, sorted."""
         datasets = list(combined_accuracy.keys())
         all_methods: set[str] = set()
         for d in combined_accuracy.values():
