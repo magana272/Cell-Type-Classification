@@ -27,8 +27,11 @@ console = Console()
 
 
 def _to_numpy(a: Any) -> np.ndarray:
+    import scipy.sparse
     if hasattr(a, 'detach'):
         a = a.detach().cpu().numpy()
+    if scipy.sparse.issparse(a):
+        return a.toarray()
     return np.asarray(a)
 
 

@@ -1,0 +1,457 @@
+2026-04-20 23:58:26.710019: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-04-20 23:58:26.719003: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1776729506.728862   17623 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1776729506.732163   17623 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1776729506.740614   17623 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776729506.740629   17623 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776729506.740631   17623 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776729506.740632   17623 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+2026-04-20 23:58:26.743117: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Dataset: mPancreas  ·  data/mPancreas                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ MLP — mPancreas                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 72093 cells (balanced), 21 classes, 10000 genes
+val:   2547 cells
+Model parameters: 2,612,533
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     3.0401 |   0.0623 |    3.0325 |   0.0561 | 9.94e-03 *
+     2 |     3.0064 |   0.1431 |    2.9748 |   0.2426 | 9.76e-03 *
+     3 |     2.9338 |   0.2228 |    2.8936 |   0.2568 | 9.46e-03 *
+     4 |     2.7969 |   0.2705 |    2.7391 |   0.1810 | 9.05e-03 *
+     5 |     2.5546 |   0.2964 |    2.4800 |   0.1464 | 8.55e-03 *
+     6 |     2.2341 |   0.3444 |    2.1924 |   0.3632 | 7.96e-03 *
+     7 |     1.9554 |   0.4038 |    1.9609 |   0.4515 | 7.30e-03 *
+     8 |     1.7321 |   0.4402 |    1.7773 |   0.5128 | 6.58e-03 *
+     9 |     1.5369 |   0.4872 |    1.5892 |   0.5465 | 5.82e-03 *
+    10 |     1.3691 |   0.5371 |    1.4346 |   0.5768 | 5.05e-03 *
+    11 |     1.2398 |   0.5740 |    1.3284 |   0.5952 | 4.28e-03 *
+    12 |     1.1380 |   0.6060 |    1.2429 |   0.6105 | 3.52e-03 *
+    13 |     1.0666 |   0.6282 |    1.1849 |   0.6278 | 2.80e-03 *
+    14 |     1.0134 |   0.6481 |    1.1549 |   0.6305 | 2.14e-03 *
+    15 |     0.9760 |   0.6568 |    1.1248 |   0.6368 | 1.55e-03 *
+    16 |     0.9521 |   0.6650 |    1.1107 |   0.6404 | 1.05e-03 *
+    17 |     0.9312 |   0.6743 |    1.1013 |   0.6415 | 6.40e-04 *
+    18 |     0.9252 |   0.6743 |    1.0916 |   0.6435 | 3.42e-04 *
+    19 |     0.9134 |   0.6813 |    1.0877 |   0.6435 | 1.61e-04 *
+    20 |     0.9114 |   0.6803 |    1.0870 |   0.6431 | 1.00e-04 *
+Applied HVG selection: 10000 genes
+Model parameters: 2,612,533
+Loaded checkpoint: 
+runs/CellTypeMLP/CellTypeMLP_hvg10000_bs8192_epochs20_lr0.01_wd1e-06_20260420_23
+5834/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                 precision    recall  f1-score   support
+
+          Alpha       0.82      0.88      0.85       481
+           Beta       0.89      0.89      0.89       591
+          Delta       0.70      0.97      0.81        70
+         Ductal       0.64      0.77      0.70       499
+        Epsilon       0.95      0.64      0.76       142
+     Fev+ Alpha       0.05      1.00      0.10         6
+      Fev+ Beta       0.85      0.58      0.69       457
+     Fev+ Delta       0.85      0.67      0.75        51
+   Fev+ Epsilon       0.57      0.93      0.71        46
+       Fev+ Pyy       0.32      0.97      0.48        32
+    Mat. Acinar       0.99      0.75      0.85      6959
+    Multipotent       0.04      1.00      0.08         1
+Ngn3 High early       0.00      0.00      0.00         0
+ Ngn3 High late       0.97      0.88      0.92       642
+    Ngn3 low EP       0.58      0.37      0.46       262
+   Prlf. Acinar       0.06      0.65      0.11       171
+   Prlf. Ductal       0.83      0.46      0.59       417
+      Prlf. Tip       0.00      0.00      0.00         0
+    Prlf. Trunk       0.70      0.81      0.75        37
+            Tip       0.00      0.00      0.00         6
+          Trunk       0.14      0.69      0.23        16
+
+       accuracy                           0.74     10886
+      macro avg       0.52      0.66      0.51     10886
+   weighted avg       0.91      0.74      0.81     10886
+
+Accuracy: 0.7446
+F1 (macro): 0.5115  F1 (weighted): 0.8088
+Precision (macro): 0.5218  Precision (weighted): 0.9138
+Recall (macro): 0.6625  Recall (weighted): 0.7446
+Saved confusion matrix to 
+runs/CellTypeMLP/CellTypeMLP_hvg10000_bs8192_epochs20_lr0.01_wd1e-06_20260420_23
+5834/confusion_matrix.png
+Results for MLP_mPancreas written to results_mPancreas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ CNN — mPancreas                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 72093 cells (balanced), 21 classes, 10000 genes
+val:   2547 cells
+Model parameters: 57,733
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     3.2042 |   0.0501 |    3.2494 |   0.0012 | 9.94e-04 *
+     2 |     3.1736 |   0.0510 |    3.1989 |   0.0012 | 9.76e-04 *
+     3 |     3.1415 |   0.0547 |    3.1545 |   0.0012 | 9.46e-04 *
+     4 |     3.1138 |   0.0574 |    3.1186 |   0.0188 | 9.05e-04 *
+     5 |     3.0923 |   0.0593 |    3.0874 |   0.0334 | 8.55e-04 *
+     6 |     3.0776 |   0.0596 |    3.0606 |   0.0542 | 7.96e-04 *
+     7 |     3.0682 |   0.0599 |    3.0383 |   0.0616 | 7.30e-04 *
+     8 |     3.0576 |   0.0614 |    3.0210 |   0.0648 | 6.58e-04 *
+     9 |     3.0508 |   0.0627 |    3.0069 |   0.0738 | 5.82e-04 *
+    10 |     3.0416 |   0.0674 |    2.9981 |   0.0895 | 5.05e-04 *
+    11 |     3.0367 |   0.0690 |    2.9916 |   0.1021 | 4.28e-04 *
+    12 |     3.0334 |   0.0707 |    2.9857 |   0.1111 | 3.52e-04 *
+    13 |     3.0296 |   0.0750 |    2.9821 |   0.1162 | 2.80e-04 *
+    14 |     3.0239 |   0.0746 |    2.9791 |   0.1190 | 2.14e-04 *
+    15 |     3.0228 |   0.0743 |    2.9764 |   0.1225 | 1.55e-04 *
+    16 |     3.0226 |   0.0775 |    2.9740 |   0.1245 | 1.05e-04 *
+    17 |     3.0188 |   0.0769 |    2.9729 |   0.1245 | 6.40e-05 *
+    18 |     3.0167 |   0.0781 |    2.9724 |   0.1260 | 3.42e-05 *
+    19 |     3.0189 |   0.0776 |    2.9718 |   0.1252 | 1.61e-05 *
+    20 |     3.0163 |   0.0801 |    2.9714 |   0.1245 | 1.00e-05 *
+Applied HVG selection: 10000 genes
+Model parameters: 57,733
+Loaded checkpoint: 
+runs/CellTypeCNN/CellTypeCNN_hvg10000_bs16384_epochs20_lr0.0003_wd1e-06_20260420
+_235905/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                 precision    recall  f1-score   support
+
+          Alpha       0.04      0.00      0.01       481
+           Beta       0.05      0.01      0.02       591
+          Delta       0.06      0.80      0.11        70
+         Ductal       0.09      0.00      0.01       499
+        Epsilon       0.08      0.08      0.08       142
+     Fev+ Alpha       0.00      0.00      0.00         6
+      Fev+ Beta       0.00      0.00      0.00       457
+     Fev+ Delta       0.01      0.18      0.01        51
+   Fev+ Epsilon       0.00      0.07      0.01        46
+       Fev+ Pyy       0.00      0.00      0.00        32
+    Mat. Acinar       0.69      0.00      0.00      6959
+    Multipotent       0.00      0.00      0.00         1
+Ngn3 High early       0.00      0.00      0.00         0
+ Ngn3 High late       0.06      0.01      0.02       642
+    Ngn3 low EP       0.20      0.00      0.01       262
+   Prlf. Acinar       0.02      0.45      0.03       171
+   Prlf. Ductal       0.09      0.06      0.07       417
+      Prlf. Tip       0.00      0.00      0.00         0
+    Prlf. Trunk       0.06      0.19      0.09        37
+            Tip       0.00      0.00      0.00         6
+          Trunk       0.01      0.12      0.01        16
+
+       accuracy                           0.02     10886
+      macro avg       0.07      0.09      0.02     10886
+   weighted avg       0.46      0.02      0.01     10886
+
+Accuracy: 0.0198
+F1 (macro): 0.0223  F1 (weighted): 0.0098
+Precision (macro): 0.0688  Precision (weighted): 0.4646
+Recall (macro): 0.0940  Recall (weighted): 0.0198
+Saved confusion matrix to 
+runs/CellTypeCNN/CellTypeCNN_hvg10000_bs16384_epochs20_lr0.0003_wd1e-06_20260420
+_235905/confusion_matrix.png
+Results for CNN_mPancreas written to results_mPancreas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ GNN — mPancreas                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+GNN: selected top 10000 HVGs (10000 genes)
+Building k=10 cosine-NN graph on 85,526 cells...
+Graph: 85,526 nodes, 1,526,961 edges, avg deg 17.9
+Model parameters: 2,893,077
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     3.1590 |   0.0432 |    3.0368 |   0.0322 | 9.94e-04 *
+     2 |     3.0596 |   0.0555 |    2.8865 |   0.0636 | 9.76e-04 *
+     3 |     2.9778 |   0.0757 |    2.7998 |   0.0675 | 9.46e-04 *
+     4 |     2.9115 |   0.0941 |    2.7298 |   0.1131 | 9.05e-04 *
+     5 |     2.8461 |   0.1165 |    2.6634 |   0.2069 | 8.55e-04 *
+     6 |     2.7502 |   0.1722 |    2.6224 |   0.2795 | 7.96e-04 *
+     7 |     2.6695 |   0.2158 |    2.5925 |   0.2811 | 7.30e-04 *
+     8 |     2.6054 |   0.2350 |    2.5486 |   0.2729 | 6.58e-04 *
+     9 |     2.5451 |   0.2526 |    2.5045 |   0.2870 | 5.82e-04 *
+    10 |     2.4861 |   0.2728 |    2.4700 |   0.3031 | 5.05e-04 *
+    11 |     2.4423 |   0.2995 |    2.4397 |   0.3200 | 4.28e-04 *
+    12 |     2.3971 |   0.3258 |    2.4118 |   0.3384 | 3.52e-04 *
+    13 |     2.3644 |   0.3423 |    2.3851 |   0.3471 | 2.80e-04 *
+    14 |     2.3384 |   0.3548 |    2.3617 |   0.3596 | 2.14e-04 *
+    15 |     2.3088 |   0.3680 |    2.3426 |   0.3636 | 1.55e-04 *
+    16 |     2.2950 |   0.3776 |    2.3280 |   0.3698 | 1.05e-04 *
+    17 |     2.2846 |   0.3763 |    2.3177 |   0.3789 | 6.40e-05 *
+    18 |     2.2704 |   0.3884 |    2.3112 |   0.3812 | 3.42e-05 *
+    19 |     2.2612 |   0.3918 |    2.3076 |   0.3836 | 1.61e-05 *
+    20 |     2.2605 |   0.3939 |    2.3058 |   0.3867 | 1.00e-05 *
+Model parameters: 2,893,077
+Loaded checkpoint: 
+runs/CellTypeGNN/CellTypeGNN_hvg10000_bs256_epochs20_lr0.0003_wd1e-06_20260421_0
+00113/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                 precision    recall  f1-score   support
+
+          Alpha       0.56      0.73      0.64       481
+           Beta       0.65      0.52      0.58       591
+          Delta       0.13      0.39      0.19        70
+         Ductal       0.62      0.18      0.28       499
+        Epsilon       0.83      0.31      0.45       142
+     Fev+ Alpha       0.00      0.00      0.00         6
+      Fev+ Beta       0.50      0.38      0.43       457
+     Fev+ Delta       0.04      0.02      0.03        51
+   Fev+ Epsilon       0.14      0.52      0.22        46
+       Fev+ Pyy       0.16      0.12      0.14        32
+    Mat. Acinar       0.98      0.47      0.64      6959
+    Multipotent       0.01      1.00      0.03         1
+Ngn3 High early       0.00      0.00      0.00         0
+ Ngn3 High late       0.93      0.72      0.81       642
+    Ngn3 low EP       0.25      0.01      0.02       262
+   Prlf. Acinar       0.03      0.69      0.06       171
+   Prlf. Ductal       0.66      0.16      0.26       417
+      Prlf. Tip       0.00      0.00      0.00         0
+    Prlf. Trunk       0.08      0.86      0.14        37
+            Tip       0.01      0.50      0.02         6
+          Trunk       0.01      0.06      0.02        16
+
+       accuracy                           0.46     10886
+      macro avg       0.31      0.36      0.24     10886
+   weighted avg       0.84      0.46      0.57     10886
+
+Accuracy: 0.4580
+F1 (macro): 0.2356  F1 (weighted): 0.5659
+Precision (macro): 0.3141  Precision (weighted): 0.8389
+Recall (macro): 0.3648  Recall (weighted): 0.4580
+Saved confusion matrix to 
+runs/CellTypeGNN/CellTypeGNN_hvg10000_bs256_epochs20_lr0.0003_wd1e-06_20260421_0
+00113/confusion_matrix.png
+Results for GNN_mPancreas written to results_mPancreas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Transformer — mPancreas                                                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 72093 cells (balanced), 21 classes, 10000 genes
+val:   2547 cells
+Gene sets loaded: 1,214
+Mask: (10000, 300), sparsity 99.29%
+/content/CellTypeClassification/allen_brain/models/CellTypeAttention.py:161: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+Model parameters: 144,077,829
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     2.4245 |   0.2127 |    1.9057 |   0.2905 | 9.94e-04 *
+     2 |     1.6490 |   0.4257 |    1.6021 |   0.3969 | 9.76e-04 *
+     3 |     1.3581 |   0.5494 |    1.3556 |   0.5202 | 9.46e-04 *
+     4 |     1.1014 |   0.6650 |    1.1553 |   0.6101 | 9.05e-04 *
+     5 |     0.8901 |   0.7447 |    1.0325 |   0.6620 | 8.55e-04 *
+     6 |     0.7382 |   0.7920 |    0.9518 |   0.6839 | 7.96e-04 *
+     7 |     0.6375 |   0.8233 |    0.9003 |   0.6953 | 7.30e-04 *
+     8 |     0.5638 |   0.8445 |    0.8875 |   0.7020 | 6.58e-04 *
+     9 |     0.5082 |   0.8611 |    0.8708 |   0.7083 | 5.82e-04 *
+    10 |     0.4642 |   0.8764 |    0.8418 |   0.7193 | 5.05e-04 *
+    11 |     0.4298 |   0.8866 |    0.8427 |   0.7138 | 4.28e-04
+    12 |     0.4017 |   0.8948 |    0.8324 |   0.7216 | 3.52e-04 *
+    13 |     0.3798 |   0.9019 |    0.8419 |   0.7142 | 2.80e-04
+    14 |     0.3636 |   0.9058 |    0.8313 |   0.7224 | 2.14e-04 *
+    15 |     0.3504 |   0.9109 |    0.8273 |   0.7205 | 1.55e-04 *
+    16 |     0.3398 |   0.9144 |    0.8387 |   0.7193 | 1.05e-04
+    17 |     0.3320 |   0.9164 |    0.8258 |   0.7232 | 6.40e-05 *
+    18 |     0.3273 |   0.9201 |    0.8344 |   0.7205 | 3.42e-05
+    19 |     0.3239 |   0.9201 |    0.8358 |   0.7208 | 1.61e-05
+    20 |     0.3229 |   0.9199 |    0.8334 |   0.7220 | 1.00e-05
+Applied HVG selection: 10000 genes
+Model parameters: 144,077,829
+Loaded checkpoint: 
+runs/CellTypeTOSICA/CellTypeTOSICA_hvg10000_bs64_epochs20_lr0.0003_wd1e-06_20260
+421_000119/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                 precision    recall  f1-score   support
+
+          Alpha       0.70      0.83      0.76       481
+           Beta       0.90      0.73      0.81       591
+          Delta       0.69      0.50      0.58        70
+         Ductal       0.78      0.33      0.46       499
+        Epsilon       0.81      0.50      0.62       142
+     Fev+ Alpha       0.02      0.33      0.03         6
+      Fev+ Beta       0.63      0.76      0.69       457
+     Fev+ Delta       0.54      0.14      0.22        51
+   Fev+ Epsilon       0.38      0.52      0.44        46
+       Fev+ Pyy       0.26      0.72      0.38        32
+    Mat. Acinar       0.99      0.86      0.92      6959
+    Multipotent       0.00      0.00      0.00         1
+Ngn3 High early       0.00      0.00      0.00         0
+ Ngn3 High late       0.89      0.75      0.81       642
+    Ngn3 low EP       0.29      0.32      0.30       262
+   Prlf. Acinar       0.12      0.77      0.21       171
+   Prlf. Ductal       0.68      0.79      0.73       417
+      Prlf. Tip       0.00      0.00      0.00         0
+    Prlf. Trunk       0.55      0.78      0.64        37
+            Tip       0.00      0.00      0.00         6
+          Trunk       0.15      0.44      0.23        16
+
+       accuracy                           0.79     10886
+      macro avg       0.45      0.48      0.42     10886
+   weighted avg       0.88      0.79      0.82     10886
+
+Accuracy: 0.7884
+F1 (macro): 0.4205  F1 (weighted): 0.8227
+Precision (macro): 0.4463  Precision (weighted): 0.8849
+Recall (macro): 0.4793  Recall (weighted): 0.7884
+Saved confusion matrix to 
+runs/CellTypeTOSICA/CellTypeTOSICA_hvg10000_bs64_epochs20_lr0.0003_wd1e-06_20260
+421_000119/confusion_matrix.png
+Results for Transformer_mPancreas written to results_mPancreas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ TOSICA — mPancreas                                                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+cuda:0
+Balancing populations...
+/content/CellTypeClassification/allen_brain/TOSICA/train.py:55: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+  ct_counts = pd.value_counts(data[:,-1])
+Mask loaded!
+Model builded!
+[train epoch 0] loss: 3.047, acc: 0.047: 100% 788/788 [00:13<00:00, 58.61it/s]
+[valid epoch 0] loss: 3.046, acc: 0.066: 100% 337/337 [00:02<00:00, 140.65it/s]
+[train epoch 1] loss: 3.004, acc: 0.057: 100% 788/788 [00:13<00:00, 58.22it/s]
+[valid epoch 1] loss: 2.489, acc: 0.096: 100% 337/337 [00:02<00:00, 141.72it/s]
+[train epoch 2] loss: 2.333, acc: 0.143: 100% 788/788 [00:13<00:00, 58.17it/s]
+[valid epoch 2] loss: 2.046, acc: 0.211: 100% 337/337 [00:02<00:00, 140.24it/s]
+[train epoch 3] loss: 2.032, acc: 0.213: 100% 788/788 [00:13<00:00, 58.38it/s]
+[valid epoch 3] loss: 1.786, acc: 0.305: 100% 337/337 [00:02<00:00, 140.25it/s]
+[train epoch 4] loss: 1.708, acc: 0.330: 100% 788/788 [00:13<00:00, 58.24it/s]
+[valid epoch 4] loss: 1.544, acc: 0.416: 100% 337/337 [00:02<00:00, 140.23it/s]
+[train epoch 5] loss: 1.544, acc: 0.405: 100% 788/788 [00:13<00:00, 58.27it/s]
+[valid epoch 5] loss: 1.384, acc: 0.494: 100% 337/337 [00:02<00:00, 140.10it/s]
+[train epoch 6] loss: 1.432, acc: 0.459: 100% 788/788 [00:13<00:00, 58.31it/s]
+[valid epoch 6] loss: 1.299, acc: 0.492: 100% 337/337 [00:02<00:00, 140.53it/s]
+[train epoch 7] loss: 1.349, acc: 0.494: 100% 788/788 [00:13<00:00, 58.42it/s]
+[valid epoch 7] loss: 1.298, acc: 0.478: 100% 337/337 [00:02<00:00, 141.02it/s]
+[train epoch 8] loss: 1.300, acc: 0.515: 100% 788/788 [00:13<00:00, 58.16it/s]
+[valid epoch 8] loss: 1.173, acc: 0.606: 100% 337/337 [00:02<00:00, 140.58it/s]
+[train epoch 9] loss: 1.254, acc: 0.533: 100% 788/788 [00:13<00:00, 58.35it/s]
+[valid epoch 9] loss: 1.108, acc: 0.653: 100% 337/337 [00:02<00:00, 140.69it/s]
+[train epoch 10] loss: 1.209, acc: 0.556: 100% 788/788 [00:13<00:00, 58.32it/s]
+[valid epoch 10] loss: 1.106, acc: 0.652: 100% 337/337 [00:02<00:00, 139.20it/s]
+[train epoch 11] loss: 1.164, acc: 0.586: 100% 788/788 [00:13<00:00, 58.35it/s]
+[valid epoch 11] loss: 1.039, acc: 0.677: 100% 337/337 [00:02<00:00, 140.97it/s]
+[train epoch 12] loss: 1.135, acc: 0.602: 100% 788/788 [00:13<00:00, 58.48it/s]
+[valid epoch 12] loss: 1.011, acc: 0.715: 100% 337/337 [00:02<00:00, 140.74it/s]
+[train epoch 13] loss: 1.110, acc: 0.613: 100% 788/788 [00:13<00:00, 58.50it/s]
+[valid epoch 13] loss: 0.991, acc: 0.720: 100% 337/337 [00:02<00:00, 141.09it/s]
+[train epoch 14] loss: 1.085, acc: 0.632: 100% 788/788 [00:13<00:00, 58.45it/s]
+[valid epoch 14] loss: 0.989, acc: 0.709: 100% 337/337 [00:02<00:00, 140.86it/s]
+[train epoch 15] loss: 1.069, acc: 0.643: 100% 788/788 [00:13<00:00, 58.24it/s]
+[valid epoch 15] loss: 0.959, acc: 0.742: 100% 337/337 [00:02<00:00, 140.05it/s]
+[train epoch 16] loss: 1.054, acc: 0.656: 100% 788/788 [00:13<00:00, 58.24it/s]
+[valid epoch 16] loss: 0.945, acc: 0.756: 100% 337/337 [00:02<00:00, 139.58it/s]
+[train epoch 17] loss: 1.045, acc: 0.662: 100% 788/788 [00:13<00:00, 58.18it/s]
+[valid epoch 17] loss: 0.949, acc: 0.754: 100% 337/337 [00:02<00:00, 140.07it/s]
+[train epoch 18] loss: 1.039, acc: 0.666: 100% 788/788 [00:13<00:00, 58.22it/s]
+[valid epoch 18] loss: 0.941, acc: 0.759: 100% 337/337 [00:02<00:00, 140.60it/s]
+[train epoch 19] loss: 1.034, acc: 0.671: 100% 788/788 [00:13<00:00, 58.35it/s]
+[valid epoch 19] loss: 0.942, acc: 0.754: 100% 337/337 [00:02<00:00, 140.55it/s]
+Training finished!
+cuda:0
+0
+10000
+10886
+/usr/local/lib/python3.12/dist-packages/anndata/_core/anndata.py:1823: UserWarning: Observation names are not unique. To make them unique, call `.obs_names_make_unique`.
+  utils.warn_names_duplicates("obs")
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                 precision    recall  f1-score   support
+
+          Alpha       0.65      0.79      0.72       481
+           Beta       0.70      0.68      0.69       591
+          Delta       0.06      0.37      0.11        70
+         Ductal       0.59      0.42      0.49       499
+        Epsilon       0.28      0.18      0.22       142
+     Fev+ Alpha       0.02      0.50      0.03         6
+      Fev+ Beta       0.62      0.26      0.37       457
+     Fev+ Delta       0.13      0.25      0.17        51
+   Fev+ Epsilon       0.06      0.33      0.10        46
+       Fev+ Pyy       0.08      0.34      0.12        32
+    Mat. Acinar       0.99      0.91      0.95      6959
+    Multipotent       0.00      0.00      0.00         1
+Ngn3 High early       0.00      0.00      0.00         0
+ Ngn3 High late       1.00      0.47      0.63       642
+    Ngn3 low EP       0.16      0.07      0.10       262
+   Prlf. Acinar       0.28      0.61      0.38       171
+   Prlf. Ductal       0.45      0.30      0.36       417
+      Prlf. Tip       0.00      0.00      0.00         0
+    Prlf. Trunk       0.06      0.24      0.10        37
+            Tip       0.00      0.00      0.00         6
+          Trunk       0.02      0.19      0.03        16
+
+       accuracy                           0.74     10886
+      macro avg       0.29      0.33      0.27     10886
+   weighted avg       0.84      0.74      0.78     10886
+
+Accuracy: 0.7438
+F1 (macro): 0.2655  F1 (weighted): 0.7787
+Precision (macro): 0.2933  Precision (weighted): 0.8432
+Recall (macro): 0.3288  Recall (weighted): 0.7438
+Saved confusion matrix to tosica_mPancreas/confusion_matrix.png
+Results for TOSICA_mPancreas written to results_mPancreas.csv
+   mPancreas: All Methods Ranked by Accuracy    
+┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Rank ┃ Method                     ┃ Accuracy ┃
+┡━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│    1 │ SingleR                    │   0.8872 │
+├──────┼────────────────────────────┼──────────┤
+│    2 │ TOSICA                     │   0.8549 │
+├──────┼────────────────────────────┼──────────┤
+│    3 │ chetah                     │   0.8329 │
+├──────┼────────────────────────────┼──────────┤
+│    4 │ SciBet                     │   0.8029 │
+├──────┼────────────────────────────┼──────────┤
+│    5 │ Ours-Transformer_mPancreas │   0.7884 │
+├──────┼────────────────────────────┼──────────┤
+│    6 │ Ours-MLP_mPancreas         │   0.7446 │
+├──────┼────────────────────────────┼──────────┤
+│    7 │ Ours-TOSICA_mPancreas      │   0.7438 │
+├──────┼────────────────────────────┼──────────┤
+│    8 │ scLearn                    │   0.7017 │
+├──────┼────────────────────────────┼──────────┤
+│    9 │ scmapcluster               │   0.6473 │
+├──────┼────────────────────────────┼──────────┤
+│   10 │ Seurat                     │   0.4668 │
+├──────┼────────────────────────────┼──────────┤
+│   11 │ CaSTLe                     │   0.4593 │
+├──────┼────────────────────────────┼──────────┤
+│   12 │ ACTINN                     │   0.4591 │
+├──────┼────────────────────────────┼──────────┤
+│   13 │ Ours-GNN_mPancreas         │   0.4580 │
+├──────┼────────────────────────────┼──────────┤
+│   14 │ scTyper                    │   0.3011 │
+├──────┼────────────────────────────┼──────────┤
+│   15 │ SingleCellNet              │   0.2941 │
+├──────┼────────────────────────────┼──────────┤
+│   16 │ CELLBLAST                  │   0.2784 │
+├──────┼────────────────────────────┼──────────┤
+│   17 │ scPred                     │   0.2496 │
+├──────┼────────────────────────────┼──────────┤
+│   18 │ SCSA                       │   0.2277 │
+├──────┼────────────────────────────┼──────────┤
+│   19 │ scID                       │   0.2092 │
+├──────┼────────────────────────────┼──────────┤
+│   20 │ SCINA                      │   0.1869 │
+├──────┼────────────────────────────┼──────────┤
+│   21 │ scmapcell                  │   0.1021 │
+├──────┼────────────────────────────┼──────────┤
+│   22 │ Markercount                │   0.0762 │
+├──────┼────────────────────────────┼──────────┤
+│   23 │ garnett                    │   0.0378 │
+├──────┼────────────────────────────┼──────────┤
+│   24 │ Ours-CNN_mPancreas         │   0.0198 │
+└──────┴────────────────────────────┴──────────┘
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Done: mPancreas                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
