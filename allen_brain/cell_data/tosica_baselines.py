@@ -1,0 +1,82 @@
+"""Published cell-type annotation accuracy from TOSICA paper (Chen et al., Nat Commun 2023).
+
+Source: Supplementary Data 3. Accuracy and rank of methods across datasets.
+"""
+from __future__ import annotations
+
+BENCHMARK_METHODS: list[str] = [
+    'TOSICA', 'ACTINN', 'SciBet', 'Seurat', 'SingleR', 'SingleCellNet',
+    'scmapcluster', 'chetah', 'CELLBLAST', 'scLearn', 'CaSTLe', 'SCINA',
+    'scTyper', 'scPred', 'scID', 'scmapcell', 'Markercount', 'garnett',
+    'SCSA',
+]
+
+PUBLISHED_ACCURACY: dict[str, dict[str, float | None]] = {
+    'hPancreas': {
+        'SingleCellNet':  0.975343765,
+        'Seurat':         0.974632527,
+        'CELLBLAST':      0.970365102,
+        'ACTINN':         0.968942627,
+        'SCINA':          0.9613561,
+        'TOSICA':         0.9576,
+        'scPred':         0.95068753,
+        'SingleR':        0.950213371,
+        'SciBet':         0.926031294,
+        'scTyper':        0.910384068,
+        'scmapcell':      0.904220009,
+        'Markercount':    0.8774301,
+        'CaSTLe':         0.814841157,
+        'chetah':         0.637031769,
+        'SCSA':           0.6289711,
+        'scmapcluster':   0.626600284,
+        'scLearn':        0.455429113,
+        'scID':           0.394499763,
+        'garnett':        0.23541963,
+    },
+    'mPancreas': {
+        'SingleR':        0.887194562,
+        'TOSICA':         0.85485945,
+        'chetah':         0.832904648,
+        'SciBet':         0.802866067,
+        'scLearn':        0.701726989,
+        'scmapcluster':   0.647345214,
+        'Seurat':         0.466838141,
+        'CaSTLe':         0.45930553,
+        'ACTINN':         0.459121808,
+        'scTyper':        0.301120705,
+        'SingleCellNet':  0.294139261,
+        'CELLBLAST':      0.278431012,
+        'scPred':         0.249586625,
+        'SCSA':           0.227723682,
+        'scID':           0.209167738,
+        'SCINA':          0.186937351,
+        'scmapcell':      0.10214955,
+        'Markercount':    0.076244718,
+        'garnett':        0.037754915,
+    },
+    'mAtlas': {
+        'TOSICA':         0.8101,
+        'ACTINN':         0.79570586,
+        'SingleCellNet':  0.773301963,
+        'Seurat':         0.761559553,
+        'SciBet':         0.708450283,
+        'CELLBLAST':      0.694794643,
+        'SingleR':        0.690759203,
+        'CaSTLe':         0.628872851,
+        'scmapcluster':   0.585142375,
+        'Markercount':    0.542431569,
+        'chetah':         0.532072739,
+        'scmapcell':      0.518478351,
+        'SCSA':           0.476614266,
+        'SCINA':          0.45144321,
+        'scTyper':        0.400589462,
+        'scID':           0.370388519,
+        'scLearn':        None,
+        'scPred':         None,
+        'garnett':        None,
+    },
+}
+
+TOSICA_DATASET_NAMES: list[str] = [
+    'hPancreas', 'mPancreas', 'mAtlas',
+]
