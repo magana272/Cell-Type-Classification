@@ -1,0 +1,1568 @@
+2026-04-21 00:16:19.918675: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-04-21 00:16:19.927539: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1776730579.937375   22653 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1776730579.940698   22653 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1776730579.949173   22653 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776730579.949192   22653 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776730579.949194   22653 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1776730579.949195   22653 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+2026-04-21 00:16:19.951669: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Dataset: mAtlas  ·  data/mAtlas                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ MLP — mAtlas                                                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 471730 cells (balanced), 120 classes, 10000 genes
+val:   3403 cells
+Model parameters: 2,625,304
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     4.4366 |   0.1313 |    3.7032 |   0.3159 | 9.94e-03 *
+     2 |     1.8548 |   0.6058 |    1.0562 |   0.7602 | 9.76e-03 *
+     3 |     0.6983 |   0.8332 |    0.7414 |   0.8213 | 9.46e-03 *
+     4 |     0.4365 |   0.8982 |    0.6236 |   0.8398 | 9.05e-03 *
+     5 |     0.3154 |   0.9272 |    0.5619 |   0.8554 | 8.55e-03 *
+     6 |     0.2442 |   0.9444 |    0.5146 |   0.8648 | 7.96e-03 *
+     7 |     0.1995 |   0.9550 |    0.4849 |   0.8728 | 7.30e-03 *
+     8 |     0.1683 |   0.9626 |    0.4691 |   0.8748 | 6.58e-03 *
+     9 |     0.1473 |   0.9676 |    0.4505 |   0.8795 | 5.82e-03 *
+    10 |     0.1311 |   0.9715 |    0.4424 |   0.8801 | 5.05e-03 *
+    11 |     0.1189 |   0.9747 |    0.4309 |   0.8828 | 4.28e-03 *
+    12 |     0.1100 |   0.9768 |    0.4247 |   0.8851 | 3.52e-03 *
+    13 |     0.1033 |   0.9784 |    0.4212 |   0.8848 | 2.80e-03 *
+    14 |     0.0980 |   0.9798 |    0.4176 |   0.8860 | 2.14e-03 *
+    15 |     0.0944 |   0.9804 |    0.4146 |   0.8875 | 1.55e-03 *
+    16 |     0.0915 |   0.9814 |    0.4114 |   0.8907 | 1.05e-03 *
+    17 |     0.0897 |   0.9818 |    0.4108 |   0.8904 | 6.40e-04 *
+    18 |     0.0891 |   0.9817 |    0.4104 |   0.8901 | 3.42e-04 *
+    19 |     0.0878 |   0.9822 |    0.4098 |   0.8907 | 1.61e-04 *
+    20 |     0.0877 |   0.9821 |    0.4094 |   0.8916 | 1.00e-04 *
+Applied HVG selection: 10000 genes
+Model parameters: 2,625,304
+Loaded checkpoint: 
+runs/CellTypeMLP/CellTypeMLP_hvg10000_bs8192_epochs20_lr0.01_wd1e-06_20260421_00
+1635/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                                                     precision    recall  
+f1-score   support
+
+                                             B cell       0.74      0.67      
+0.70      3814
+                                Bergmann glial cell       0.96      0.65      
+0.78        40
+ Brush cell of epithelium proper of large intestine       0.94      0.94      
+0.94       121
+                    CD4-positive, alpha-beta T cell       0.61      0.52      
+0.56       783
+                    CD8-positive, alpha-beta T cell       0.40      0.59      
+0.48       647
+                                      DN4 thymocyte       0.79      0.70      
+0.74      1146
+                                       Kupffer cell       0.87      0.94      
+0.90       155
+                                            NK cell       0.70      0.82      
+0.75       583
+                                             T cell       0.61      0.52      
+0.56       917
+                                   adventitial cell       0.76      0.54      
+0.64       191
+                            aortic endothelial cell       0.19      0.15      
+0.16       349
+                                          astrocyte       0.95      0.96      
+0.96       485
+                                     atrial myocyte       0.43      0.62      
+0.51       303
+                                         basal cell       0.99      0.98      
+0.99      1713
+                            basal cell of epidermis       0.94      0.88      
+0.91      2990
+     basal epithelial cell of tracheobronchial tree       0.60      0.91      
+0.72       217
+                                           basophil       0.91      0.68      
+0.78        57
+                                       bladder cell       0.99      0.98      
+0.98       735
+                            bladder urothelial cell       0.89      1.00      
+0.94      1005
+                                     brain pericyte       0.56      0.88      
+0.69       219
+                       bronchial smooth muscle cell       0.97      0.85      
+0.91      1173
+                                 bulge keratinocyte       0.96      0.97      
+0.97      1913
+                                        chondrocyte       0.94      0.44      
+0.60       261
+    ciliated columnar cell of tracheobronchial tree       0.90      0.96      
+0.93        49
+                                 classical monocyte       0.35      0.63      
+0.45       122
+                            club cell of bronchiole       1.00      0.06      
+0.11        17
+                                     dendritic cell       0.48      0.75      
+0.58        53
+                                   early pro-B cell       1.00      0.59      
+0.74        56
+                                   endocardial cell       0.94      0.98      
+0.96       328
+                                   endothelial cell       0.80      0.83      
+0.81      2768
+                endothelial cell of coronary artery       0.85      0.87      
+0.86      2236
+               endothelial cell of hepatic sinusoid       0.93      0.98      
+0.96       287
+               endothelial cell of lymphatic vessel       0.73      0.59      
+0.65        86
+        enterocyte of epithelium of large intestine       0.97      0.90      
+0.94      1728
+                               enteroendocrine cell       0.89      0.89      
+0.89       122
+                                     ependymal cell       0.59      1.00      
+0.74        16
+                                     epidermal cell       0.81      0.88      
+0.84       389
+                                    epithelial cell       0.24      0.02      
+0.03       350
+                 epithelial cell of large intestine       0.92      0.93      
+0.93      1160
+                 epithelial cell of proximal tubule       0.95      0.67      
+0.79       267
+                          epithelial cell of thymus       0.10      0.02      
+0.04        82
+                                   fenestrated cell       0.64      0.77      
+0.70       218
+                                         fibroblast       0.66      0.72      
+0.69       987
+                       fibroblast of cardiac tissue       0.91      0.95      
+0.93      3015
+                                 fibroblast of lung       0.88      0.97      
+0.92       314
+                                          fibrocyte       0.00      0.00      
+0.00        40
+                                        granulocyte       0.96      0.92      
+0.94      1743
+               granulocyte monocyte progenitor cell       0.53      0.97      
+0.69       114
+                            granulocytopoietic cell       0.86      0.98      
+0.92       314
+                            hematopoietic stem cell       0.96      0.95      
+0.95      2537
+                                         hepatocyte       0.96      0.99      
+0.97       779
+                                    immature B cell       0.63      0.78      
+0.70       427
+                              intermediate monocyte       0.00      0.00      
+0.00        11
+                                        interneuron       0.86      0.88      
+0.87       142
+                         intestinal crypt stem cell       0.88      0.97      
+0.92      1224
+                                       keratinocyte       0.77      0.94      
+0.85       894
+                             keratinocyte stem cell       0.75      0.10      
+0.18        30
+             kidney collecting duct epithelial cell       0.73      0.97      
+0.83       194
+              kidney collecting duct principal cell       0.66      0.79      
+0.72       115
+                     kidney interstitial fibroblast       0.00      0.00      
+0.00        16
+kidney loop of Henle ascending limb epithelial cell       0.86      0.59      
+0.70       114
+                        large intestine goblet cell       0.92      0.78      
+0.85      1196
+                                    late pro-B cell       0.92      0.98      
+0.95       326
+                                          leukocyte       0.46      0.18      
+0.26       115
+           luminal epithelial cell of mammary gland       0.90      1.00      
+0.94       620
+                                    lung macrophage       0.00      0.00      
+0.00         9
+                           lung neuroendocrine cell       0.00      0.00      
+0.00         3
+                                         lymphocyte       0.00      0.00      
+0.00         4
+                           lymphoid progenitor cell       0.00      0.00      
+0.00         0
+                                         macrophage       0.56      0.47      
+0.51      1550
+                                   mature NK T cell       0.47      0.31      
+0.37       113
+                           mature alpha-beta T cell       0.27      0.21      
+0.24       181
+                                medium spiny neuron       0.94      0.84      
+0.89        92
+            megakaryocyte-erythroid progenitor cell       0.62      0.58      
+0.60        55
+                                     mesangial cell       0.20      0.10      
+0.13        51
+                              mesenchymal stem cell       0.73      0.77      
+0.75      1036
+                   mesenchymal stem cell of adipose       0.92      0.92      
+0.92      3362
+                                    microglial cell       1.00      0.99      
+0.99      8757
+                                           monocyte       0.79      0.84      
+0.81       937
+                               mucus secreting cell       0.88      0.11      
+0.19        66
+                                       myeloid cell       0.78      0.71      
+0.74      1929
+                             myeloid dendritic cell       0.63      0.86      
+0.72       265
+                                  myeloid leukocyte       0.44      0.14      
+0.21       133
+                                       naive B cell       0.49      0.60      
+0.54      1841
+                               neuroepithelial cell       0.06      0.36      
+0.10        11
+                                             neuron       0.69      0.91      
+0.78       361
+                                 neuronal stem cell       0.98      0.73      
+0.84        85
+                                         neutrophil       0.38      0.53      
+0.44        78
+                             non-classical monocyte       0.38      0.79      
+0.51       113
+                                    oligodendrocyte       0.98      1.00      
+0.99      1530
+                     oligodendrocyte precursor cell       0.98      0.97      
+0.97       218
+                                  pancreatic A cell       0.78      0.98      
+0.87       456
+                                  pancreatic B cell       0.98      0.93      
+0.95       975
+                                  pancreatic D cell       0.84      0.87      
+0.86       156
+                                 pancreatic PP cell       0.70      0.11      
+0.19        62
+                             pancreatic acinar cell       0.96      0.98      
+0.97       405
+                             pancreatic ductal cell       0.98      0.98      
+0.98       235
+                           pancreatic stellate cell       1.00      0.18      
+0.30        39
+                                      pericyte cell       0.75      0.79      
+0.77        19
+                                        plasma cell       0.06      0.56      
+0.12         9
+                        plasmacytoid dendritic cell       0.00      0.00      
+0.00         4
+                                   precursor B cell       0.89      0.89      
+0.89       656
+                                    proerythroblast       0.27      0.07      
+0.11        86
+               professional antigen presenting cell       0.00      0.00      
+0.00        73
+                                        promonocyte       0.77      0.67      
+0.71       758
+                  pulmonary interstitial fibroblast       0.00      0.00      
+0.00        46
+                                  regulatory T cell       0.00      0.00      
+0.00        27
+                             respiratory basal cell       0.27      0.75      
+0.40         4
+                                     secretory cell       0.62      0.95      
+0.75       391
+                     skeletal muscle satellite cell       0.97      0.98      
+0.97      1951
+                                 smooth muscle cell       0.00      0.00      
+0.00        95
+         smooth muscle cell of the pulmonary artery       0.65      0.83      
+0.73        64
+                      smooth muscle cell of trachea       0.72      0.33      
+0.45        86
+                                       stromal cell       0.67      0.57      
+0.62       287
+                                          thymocyte       0.83      0.98      
+0.89      1069
+                                  type I pneumocyte       0.00      0.00      
+0.00         4
+                                 type II pneumocyte       0.89      0.92      
+0.91       129
+                                         valve cell       0.85      0.94      
+0.89       274
+                              vein endothelial cell       0.71      0.78      
+0.75        92
+                                ventricular myocyte       0.00      0.00      
+0.00       147
+
+                                           accuracy                           
+0.84     76797
+                                          macro avg       0.65      0.64      
+0.62     76797
+                                       weighted avg       0.84      0.84      
+0.84     76797
+
+Accuracy: 0.8405
+F1 (macro): 0.6240  F1 (weighted): 0.8351
+Precision (macro): 0.6570  Precision (weighted): 0.8391
+Recall (macro): 0.6446  Recall (weighted): 0.8405
+Saved confusion matrix to 
+runs/CellTypeMLP/CellTypeMLP_hvg10000_bs8192_epochs20_lr0.01_wd1e-06_20260421_00
+1635/confusion_matrix.png
+Results for MLP_mAtlas written to results_mAtlas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ CNN — mAtlas                                                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 471730 cells (balanced), 120 classes, 10000 genes
+val:   3403 cells
+Model parameters: 64,168
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     4.9217 |   0.0082 |    4.8933 |   0.0038 | 9.94e-04 *
+     2 |     4.8599 |   0.0082 |    4.8404 |   0.0341 | 9.76e-04 *
+     3 |     4.8316 |   0.0084 |    4.8209 |   0.0309 | 9.46e-04 *
+     4 |     4.8145 |   0.0086 |    4.8069 |   0.0206 | 9.05e-04 *
+     5 |     4.8008 |   0.0090 |    4.7952 |   0.0165 | 8.55e-04 *
+     6 |     4.7897 |   0.0093 |    4.7860 |   0.0132 | 7.96e-04 *
+     7 |     4.7807 |   0.0098 |    4.7788 |   0.0103 | 7.30e-04 *
+     8 |     4.7727 |   0.0102 |    4.7730 |   0.0100 | 6.58e-04 *
+     9 |     4.7670 |   0.0105 |    4.7668 |   0.0097 | 5.82e-04 *
+    10 |     4.7620 |   0.0112 |    4.7619 |   0.0103 | 5.05e-04 *
+    11 |     4.7565 |   0.0117 |    4.7584 |   0.0091 | 4.28e-04 *
+    12 |     4.7533 |   0.0121 |    4.7546 |   0.0109 | 3.52e-04 *
+    13 |     4.7496 |   0.0128 |    4.7528 |   0.0120 | 2.80e-04 *
+    14 |     4.7476 |   0.0130 |    4.7489 |   0.0123 | 2.14e-04 *
+    15 |     4.7444 |   0.0130 |    4.7477 |   0.0120 | 1.55e-04 *
+    16 |     4.7432 |   0.0133 |    4.7462 |   0.0126 | 1.05e-04 *
+    17 |     4.7426 |   0.0136 |    4.7455 |   0.0115 | 6.40e-05 *
+    18 |     4.7410 |   0.0135 |    4.7449 |   0.0126 | 3.42e-05 *
+    19 |     4.7403 |   0.0138 |    4.7444 |   0.0118 | 1.61e-05 *
+    20 |     4.7410 |   0.0140 |    4.7446 |   0.0123 | 1.00e-05
+Applied HVG selection: 10000 genes
+Model parameters: 64,168
+Loaded checkpoint: 
+runs/CellTypeCNN/CellTypeCNN_hvg10000_bs16384_epochs20_lr0.0003_wd1e-06_20260421
+_002007/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                                                     precision    recall  
+f1-score   support
+
+                                             B cell       0.00      0.00      
+0.00      3814
+                                Bergmann glial cell       0.01      0.03      
+0.02        40
+ Brush cell of epithelium proper of large intestine       0.00      0.02      
+0.01       121
+                    CD4-positive, alpha-beta T cell       0.00      0.01      
+0.00       783
+                    CD8-positive, alpha-beta T cell       0.01      0.05      
+0.01       647
+                                      DN4 thymocyte       0.00      0.00      
+0.00      1146
+                                       Kupffer cell       0.00      0.00      
+0.00       155
+                                            NK cell       0.01      0.01      
+0.01       583
+                                             T cell       0.00      0.00      
+0.00       917
+                                   adventitial cell       0.00      0.00      
+0.00       191
+                            aortic endothelial cell       0.00      0.00      
+0.00       349
+                                          astrocyte       0.00      0.00      
+0.00       485
+                                     atrial myocyte       0.00      0.00      
+0.00       303
+                                         basal cell       0.00      0.00      
+0.00      1713
+                            basal cell of epidermis       0.00      0.00      
+0.00      2990
+     basal epithelial cell of tracheobronchial tree       0.00      0.00      
+0.00       217
+                                           basophil       0.00      0.00      
+0.00        57
+                                       bladder cell       0.01      0.02      
+0.01       735
+                            bladder urothelial cell       0.01      0.00      
+0.00      1005
+                                     brain pericyte       0.00      0.00      
+0.00       219
+                       bronchial smooth muscle cell       0.00      0.00      
+0.00      1173
+                                 bulge keratinocyte       0.02      0.00      
+0.00      1913
+                                        chondrocyte       0.00      0.00      
+0.00       261
+    ciliated columnar cell of tracheobronchial tree       0.00      0.00      
+0.00        49
+                                 classical monocyte       0.00      0.00      
+0.00       122
+                            club cell of bronchiole       0.00      0.06      
+0.00        17
+                                     dendritic cell       0.00      0.00      
+0.00        53
+                                   early pro-B cell       0.00      0.00      
+0.00        56
+                                   endocardial cell       0.01      0.02      
+0.01       328
+                                   endothelial cell       0.05      0.03      
+0.04      2768
+                endothelial cell of coronary artery       0.06      0.05      
+0.05      2236
+               endothelial cell of hepatic sinusoid       0.00      0.00      
+0.00       287
+               endothelial cell of lymphatic vessel       0.00      0.00      
+0.00        86
+        enterocyte of epithelium of large intestine       0.03      0.01      
+0.01      1728
+                               enteroendocrine cell       0.00      0.00      
+0.00       122
+                                     ependymal cell       0.00      0.06      
+0.00        16
+                                     epidermal cell       0.00      0.00      
+0.00       389
+                                    epithelial cell       0.00      0.02      
+0.01       350
+                 epithelial cell of large intestine       0.17      0.00      
+0.01      1160
+                 epithelial cell of proximal tubule       0.00      0.00      
+0.00       267
+                          epithelial cell of thymus       0.00      0.00      
+0.00        82
+                                   fenestrated cell       0.01      0.01      
+0.01       218
+                                         fibroblast       0.00      0.00      
+0.00       987
+                       fibroblast of cardiac tissue       0.00      0.00      
+0.00      3015
+                                 fibroblast of lung       0.00      0.00      
+0.00       314
+                                          fibrocyte       0.00      0.00      
+0.00        40
+                                        granulocyte       0.14      0.01      
+0.02      1743
+               granulocyte monocyte progenitor cell       0.01      0.58      
+0.02       114
+                            granulocytopoietic cell       0.05      0.02      
+0.02       314
+                            hematopoietic stem cell       0.00      0.00      
+0.00      2537
+                                         hepatocyte       0.00      0.00      
+0.00       779
+                                    immature B cell       0.00      0.00      
+0.00       427
+                              intermediate monocyte       0.00      0.00      
+0.00        11
+                                        interneuron       0.03      0.06      
+0.04       142
+                         intestinal crypt stem cell       0.08      0.00      
+0.01      1224
+                                       keratinocyte       0.00      0.00      
+0.00       894
+                             keratinocyte stem cell       0.00      0.00      
+0.00        30
+             kidney collecting duct epithelial cell       0.00      0.00      
+0.00       194
+              kidney collecting duct principal cell       0.00      0.00      
+0.00       115
+                     kidney interstitial fibroblast       0.00      0.00      
+0.00        16
+kidney loop of Henle ascending limb epithelial cell       0.00      0.00      
+0.00       114
+                        large intestine goblet cell       0.00      0.00      
+0.00      1196
+                                    late pro-B cell       0.00      0.00      
+0.00       326
+                                          leukocyte       0.00      0.00      
+0.00       115
+           luminal epithelial cell of mammary gland       0.00      0.00      
+0.00       620
+                                    lung macrophage       0.00      0.00      
+0.00         9
+                           lung neuroendocrine cell       0.00      0.00      
+0.00         3
+                                         lymphocyte       0.00      0.00      
+0.00         4
+                           lymphoid progenitor cell       0.00      0.00      
+0.00         0
+                                         macrophage       0.14      0.00      
+0.00      1550
+                                   mature NK T cell       0.00      0.01      
+0.00       113
+                           mature alpha-beta T cell       0.00      0.03      
+0.01       181
+                                medium spiny neuron       0.00      0.00      
+0.00        92
+            megakaryocyte-erythroid progenitor cell       0.00      0.02      
+0.00        55
+                                     mesangial cell       0.00      0.02      
+0.01        51
+                              mesenchymal stem cell       0.00      0.00      
+0.00      1036
+                   mesenchymal stem cell of adipose       0.10      0.01      
+0.02      3362
+                                    microglial cell       0.00      0.00      
+0.00      8757
+                                           monocyte       0.01      0.01      
+0.01       937
+                               mucus secreting cell       0.00      0.00      
+0.00        66
+                                       myeloid cell       0.02      0.00      
+0.00      1929
+                             myeloid dendritic cell       0.01      0.01      
+0.01       265
+                                  myeloid leukocyte       0.00      0.00      
+0.00       133
+                                       naive B cell       0.00      0.00      
+0.00      1841
+                               neuroepithelial cell       0.00      0.00      
+0.00        11
+                                             neuron       0.00      0.00      
+0.00       361
+                                 neuronal stem cell       0.00      0.00      
+0.00        85
+                                         neutrophil       0.00      0.10      
+0.00        78
+                             non-classical monocyte       0.00      0.00      
+0.00       113
+                                    oligodendrocyte       0.00      0.00      
+0.00      1530
+                     oligodendrocyte precursor cell       0.00      0.00      
+0.00       218
+                                  pancreatic A cell       0.00      0.00      
+0.00       456
+                                  pancreatic B cell       0.02      0.09      
+0.03       975
+                                  pancreatic D cell       0.00      0.00      
+0.00       156
+                                 pancreatic PP cell       0.00      0.00      
+0.00        62
+                             pancreatic acinar cell       0.00      0.00      
+0.00       405
+                             pancreatic ductal cell       0.01      0.06      
+0.02       235
+                           pancreatic stellate cell       0.00      0.05      
+0.01        39
+                                      pericyte cell       0.00      0.00      
+0.00        19
+                                        plasma cell       0.00      0.00      
+0.00         9
+                        plasmacytoid dendritic cell       0.00      0.00      
+0.00         4
+                                   precursor B cell       0.00      0.00      
+0.00       656
+                                    proerythroblast       0.00      0.00      
+0.00        86
+               professional antigen presenting cell       0.00      0.00      
+0.00        73
+                                        promonocyte       0.00      0.00      
+0.00       758
+                  pulmonary interstitial fibroblast       0.00      0.00      
+0.00        46
+                                  regulatory T cell       0.00      0.00      
+0.00        27
+                             respiratory basal cell       0.00      0.00      
+0.00         4
+                                     secretory cell       0.12      0.01      
+0.01       391
+                     skeletal muscle satellite cell       0.01      0.00      
+0.00      1951
+                                 smooth muscle cell       0.00      0.00      
+0.00        95
+         smooth muscle cell of the pulmonary artery       0.00      0.00      
+0.00        64
+                      smooth muscle cell of trachea       0.00      0.00      
+0.00        86
+                                       stromal cell       0.00      0.00      
+0.00       287
+                                          thymocyte       0.01      0.03      
+0.01      1069
+                                  type I pneumocyte       0.00      0.00      
+0.00         4
+                                 type II pneumocyte       0.00      0.00      
+0.00       129
+                                         valve cell       0.03      0.00      
+0.01       274
+                              vein endothelial cell       0.00      0.00      
+0.00        92
+                                ventricular myocyte       0.00      0.00      
+0.00       147
+
+                                           accuracy                           
+0.01     76797
+                                          macro avg       0.01      0.01      
+0.00     76797
+                                       weighted avg       0.02      0.01      
+0.01     76797
+
+Accuracy: 0.0077
+F1 (macro): 0.0037  F1 (weighted): 0.0063
+Precision (macro): 0.0099  Precision (weighted): 0.0214
+Recall (macro): 0.0126  Recall (weighted): 0.0077
+Saved confusion matrix to 
+runs/CellTypeCNN/CellTypeCNN_hvg10000_bs16384_epochs20_lr0.0003_wd1e-06_20260421
+_002007/confusion_matrix.png
+Results for CNN_mAtlas written to results_mAtlas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ GNN — mAtlas                                                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+GNN: selected top 10000 HVGs (10000 genes)
+Building k=10 cosine-NN graph on 551,930 cells...
+Graph: 551,930 nodes, 9,706,599 edges, avg deg 17.6
+Model parameters: 2,905,848
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     4.9503 |   0.0102 |    5.0392 |   0.0029 | 9.94e-04 *
+     2 |     4.9387 |   0.0116 |    5.0006 |   0.0035 | 9.76e-04 *
+     3 |     4.9123 |   0.0131 |    4.9484 |   0.0059 | 9.46e-04 *
+     4 |     4.8795 |   0.0142 |    4.8883 |   0.0112 | 9.05e-04 *
+     5 |     4.8410 |   0.0164 |    4.8263 |   0.0215 | 8.55e-04 *
+     6 |     4.8012 |   0.0195 |    4.7666 |   0.0291 | 7.96e-04 *
+     7 |     4.7613 |   0.0248 |    4.7120 |   0.0356 | 7.30e-04 *
+     8 |     4.7237 |   0.0296 |    4.6631 |   0.0423 | 6.58e-04 *
+     9 |     4.6853 |   0.0385 |    4.6201 |   0.0502 | 5.82e-04 *
+    10 |     4.6517 |   0.0442 |    4.5824 |   0.0558 | 5.05e-04 *
+    11 |     4.6240 |   0.0524 |    4.5498 |   0.0605 | 4.28e-04 *
+    12 |     4.5956 |   0.0610 |    4.5219 |   0.0652 | 3.52e-04 *
+    13 |     4.5711 |   0.0676 |    4.4987 |   0.0708 | 2.80e-04 *
+    14 |     4.5539 |   0.0696 |    4.4799 |   0.0746 | 2.14e-04 *
+    15 |     4.5351 |   0.0757 |    4.4653 |   0.0782 | 1.55e-04 *
+    16 |     4.5233 |   0.0799 |    4.4545 |   0.0790 | 1.05e-04 *
+    17 |     4.5138 |   0.0813 |    4.4471 |   0.0820 | 6.40e-05 *
+    18 |     4.5085 |   0.0828 |    4.4424 |   0.0826 | 3.42e-05 *
+    19 |     4.5021 |   0.0846 |    4.4399 |   0.0832 | 1.61e-05 *
+    20 |     4.4977 |   0.0865 |    4.4387 |   0.0840 | 1.00e-05 *
+Model parameters: 2,905,848
+Loaded checkpoint: 
+runs/CellTypeGNN/CellTypeGNN_hvg10000_bs256_epochs20_lr0.0003_wd1e-06_20260421_0
+03601/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                                                     precision    recall  
+f1-score   support
+
+                                             B cell       0.31      0.59      
+0.40      3814
+                                Bergmann glial cell       0.01      0.55      
+0.01        40
+ Brush cell of epithelium proper of large intestine       0.01      0.01      
+0.01       121
+                    CD4-positive, alpha-beta T cell       0.12      0.01      
+0.03       783
+                    CD8-positive, alpha-beta T cell       0.00      0.00      
+0.00       647
+                                      DN4 thymocyte       0.00      0.00      
+0.00      1146
+                                       Kupffer cell       0.05      0.21      
+0.08       155
+                                            NK cell       0.00      0.00      
+0.00       583
+                                             T cell       0.00      0.00      
+0.00       917
+                                   adventitial cell       0.00      0.01      
+0.00       191
+                            aortic endothelial cell       0.00      0.00      
+0.00       349
+                                          astrocyte       0.10      0.01      
+0.02       485
+                                     atrial myocyte       0.00      0.00      
+0.00       303
+                                         basal cell       0.00      0.00      
+0.00      1713
+                            basal cell of epidermis       0.33      0.01      
+0.03      2990
+     basal epithelial cell of tracheobronchial tree       0.00      0.01      
+0.01       217
+                                           basophil       0.00      0.00      
+0.00        57
+                                       bladder cell       0.05      0.28      
+0.09       735
+                            bladder urothelial cell       0.12      0.03      
+0.04      1005
+                                     brain pericyte       0.00      0.00      
+0.00       219
+                       bronchial smooth muscle cell       0.04      0.10      
+0.06      1173
+                                 bulge keratinocyte       0.09      0.00      
+0.00      1913
+                                        chondrocyte       0.00      0.05      
+0.01       261
+    ciliated columnar cell of tracheobronchial tree       0.00      0.00      
+0.00        49
+                                 classical monocyte       0.01      0.01      
+0.01       122
+                            club cell of bronchiole       0.00      0.00      
+0.00        17
+                                     dendritic cell       0.00      0.00      
+0.00        53
+                                   early pro-B cell       0.00      0.00      
+0.00        56
+                                   endocardial cell       0.01      0.00      
+0.00       328
+                                   endothelial cell       0.24      0.01      
+0.01      2768
+                endothelial cell of coronary artery       0.00      0.00      
+0.00      2236
+               endothelial cell of hepatic sinusoid       0.50      0.00      
+0.01       287
+               endothelial cell of lymphatic vessel       0.00      0.00      
+0.00        86
+        enterocyte of epithelium of large intestine       0.37      0.40      
+0.38      1728
+                               enteroendocrine cell       0.00      0.00      
+0.00       122
+                                     ependymal cell       0.00      0.00      
+0.00        16
+                                     epidermal cell       0.07      0.16      
+0.09       389
+                                    epithelial cell       0.00      0.00      
+0.00       350
+                 epithelial cell of large intestine       0.00      0.00      
+0.00      1160
+                 epithelial cell of proximal tubule       0.00      0.00      
+0.00       267
+                          epithelial cell of thymus       0.00      0.01      
+0.01        82
+                                   fenestrated cell       0.00      0.00      
+0.00       218
+                                         fibroblast       0.01      0.00      
+0.00       987
+                       fibroblast of cardiac tissue       0.29      0.00      
+0.00      3015
+                                 fibroblast of lung       0.50      0.02      
+0.03       314
+                                          fibrocyte       0.00      0.00      
+0.00        40
+                                        granulocyte       0.76      0.40      
+0.52      1743
+               granulocyte monocyte progenitor cell       0.00      0.00      
+0.00       114
+                            granulocytopoietic cell       0.02      0.45      
+0.04       314
+                            hematopoietic stem cell       0.05      0.02      
+0.03      2537
+                                         hepatocyte       0.00      0.00      
+0.00       779
+                                    immature B cell       0.03      0.00      
+0.00       427
+                              intermediate monocyte       0.00      0.09      
+0.00        11
+                                        interneuron       0.00      0.00      
+0.00       142
+                         intestinal crypt stem cell       0.14      0.21      
+0.16      1224
+                                       keratinocyte       0.35      0.42      
+0.38       894
+                             keratinocyte stem cell       0.00      0.23      
+0.01        30
+             kidney collecting duct epithelial cell       0.01      0.25      
+0.02       194
+              kidney collecting duct principal cell       0.00      0.00      
+0.00       115
+                     kidney interstitial fibroblast       0.00      0.00      
+0.00        16
+kidney loop of Henle ascending limb epithelial cell       0.00      0.00      
+0.00       114
+                        large intestine goblet cell       0.57      0.11      
+0.19      1196
+                                    late pro-B cell       0.02      0.02      
+0.02       326
+                                          leukocyte       0.00      0.00      
+0.00       115
+           luminal epithelial cell of mammary gland       0.01      0.00      
+0.00       620
+                                    lung macrophage       0.00      0.11      
+0.00         9
+                           lung neuroendocrine cell       0.00      0.00      
+0.00         3
+                                         lymphocyte       0.00      0.00      
+0.00         4
+                           lymphoid progenitor cell       0.00      0.00      
+0.00         0
+                                         macrophage       0.05      0.02      
+0.03      1550
+                                   mature NK T cell       0.00      0.00      
+0.00       113
+                           mature alpha-beta T cell       0.00      0.00      
+0.00       181
+                                medium spiny neuron       0.00      0.00      
+0.00        92
+            megakaryocyte-erythroid progenitor cell       0.01      0.11      
+0.02        55
+                                     mesangial cell       0.00      0.00      
+0.00        51
+                              mesenchymal stem cell       0.00      0.00      
+0.00      1036
+                   mesenchymal stem cell of adipose       0.33      0.00      
+0.00      3362
+                                    microglial cell       0.35      0.03      
+0.05      8757
+                                           monocyte       0.00      0.00      
+0.00       937
+                               mucus secreting cell       0.00      0.00      
+0.00        66
+                                       myeloid cell       0.17      0.00      
+0.00      1929
+                             myeloid dendritic cell       0.00      0.00      
+0.00       265
+                                  myeloid leukocyte       0.00      0.12      
+0.01       133
+                                       naive B cell       0.06      0.00      
+0.00      1841
+                               neuroepithelial cell       0.00      0.00      
+0.00        11
+                                             neuron       0.00      0.00      
+0.00       361
+                                 neuronal stem cell       0.04      0.05      
+0.04        85
+                                         neutrophil       0.00      0.00      
+0.00        78
+                             non-classical monocyte       0.12      0.01      
+0.02       113
+                                    oligodendrocyte       0.00      0.00      
+0.00      1530
+                     oligodendrocyte precursor cell       0.00      0.00      
+0.00       218
+                                  pancreatic A cell       0.00      0.00      
+0.00       456
+                                  pancreatic B cell       0.51      0.02      
+0.04       975
+                                  pancreatic D cell       0.00      0.00      
+0.00       156
+                                 pancreatic PP cell       0.00      0.00      
+0.00        62
+                             pancreatic acinar cell       0.00      0.00      
+0.00       405
+                             pancreatic ductal cell       0.18      0.11      
+0.14       235
+                           pancreatic stellate cell       0.00      0.00      
+0.00        39
+                                      pericyte cell       0.05      0.05      
+0.05        19
+                                        plasma cell       0.00      0.00      
+0.00         9
+                        plasmacytoid dendritic cell       0.00      0.00      
+0.00         4
+                                   precursor B cell       0.00      0.00      
+0.00       656
+                                    proerythroblast       0.00      0.01      
+0.00        86
+               professional antigen presenting cell       0.00      0.00      
+0.00        73
+                                        promonocyte       0.00      0.00      
+0.00       758
+                  pulmonary interstitial fibroblast       0.00      0.00      
+0.00        46
+                                  regulatory T cell       0.00      0.00      
+0.00        27
+                             respiratory basal cell       0.00      0.00      
+0.00         4
+                                     secretory cell       0.03      0.11      
+0.04       391
+                     skeletal muscle satellite cell       0.02      0.01      
+0.01      1951
+                                 smooth muscle cell       0.00      0.00      
+0.00        95
+         smooth muscle cell of the pulmonary artery       0.00      0.02      
+0.01        64
+                      smooth muscle cell of trachea       0.00      0.01      
+0.00        86
+                                       stromal cell       0.00      0.00      
+0.00       287
+                                          thymocyte       0.18      0.02      
+0.04      1069
+                                  type I pneumocyte       0.00      0.00      
+0.00         4
+                                 type II pneumocyte       0.04      0.22      
+0.06       129
+                                         valve cell       0.00      0.00      
+0.00       274
+                              vein endothelial cell       0.00      0.00      
+0.00        92
+                                ventricular myocyte       0.00      0.00      
+0.00       147
+
+                                           accuracy                           
+0.07     76797
+                                          macro avg       0.06      0.05      
+0.03     76797
+                                       weighted avg       0.17      0.07      
+0.07     76797
+
+Accuracy: 0.0739
+F1 (macro): 0.0271  F1 (weighted): 0.0657
+Precision (macro): 0.0609  Precision (weighted): 0.1732
+Recall (macro): 0.0474  Recall (weighted): 0.0739
+Saved confusion matrix to 
+runs/CellTypeGNN/CellTypeGNN_hvg10000_bs256_epochs20_lr0.0003_wd1e-06_20260421_0
+03601/confusion_matrix.png
+Results for GNN_mAtlas written to results_mAtlas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Transformer — mAtlas                                                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Selecting top 10000 HVGs by variance on train split...
+train: 471730 cells (balanced), 120 classes, 10000 genes
+val:   3403 cells
+Gene sets loaded: 1,214
+Mask: (10000, 300), sparsity 99.28%
+/content/CellTypeClassification/allen_brain/models/CellTypeAttention.py:161: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+Model parameters: 144,087,432
+ Epoch | Train Loss | Train Acc |  Val Loss |  Val Acc | LR
+------------------------------------------------------------------------
+     1 |     2.8832 |   0.3995 |    1.8820 |   0.5557 | 9.94e-04 *
+     2 |     0.9690 |   0.8139 |    1.2213 |   0.6950 | 9.76e-04 *
+     3 |     0.4539 |   0.9139 |    1.0122 |   0.7320 | 9.46e-04 *
+     4 |     0.2457 |   0.9558 |    0.9904 |   0.7617 | 9.05e-04 *
+     5 |     0.1388 |   0.9788 |    0.9907 |   0.7726 | 8.55e-04
+     6 |     0.0819 |   0.9895 |    1.0266 |   0.7796 | 7.96e-04
+     7 |     0.0502 |   0.9946 |    1.0851 |   0.7811 | 7.30e-04
+     8 |     0.0323 |   0.9970 |    1.1206 |   0.7831 | 6.58e-04
+     9 |     0.0219 |   0.9982 |    1.1810 |   0.7858 | 5.82e-04
+Early stopping at epoch 9
+Applied HVG selection: 10000 genes
+Model parameters: 144,087,432
+Loaded checkpoint: 
+runs/CellTypeTOSICA/CellTypeTOSICA_hvg10000_bs64_epochs20_lr0.0003_wd1e-06_20260
+421_003625/best_model.pt
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                                                     precision    recall  
+f1-score   support
+
+                                             B cell       0.66      0.55      
+0.60      3814
+                                Bergmann glial cell       0.29      0.38      
+0.33        40
+ Brush cell of epithelium proper of large intestine       0.47      0.59      
+0.52       121
+                    CD4-positive, alpha-beta T cell       0.32      0.38      
+0.35       783
+                    CD8-positive, alpha-beta T cell       0.28      0.36      
+0.32       647
+                                      DN4 thymocyte       0.62      0.49      
+0.55      1146
+                                       Kupffer cell       0.43      0.66      
+0.52       155
+                                            NK cell       0.46      0.51      
+0.48       583
+                                             T cell       0.37      0.25      
+0.30       917
+                                   adventitial cell       0.19      0.58      
+0.29       191
+                            aortic endothelial cell       0.09      0.11      
+0.10       349
+                                          astrocyte       0.83      0.91      
+0.87       485
+                                     atrial myocyte       0.36      0.37      
+0.36       303
+                                         basal cell       0.94      0.98      
+0.96      1713
+                            basal cell of epidermis       0.82      0.79      
+0.81      2990
+     basal epithelial cell of tracheobronchial tree       0.42      0.30      
+0.35       217
+                                           basophil       0.49      0.35      
+0.41        57
+                                       bladder cell       0.81      0.82      
+0.82       735
+                            bladder urothelial cell       0.86      1.00      
+0.93      1005
+                                     brain pericyte       0.49      0.74      
+0.59       219
+                       bronchial smooth muscle cell       0.90      0.70      
+0.78      1173
+                                 bulge keratinocyte       0.94      0.79      
+0.86      1913
+                                        chondrocyte       0.28      0.05      
+0.08       261
+    ciliated columnar cell of tracheobronchial tree       0.39      0.43      
+0.41        49
+                                 classical monocyte       0.11      0.34      
+0.17       122
+                            club cell of bronchiole       0.00      0.00      
+0.00        17
+                                     dendritic cell       0.15      0.19      
+0.17        53
+                                   early pro-B cell       0.15      0.29      
+0.19        56
+                                   endocardial cell       0.64      0.67      
+0.65       328
+                                   endothelial cell       0.77      0.60      
+0.67      2768
+                endothelial cell of coronary artery       0.67      0.80      
+0.73      2236
+               endothelial cell of hepatic sinusoid       0.70      0.93      
+0.80       287
+               endothelial cell of lymphatic vessel       0.16      0.16      
+0.16        86
+        enterocyte of epithelium of large intestine       0.92      0.82      
+0.86      1728
+                               enteroendocrine cell       0.25      0.28      
+0.26       122
+                                     ependymal cell       0.14      0.38      
+0.20        16
+                                     epidermal cell       0.39      0.70      
+0.50       389
+                                    epithelial cell       0.00      0.00      
+0.00       350
+                 epithelial cell of large intestine       0.81      0.81      
+0.81      1160
+                 epithelial cell of proximal tubule       0.80      0.47      
+0.59       267
+                          epithelial cell of thymus       0.01      0.01      
+0.01        82
+                                   fenestrated cell       0.41      0.28      
+0.33       218
+                                         fibroblast       0.38      0.54      
+0.45       987
+                       fibroblast of cardiac tissue       0.88      0.78      
+0.83      3015
+                                 fibroblast of lung       0.78      0.72      
+0.75       314
+                                          fibrocyte       0.00      0.00      
+0.00        40
+                                        granulocyte       0.89      0.85      
+0.87      1743
+               granulocyte monocyte progenitor cell       0.38      0.78      
+0.51       114
+                            granulocytopoietic cell       0.72      0.91      
+0.81       314
+                            hematopoietic stem cell       0.92      0.84      
+0.88      2537
+                                         hepatocyte       0.92      0.95      
+0.93       779
+                                    immature B cell       0.38      0.63      
+0.48       427
+                              intermediate monocyte       0.00      0.00      
+0.00        11
+                                        interneuron       0.36      0.31      
+0.33       142
+                         intestinal crypt stem cell       0.80      0.91      
+0.85      1224
+                                       keratinocyte       0.74      0.89      
+0.81       894
+                             keratinocyte stem cell       0.00      0.00      
+0.00        30
+             kidney collecting duct epithelial cell       0.52      0.81      
+0.63       194
+              kidney collecting duct principal cell       0.29      0.29      
+0.29       115
+                     kidney interstitial fibroblast       0.00      0.00      
+0.00        16
+kidney loop of Henle ascending limb epithelial cell       0.33      0.31      
+0.32       114
+                        large intestine goblet cell       0.81      0.67      
+0.73      1196
+                                    late pro-B cell       0.72      0.81      
+0.76       326
+                                          leukocyte       0.08      0.20      
+0.12       115
+           luminal epithelial cell of mammary gland       0.88      0.76      
+0.82       620
+                                    lung macrophage       0.00      0.00      
+0.00         9
+                           lung neuroendocrine cell       0.00      0.00      
+0.00         3
+                                         lymphocyte       0.00      0.00      
+0.00         4
+                           lymphoid progenitor cell       0.00      0.00      
+0.00         0
+                                         macrophage       0.47      0.32      
+0.38      1550
+                                   mature NK T cell       0.10      0.22      
+0.14       113
+                           mature alpha-beta T cell       0.10      0.21      
+0.14       181
+                                medium spiny neuron       0.54      0.60      
+0.57        92
+            megakaryocyte-erythroid progenitor cell       0.10      0.09      
+0.10        55
+                                     mesangial cell       0.05      0.04      
+0.04        51
+                              mesenchymal stem cell       0.63      0.62      
+0.63      1036
+                   mesenchymal stem cell of adipose       0.80      0.79      
+0.80      3362
+                                    microglial cell       0.98      0.99      
+0.98      8757
+                                           monocyte       0.65      0.63      
+0.64       937
+                               mucus secreting cell       0.00      0.00      
+0.00        66
+                                       myeloid cell       0.62      0.45      
+0.52      1929
+                             myeloid dendritic cell       0.40      0.38      
+0.39       265
+                                  myeloid leukocyte       0.11      0.18      
+0.13       133
+                                       naive B cell       0.36      0.46      
+0.40      1841
+                               neuroepithelial cell       0.00      0.00      
+0.00        11
+                                             neuron       0.65      0.54      
+0.59       361
+                                 neuronal stem cell       0.37      0.36      
+0.37        85
+                                         neutrophil       0.12      0.26      
+0.16        78
+                             non-classical monocyte       0.15      0.19      
+0.17       113
+                                    oligodendrocyte       0.96      0.99      
+0.98      1530
+                     oligodendrocyte precursor cell       0.73      0.83      
+0.77       218
+                                  pancreatic A cell       0.71      0.88      
+0.78       456
+                                  pancreatic B cell       0.83      0.86      
+0.85       975
+                                  pancreatic D cell       0.59      0.63      
+0.61       156
+                                 pancreatic PP cell       0.11      0.16      
+0.13        62
+                             pancreatic acinar cell       0.73      0.73      
+0.73       405
+                             pancreatic ductal cell       0.83      0.70      
+0.76       235
+                           pancreatic stellate cell       0.07      0.23      
+0.10        39
+                                      pericyte cell       0.18      0.37      
+0.25        19
+                                        plasma cell       0.00      0.00      
+0.00         9
+                        plasmacytoid dendritic cell       0.00      0.00      
+0.00         4
+                                   precursor B cell       0.79      0.66      
+0.72       656
+                                    proerythroblast       0.00      0.00      
+0.00        86
+               professional antigen presenting cell       0.00      0.00      
+0.00        73
+                                        promonocyte       0.45      0.39      
+0.42       758
+                  pulmonary interstitial fibroblast       0.00      0.00      
+0.00        46
+                                  regulatory T cell       0.02      0.04      
+0.03        27
+                             respiratory basal cell       0.02      0.25      
+0.04         4
+                                     secretory cell       0.53      0.92      
+0.67       391
+                     skeletal muscle satellite cell       0.95      0.92      
+0.94      1951
+                                 smooth muscle cell       0.03      0.02      
+0.03        95
+         smooth muscle cell of the pulmonary artery       0.17      0.61      
+0.27        64
+                      smooth muscle cell of trachea       0.05      0.01      
+0.02        86
+                                       stromal cell       0.40      0.14      
+0.20       287
+                                          thymocyte       0.79      0.86      
+0.82      1069
+                                  type I pneumocyte       0.00      0.00      
+0.00         4
+                                 type II pneumocyte       0.43      0.27      
+0.33       129
+                                         valve cell       0.64      0.42      
+0.51       274
+                              vein endothelial cell       0.18      0.45      
+0.26        92
+                                ventricular myocyte       0.00      0.00      
+0.00       147
+
+                                           accuracy                           
+0.71     76797
+                                          macro avg       0.42      0.45      
+0.42     76797
+                                       weighted avg       0.73      0.71      
+0.71     76797
+
+Accuracy: 0.7087
+F1 (macro): 0.4183  F1 (weighted): 0.7123
+Precision (macro): 0.4163  Precision (weighted): 0.7279
+Recall (macro): 0.4451  Recall (weighted): 0.7087
+Saved confusion matrix to 
+runs/CellTypeTOSICA/CellTypeTOSICA_hvg10000_bs64_epochs20_lr0.0003_wd1e-06_20260
+421_003625/confusion_matrix.png
+Results for Transformer_mAtlas written to results_mAtlas.csv
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ TOSICA — mAtlas                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+cuda:0
+Balancing populations...
+/content/CellTypeClassification/allen_brain/TOSICA/train.py:55: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+  ct_counts = pd.value_counts(data[:,-1])
+Mask loaded!
+Model builded!
+[train epoch 0] loss: 4.741, acc: 0.010: 100% 5159/5159 [01:28<00:00, 58.09it/s]
+[valid epoch 0] loss: 4.443, acc: 0.020: 100% 2211/2211 [00:15<00:00, 141.07it/s]
+[train epoch 1] loss: 3.268, acc: 0.154: 100% 5159/5159 [01:28<00:00, 58.30it/s]
+[valid epoch 1] loss: 2.169, acc: 0.470: 100% 2211/2211 [00:15<00:00, 140.08it/s]
+[train epoch 2] loss: 2.035, acc: 0.398: 100% 5159/5159 [01:28<00:00, 58.45it/s]
+[valid epoch 2] loss: 1.418, acc: 0.696: 100% 2211/2211 [00:15<00:00, 140.40it/s]
+[train epoch 3] loss: 1.593, acc: 0.520: 100% 5159/5159 [01:28<00:00, 58.38it/s]
+[valid epoch 3] loss: 1.057, acc: 0.812: 100% 2211/2211 [00:15<00:00, 141.75it/s]
+[train epoch 4] loss: 1.290, acc: 0.617: 100% 5159/5159 [01:28<00:00, 58.48it/s]
+[valid epoch 4] loss: 0.563, acc: 0.903: 100% 2211/2211 [00:15<00:00, 139.98it/s]
+[train epoch 5] loss: 0.729, acc: 0.793: 100% 5159/5159 [01:28<00:00, 58.30it/s]
+[valid epoch 5] loss: 0.161, acc: 0.967: 100% 2211/2211 [00:15<00:00, 140.69it/s]
+[train epoch 6] loss: 0.364, acc: 0.904: 100% 5159/5159 [01:28<00:00, 58.45it/s]
+[valid epoch 6] loss: 0.060, acc: 0.988: 100% 2211/2211 [00:15<00:00, 138.89it/s]
+[train epoch 7] loss: 0.219, acc: 0.945: 100% 5159/5159 [01:28<00:00, 58.34it/s]
+[valid epoch 7] loss: 0.031, acc: 0.995: 100% 2211/2211 [00:15<00:00, 139.23it/s]
+[train epoch 8] loss: 0.158, acc: 0.962: 100% 5159/5159 [01:28<00:00, 58.35it/s]
+[valid epoch 8] loss: 0.019, acc: 0.997: 100% 2211/2211 [00:15<00:00, 140.80it/s]
+[train epoch 9] loss: 0.124, acc: 0.971: 100% 5159/5159 [01:28<00:00, 58.46it/s]
+[valid epoch 9] loss: 0.014, acc: 0.998: 100% 2211/2211 [00:15<00:00, 139.93it/s]
+[train epoch 10] loss: 0.103, acc: 0.977: 100% 5159/5159 [01:28<00:00, 58.43it/s]
+[valid epoch 10] loss: 0.012, acc: 0.998: 100% 2211/2211 [00:15<00:00, 140.15it/s]
+[train epoch 11] loss: 0.088, acc: 0.981: 100% 5159/5159 [01:28<00:00, 58.41it/s]
+[valid epoch 11] loss: 0.010, acc: 0.998: 100% 2211/2211 [00:15<00:00, 140.38it/s]
+[train epoch 12] loss: 0.079, acc: 0.984: 100% 5159/5159 [01:28<00:00, 58.40it/s]
+[valid epoch 12] loss: 0.009, acc: 0.999: 100% 2211/2211 [00:15<00:00, 140.54it/s]
+[train epoch 13] loss: 0.071, acc: 0.985: 100% 5159/5159 [01:28<00:00, 58.35it/s]
+[valid epoch 13] loss: 0.009, acc: 0.999: 100% 2211/2211 [00:15<00:00, 139.41it/s]
+[train epoch 14] loss: 0.066, acc: 0.987: 100% 5159/5159 [01:28<00:00, 58.28it/s]
+[valid epoch 14] loss: 0.009, acc: 0.999: 100% 2211/2211 [00:15<00:00, 139.24it/s]
+[train epoch 15] loss: 0.062, acc: 0.987: 100% 5159/5159 [01:28<00:00, 58.27it/s]
+[valid epoch 15] loss: 0.008, acc: 0.999: 100% 2211/2211 [00:15<00:00, 140.57it/s]
+[train epoch 16] loss: 0.059, acc: 0.988: 100% 5159/5159 [01:28<00:00, 58.35it/s]
+[valid epoch 16] loss: 0.008, acc: 0.999: 100% 2211/2211 [00:15<00:00, 139.84it/s]
+[train epoch 17] loss: 0.058, acc: 0.988: 100% 5159/5159 [01:28<00:00, 58.38it/s]
+[valid epoch 17] loss: 0.008, acc: 0.999: 100% 2211/2211 [00:15<00:00, 140.69it/s]
+[train epoch 18] loss: 0.057, acc: 0.989: 100% 5159/5159 [01:28<00:00, 58.30it/s]
+[valid epoch 18] loss: 0.008, acc: 0.999: 100% 2211/2211 [00:16<00:00, 130.24it/s]
+[train epoch 19] loss: 0.056, acc: 0.989: 100% 5159/5159 [01:28<00:00, 58.15it/s]
+[valid epoch 19] loss: 0.008, acc: 0.999: 100% 2211/2211 [00:15<00:00, 139.78it/s]
+Training finished!
+cuda:0
+0
+10000
+20000
+30000
+40000
+50000
+60000
+70000
+76797
+/usr/local/lib/python3.12/dist-packages/anndata/_core/anndata.py:1823: UserWarning: Observation names are not unique. To make them unique, call `.obs_names_make_unique`.
+  utils.warn_names_duplicates("obs")
+╭────────────────────╮
+│ EVALUATION RESULTS │
+╰────────────────────╯
+                                                     precision    recall  
+f1-score   support
+
+                                             B cell       0.67      0.63      
+0.65      3814
+                                Bergmann glial cell       0.57      0.62      
+0.60        40
+ Brush cell of epithelium proper of large intestine       0.52      0.55      
+0.53       121
+                    CD4-positive, alpha-beta T cell       0.42      0.48      
+0.45       783
+                    CD8-positive, alpha-beta T cell       0.33      0.49      
+0.39       647
+                                      DN4 thymocyte       0.68      0.62      
+0.65      1146
+                                       Kupffer cell       0.74      0.59      
+0.66       155
+                                            NK cell       0.67      0.63      
+0.65       583
+                                             T cell       0.54      0.38      
+0.45       917
+                                   adventitial cell       0.26      0.46      
+0.33       191
+                            aortic endothelial cell       0.08      0.15      
+0.11       349
+                                          astrocyte       0.82      0.87      
+0.84       485
+                                     atrial myocyte       0.36      0.36      
+0.36       303
+                                         basal cell       0.97      0.98      
+0.97      1713
+                            basal cell of epidermis       0.86      0.89      
+0.87      2990
+     basal epithelial cell of tracheobronchial tree       0.36      0.45      
+0.40       217
+                                           basophil       0.72      0.23      
+0.35        57
+                                       bladder cell       0.86      0.91      
+0.89       735
+                            bladder urothelial cell       0.93      1.00      
+0.97      1005
+                                     brain pericyte       0.53      0.82      
+0.64       219
+                       bronchial smooth muscle cell       0.83      0.82      
+0.82      1173
+                                 bulge keratinocyte       0.92      0.93      
+0.92      1913
+                                        chondrocyte       0.65      0.36      
+0.46       261
+    ciliated columnar cell of tracheobronchial tree       0.58      0.86      
+0.69        49
+                                 classical monocyte       0.20      0.35      
+0.26       122
+                            club cell of bronchiole       0.00      0.00      
+0.00        17
+                                     dendritic cell       0.09      0.06      
+0.07        53
+                                   early pro-B cell       1.00      0.02      
+0.04        56
+                                   endocardial cell       0.67      0.77      
+0.72       328
+                                   endothelial cell       0.71      0.73      
+0.72      2768
+                endothelial cell of coronary artery       0.78      0.64      
+0.70      2236
+               endothelial cell of hepatic sinusoid       0.86      0.91      
+0.89       287
+               endothelial cell of lymphatic vessel       0.17      0.02      
+0.04        86
+        enterocyte of epithelium of large intestine       0.93      0.92      
+0.92      1728
+                               enteroendocrine cell       0.64      0.43      
+0.52       122
+                                     ependymal cell       0.16      0.38      
+0.22        16
+                                     epidermal cell       0.87      0.55      
+0.68       389
+                                    epithelial cell       0.17      0.02      
+0.04       350
+                 epithelial cell of large intestine       0.86      0.90      
+0.88      1160
+                 epithelial cell of proximal tubule       0.90      0.57      
+0.70       267
+                          epithelial cell of thymus       0.04      0.04      
+0.04        82
+                                   fenestrated cell       0.32      0.38      
+0.34       218
+                                         fibroblast       0.54      0.50      
+0.52       987
+                       fibroblast of cardiac tissue       0.93      0.80      
+0.86      3015
+                                 fibroblast of lung       0.80      0.85      
+0.83       314
+                                          fibrocyte       0.00      0.00      
+0.00        40
+                                        granulocyte       0.94      0.90      
+0.92      1743
+               granulocyte monocyte progenitor cell       0.66      0.83      
+0.74       114
+                            granulocytopoietic cell       0.96      0.90      
+0.93       314
+                            hematopoietic stem cell       0.96      0.88      
+0.91      2537
+                                         hepatocyte       0.96      0.96      
+0.96       779
+                                    immature B cell       0.51      0.42      
+0.46       427
+                              intermediate monocyte       0.00      0.00      
+0.00        11
+                                        interneuron       0.47      0.56      
+0.51       142
+                         intestinal crypt stem cell       0.92      0.93      
+0.92      1224
+                                       keratinocyte       0.73      0.93      
+0.82       894
+                             keratinocyte stem cell       0.00      0.00      
+0.00        30
+             kidney collecting duct epithelial cell       0.60      0.91      
+0.72       194
+              kidney collecting duct principal cell       0.40      0.67      
+0.50       115
+                     kidney interstitial fibroblast       0.00      0.00      
+0.00        16
+kidney loop of Henle ascending limb epithelial cell       0.35      0.19      
+0.25       114
+                        large intestine goblet cell       0.88      0.74      
+0.80      1196
+                                    late pro-B cell       0.87      0.85      
+0.86       326
+                                          leukocyte       0.23      0.06      
+0.10       115
+           luminal epithelial cell of mammary gland       0.94      0.92      
+0.93       620
+                                    lung macrophage       0.00      0.00      
+0.00         9
+                           lung neuroendocrine cell       0.00      0.00      
+0.00         3
+                                         lymphocyte       0.00      0.00      
+0.00         4
+                           lymphoid progenitor cell       0.00      0.00      
+0.00         0
+                                         macrophage       0.42      0.48      
+0.45      1550
+                                   mature NK T cell       0.33      0.10      
+0.15       113
+                           mature alpha-beta T cell       0.10      0.06      
+0.08       181
+                                medium spiny neuron       0.92      0.91      
+0.92        92
+            megakaryocyte-erythroid progenitor cell       0.09      0.13      
+0.11        55
+                                     mesangial cell       0.00      0.00      
+0.00        51
+                              mesenchymal stem cell       0.66      0.65      
+0.66      1036
+                   mesenchymal stem cell of adipose       0.73      0.94      
+0.82      3362
+                                    microglial cell       0.96      0.99      
+0.97      8757
+                                           monocyte       0.71      0.60      
+0.65       937
+                               mucus secreting cell       0.00      0.00      
+0.00        66
+                                       myeloid cell       0.63      0.57      
+0.60      1929
+                             myeloid dendritic cell       0.34      0.51      
+0.41       265
+                                  myeloid leukocyte       0.14      0.16      
+0.15       133
+                                       naive B cell       0.35      0.51      
+0.41      1841
+                               neuroepithelial cell       0.01      0.09      
+0.02        11
+                                             neuron       0.78      0.68      
+0.72       361
+                                 neuronal stem cell       0.84      0.49      
+0.62        85
+                                         neutrophil       0.23      0.17      
+0.19        78
+                             non-classical monocyte       0.14      0.04      
+0.07       113
+                                    oligodendrocyte       0.96      0.99      
+0.98      1530
+                     oligodendrocyte precursor cell       0.86      0.92      
+0.89       218
+                                  pancreatic A cell       0.83      0.91      
+0.87       456
+                                  pancreatic B cell       0.91      0.88      
+0.90       975
+                                  pancreatic D cell       0.81      0.84      
+0.82       156
+                                 pancreatic PP cell       0.52      0.55      
+0.54        62
+                             pancreatic acinar cell       0.88      0.80      
+0.84       405
+                             pancreatic ductal cell       0.99      0.82      
+0.90       235
+                           pancreatic stellate cell       0.00      0.00      
+0.00        39
+                                      pericyte cell       0.29      0.63      
+0.40        19
+                                        plasma cell       0.00      0.00      
+0.00         9
+                        plasmacytoid dendritic cell       0.00      0.00      
+0.00         4
+                                   precursor B cell       0.75      0.78      
+0.76       656
+                                    proerythroblast       0.13      0.08      
+0.10        86
+               professional antigen presenting cell       0.02      0.01      
+0.02        73
+                                        promonocyte       0.67      0.49      
+0.56       758
+                  pulmonary interstitial fibroblast       0.00      0.00      
+0.00        46
+                                  regulatory T cell       0.00      0.00      
+0.00        27
+                             respiratory basal cell       0.05      0.50      
+0.10         4
+                                     secretory cell       0.59      0.92      
+0.72       391
+                     skeletal muscle satellite cell       0.96      0.94      
+0.95      1951
+                                 smooth muscle cell       0.57      0.04      
+0.08        95
+         smooth muscle cell of the pulmonary artery       0.15      0.23      
+0.18        64
+                      smooth muscle cell of trachea       0.10      0.06      
+0.07        86
+                                       stromal cell       0.22      0.01      
+0.03       287
+                                          thymocyte       0.90      0.87      
+0.88      1069
+                                  type I pneumocyte       0.00      0.00      
+0.00         4
+                                 type II pneumocyte       0.49      0.66      
+0.56       129
+                                         valve cell       0.88      0.53      
+0.66       274
+                              vein endothelial cell       0.36      0.28      
+0.32        92
+                                ventricular myocyte       0.00      0.00      
+0.00       147
+
+                                           accuracy                           
+0.76     76797
+                                          macro avg       0.50      0.49      
+0.48     76797
+                                       weighted avg       0.76      0.76      
+0.76     76797
+
+Accuracy: 0.7605
+F1 (macro): 0.4754  F1 (weighted): 0.7568
+Precision (macro): 0.5014  Precision (weighted): 0.7646
+Recall (macro): 0.4864  Recall (weighted): 0.7605
+Saved confusion matrix to tosica_mAtlas/confusion_matrix.png
+Results for TOSICA_mAtlas written to results_mAtlas.csv
+   mAtlas: All Methods Ranked by Accuracy    
+┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Rank ┃ Method                  ┃ Accuracy ┃
+┡━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│    1 │ Ours-MLP_mAtlas         │   0.8405 │
+├──────┼─────────────────────────┼──────────┤
+│    2 │ TOSICA                  │   0.8101 │
+├──────┼─────────────────────────┼──────────┤
+│    3 │ ACTINN                  │   0.7957 │
+├──────┼─────────────────────────┼──────────┤
+│    4 │ SingleCellNet           │   0.7733 │
+├──────┼─────────────────────────┼──────────┤
+│    5 │ Seurat                  │   0.7616 │
+├──────┼─────────────────────────┼──────────┤
+│    6 │ Ours-TOSICA_mAtlas      │   0.7605 │
+├──────┼─────────────────────────┼──────────┤
+│    7 │ Ours-Transformer_mAtlas │   0.7087 │
+├──────┼─────────────────────────┼──────────┤
+│    8 │ SciBet                  │   0.7085 │
+├──────┼─────────────────────────┼──────────┤
+│    9 │ CELLBLAST               │   0.6948 │
+├──────┼─────────────────────────┼──────────┤
+│   10 │ SingleR                 │   0.6908 │
+├──────┼─────────────────────────┼──────────┤
+│   11 │ CaSTLe                  │   0.6289 │
+├──────┼─────────────────────────┼──────────┤
+│   12 │ scmapcluster            │   0.5851 │
+├──────┼─────────────────────────┼──────────┤
+│   13 │ Markercount             │   0.5424 │
+├──────┼─────────────────────────┼──────────┤
+│   14 │ chetah                  │   0.5321 │
+├──────┼─────────────────────────┼──────────┤
+│   15 │ scmapcell               │   0.5185 │
+├──────┼─────────────────────────┼──────────┤
+│   16 │ SCSA                    │   0.4766 │
+├──────┼─────────────────────────┼──────────┤
+│   17 │ SCINA                   │   0.4514 │
+├──────┼─────────────────────────┼──────────┤
+│   18 │ scTyper                 │   0.4006 │
+├──────┼─────────────────────────┼──────────┤
+│   19 │ scID                    │   0.3704 │
+├──────┼─────────────────────────┼──────────┤
+│   20 │ Ours-GNN_mAtlas         │   0.0739 │
+├──────┼─────────────────────────┼──────────┤
+│   21 │ Ours-CNN_mAtlas         │   0.0077 │
+├──────┼─────────────────────────┼──────────┤
+│   22 │ scLearn                 │      N/A │
+├──────┼─────────────────────────┼──────────┤
+│   23 │ scPred                  │      N/A │
+├──────┼─────────────────────────┼──────────┤
+│   24 │ garnett                 │      N/A │
+└──────┴─────────────────────────┴──────────┘
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Done: mAtlas                                                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
