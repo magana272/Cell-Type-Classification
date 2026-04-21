@@ -57,11 +57,12 @@ def _save(fig: plt.Figure, name: str) -> None:
 
 def fig_dataset_overview() -> None:
     console.print('[bold]Fig 1: Dataset overview[/bold]')
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 
     for ax, (data_dir, title) in zip(axes, [
         ('data/hPancreas', 'hPancreas (Human, 14 classes)'),
         ('data/mPancreas', 'mPancreas (Mouse, 21 classes)'),
+        ('data/mAtlas', 'mAtlas (Mouse, 120 classes)'),
     ]):
         ds = make_dataset(data_dir, split='train')
         classes = ds.class_names
@@ -158,8 +159,10 @@ def fig_results_bar(csv_path: str, dataset: str, tag: str) -> None:
 def fig_leaderboard() -> None:
     console.print('[bold]Fig: Leaderboard heatmap[/bold]')
 
-    datasets = ['hPancreas', 'mPancreas']
-    csv_map = {'hPancreas': 'results_hPancreas.csv', 'mPancreas': 'results_mPancreas.csv'}
+    datasets = ['hPancreas', 'mPancreas', 'mAtlas']
+    csv_map = {'hPancreas': 'results_hPancreas.csv',
+               'mPancreas': 'results_mPancreas.csv',
+               'mAtlas': 'results_mAtlas.csv'}
 
     # Collect all methods
     all_methods: dict[str, dict[str, float | None]] = {}
@@ -193,7 +196,7 @@ def fig_leaderboard() -> None:
             if v is not None:
                 matrix[i, j] = v
 
-    fig, ax = plt.subplots(figsize=(5, max(6, len(methods_show) * 0.3)))
+    fig, ax = plt.subplots(figsize=(7, max(6, len(methods_show) * 0.3)))
     sns.heatmap(matrix, annot=True, fmt='.3f', cmap='YlGn',
                 xticklabels=datasets, yticklabels=methods_show,
                 ax=ax, vmin=0, vmax=1, cbar_kws={'label': 'Accuracy'})
@@ -215,7 +218,8 @@ def fig_model_comparison() -> None:
     console.print('[bold]Fig: Model comparison[/bold]')
 
     datasets = {'hPancreas': 'results_hPancreas.csv',
-                'mPancreas': 'results_mPancreas.csv'}
+                'mPancreas': 'results_mPancreas.csv',
+                'mAtlas': 'results_mAtlas.csv'}
 
     fig, axes = plt.subplots(1, len(datasets), figsize=(12, 5), sharey=True)
     if len(datasets) == 1:
@@ -266,7 +270,8 @@ def main() -> None:
     fig_dataset_overview()
 
     # UMAPs
-    for data_dir, tag in [('data/hPancreas', 'hpan'), ('data/mPancreas', 'mpan')]:
+    for data_dir, tag in [('data/hPancreas', 'hpan'), ('data/mPancreas', 'mpan'),
+                           ('data/mAtlas', 'matlas')]:
         if os.path.exists(os.path.join(data_dir, 'X_train.npy')) or \
            os.path.exists(os.path.join(data_dir, 'X_train.npz')):
             fig_umap(data_dir, tag)
@@ -274,6 +279,7 @@ def main() -> None:
     # Results bars
     fig_results_bar('results_hPancreas.csv', 'hPancreas', 'hpan')
     fig_results_bar('results_mPancreas.csv', 'mPancreas', 'mpan')
+    fig_results_bar('results_mAtlas.csv', 'mAtlas', 'matlas')
 
     # Leaderboard
     fig_leaderboard()
