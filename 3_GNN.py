@@ -49,7 +49,7 @@ def main() -> None:
     lf = lambda x: ((1 + math.cos(x * math.pi / EPOCHS)) / 2) * (1 - LRF) + LRF
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
-    writer, ckpt = T.make_writer_and_ckpt(cfg, n_features)
+    writer, ckpt = T.make_writer_and_ckpt(cfg, n_features, data_tag='mPancreas')
     T._save_model_kwargs(os.path.dirname(ckpt), {})
 
     T.print_header()

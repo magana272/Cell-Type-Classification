@@ -41,7 +41,7 @@ def _load_and_predict(
     is_graph: bool,
 ) -> ModelPredictions | None:
     """Load best checkpoint and collect probabilities + predictions on test set."""
-    ckpt: str | None = T.find_best_ckpt(model_cls_name)
+    ckpt: str | None = T.find_best_ckpt(model_cls_name, data_tag='mPancreas')
     if ckpt is None:
         return None
     saved_kw: dict[str, Any] = T._load_model_kwargs(ckpt, model_name=model_cls_name)

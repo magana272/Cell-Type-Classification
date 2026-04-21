@@ -64,7 +64,7 @@ def train_mlp(data_dir: str, tag: str, csv_path: str) -> None:
     optimizer = optim.SGD([p for p in model.parameters() if p.requires_grad],
                           lr=0.01, momentum=0.9, weight_decay=5e-5)
     scheduler = _make_scheduler(optimizer, EPOCHS)
-    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names), data_tag=tag)
     ckpt_dir = os.path.dirname(ckpt)
     T._save_model_kwargs(ckpt_dir, {})
     if hvg_idx is not None:
@@ -93,7 +93,7 @@ def train_cnn(data_dir: str, tag: str, csv_path: str) -> None:
     optimizer = optim.SGD([p for p in model.parameters() if p.requires_grad],
                           lr=0.001, momentum=0.9, weight_decay=5e-5)
     scheduler = _make_scheduler(optimizer, EPOCHS)
-    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names), data_tag=tag)
     ckpt_dir = os.path.dirname(ckpt)
     T._save_model_kwargs(ckpt_dir, {})
     if hvg_idx is not None:
@@ -126,7 +126,7 @@ def train_gnn(data_dir: str, tag: str, csv_path: str) -> None:
     optimizer = optim.SGD([p for p in model.parameters() if p.requires_grad],
                           lr=0.001, momentum=0.9, weight_decay=5e-5)
     scheduler = _make_scheduler(optimizer, EPOCHS)
-    writer, ckpt = T.make_writer_and_ckpt(cfg, n_features)
+    writer, ckpt = T.make_writer_and_ckpt(cfg, n_features, data_tag=tag)
     T._save_model_kwargs(os.path.dirname(ckpt), {})
     T.print_header()
     train_graph(model, data, torch.nn.CrossEntropyLoss(), optimizer, scheduler,
@@ -157,7 +157,7 @@ def train_transformer(data_dir: str, tag: str, gmt_path: str, gmt_url: str,
     optimizer = optim.SGD([p for p in model.parameters() if p.requires_grad],
                           lr=0.001, momentum=0.9, weight_decay=5e-5)
     scheduler = _make_scheduler(optimizer, EPOCHS)
-    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names), data_tag=tag)
     ckpt_dir = os.path.dirname(ckpt)
     if hvg_idx is not None:
         np.save(os.path.join(ckpt_dir, 'hvg_indices.npy'), hvg_idx)

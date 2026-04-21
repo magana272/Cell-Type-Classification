@@ -72,9 +72,11 @@ def build_model(model_name: str, n_features: int, n_classes: int,
 
 
 def make_writer_and_ckpt(cfg: ExperimentConfig | dict[str, Any],
-                         n_features: int) -> tuple[SummaryWriter, str]:
+                         n_features: int,
+                         data_tag: str | None = None) -> tuple[SummaryWriter, str]:
     run_name = make_run_name(cfg['model'], n_features, cfg['batch_size'],
-                             cfg['epochs'], cfg['lr'], cfg['weight_decay'])
+                             cfg['epochs'], cfg['lr'], cfg['weight_decay'],
+                             data_tag=data_tag)
     log_dir = f'runs/{cfg["model"]}/{run_name}'
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir=log_dir)
@@ -249,9 +251,11 @@ def print_row(epoch: int, tr_loss: float, tr_acc: float,
 
 
 def make_run_name(model_name: str, n_hvg: int, batch_size: int,
-                  epochs: int, lr: float, wd: float) -> str:
+                  epochs: int, lr: float, wd: float,
+                  data_tag: str | None = None) -> str:
     ts = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-    return f'{model_name}_hvg{n_hvg}_bs{batch_size}_epochs{epochs}_lr{lr}_wd{wd}_{ts}'
+    tag = f'_{data_tag}' if data_tag else ''
+    return f'{model_name}_hvg{n_hvg}_bs{batch_size}_epochs{epochs}_lr{lr}_wd{wd}{tag}_{ts}'
 
 
 def _step_epoch(model: nn.Module,

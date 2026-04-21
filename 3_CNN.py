@@ -45,7 +45,7 @@ def main() -> None:
     lf = lambda x: ((1 + math.cos(x * math.pi / EPOCHS)) / 2) * (1 - LRF) + LRF
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
-    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names))
+    writer, ckpt = T.make_writer_and_ckpt(cfg, len(ds.gene_names), data_tag='mPancreas')
     ckpt_dir = os.path.dirname(ckpt)
     T._save_model_kwargs(ckpt_dir, {})
     if hvg_idx is not None:
