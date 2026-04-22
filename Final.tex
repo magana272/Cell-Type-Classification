@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -132,16 +133,10 @@ mAtlas    & Mouse & 30,624 & 3,403 & 76,797 & 120 & Biological condition \\
 \section{Methods}
 
 \subsection{Shared Preprocessing}
-All five models share a common data pipeline to ensure fair comparison:
+All five models share an identical data pipeline to ensure fair comparison:
 \begin{enumerate}
-    \item \textbf{HVG selection.} Highly variable genes are selected by variance
-    (computed on the training split after library-size normalization +
-    log$_{1p}$). The MLP, GNN, Transformer, and TOSICA use the top 10,000 HVGs;
-    the CNN uses 1,500 HVGs to keep the 1-D signal length tractable.
-    \item \textbf{Per-model normalization.} Each model's normalization was tuned
-    via Optuna from \{none, log, standard, log+standard\}, where ``log'' denotes
-    library-size normalization followed by $\log_{1p}$, and ``standard'' applies
-    zero-mean unit-variance scaling (fit on training split only).
+    \item \textbf{HVG selection.} The top 10,000 genes by variance (computed on
+    the training split via library-size normalization + log$_{1p}$) are selected.
     \item \textbf{Class balancing.} Training populations are oversampled so each
     class has equal representation (capped at $2{\times}10^6 / n_\text{classes}$
     cells per class), matching the \texttt{balance\_populations} strategy from
@@ -152,31 +147,27 @@ All five models share a common data pipeline to ensure fair comparison:
 
 \subsection{Model Architectures}
 
-All hyperparameters reported below are the best values found via Optuna
-(TPE sampler, Hyperband pruner, 15 trials per model). Detailed layer-by-layer
-diagrams are provided in the supplementary material
-(\texttt{model\_architectures.pdf}).
+Detailed layer-by-layer diagrams for all four custom architectures are provided
+in the supplementary material (\texttt{model\_architectures.pdf}).
 
 \paragraph{MLP with Squeeze-and-Excitation.}
-The input gene expression vector $\mathbf{x} \in \mathbb{R}^{B \times n_g}$
-(where $n_g$ is the number of selected HVGs) passes through two MLPBlocks
-followed by a linear classifier. Each MLPBlock consists of
-Linear$\to$ReLU$\to$Dropout($p{=}0.13$). The first block projects
-$n_g \to 512$; the second projects $512 \to 256$. After the first block, a
+The input gene expression vector $\mathbf{x}\in\mathbb{R}^{B \times n_g}$
+passes through two MLPBlocks followed by a linear classifier. Each MLPBlock
+consists of Linear -- ReLU -- Dropout($p{=}0.1$). The first block projects
+$n_g \to 256$; the second projects $256 \to 128$. After the first block, a
 \emph{squeeze-and-excitation} (SE) module applies channel attention: the
-512-dim hidden vector is globally pooled, passed through a bottleneck
-(FC($512 \to 64$)$\to$ReLU$\to$FC($64 \to 512$)$\to$Sigmoid, reduction
-factor~8), and multiplied element-wise with the original activations. This
-recalibrates feature importance before subsequent layers. The final classifier
-is Linear($256 \to C$). Parameters: ${\sim}$2.6\,M. Loss: cross-entropy with
-label smoothing.
+256-dim hidden vector is globally average-pooled, passed through a bottleneck
+(FC($256{\to}32$) -- ReLU -- FC($32{\to}256$) -- Sigmoid, reduction factor~8),
+and multiplied element-wise with the original activations. This recalibrates
+feature importance before subsequent layers. The final classifier is
+Linear($128 \to C$). Parameters: ${\sim}$2.6\,M.
 
 \paragraph{Residual 1-D CNN.}
-Gene expression is treated as a single-channel temporal signal
-$\mathbf{x} \in \mathbb{R}^{B \times 1 \times 1500}$. A \emph{stem} layer
-(Conv1d($1{\to}32$, $k{=}15$, stride\,2, pad\,7) + BatchNorm + ReLU) halves
-the spatial dimension to 750. Five \emph{residual stages} follow, each
-containing a pre-activation ResBlock + MaxPool(3):
+Gene expression is treated as a single-channel signal
+$\mathbf{x}\in\mathbb{R}^{B \times 1 \times 10000}$. A \emph{stem} layer
+(Conv1d($1{\to}32$, $k{=}15$, stride 2) + BN + ReLU) halves the spatial
+dimension. Three \emph{residual stages} follow, each containing a
+pre-activation ResBlock + MaxPool(3):
 
 \begin{center}
 \footnotesize
@@ -184,61 +175,53 @@ containing a pre-activation ResBlock + MaxPool(3):
 \toprule
 Stage & Channels & Kernel & Output length \\
 \midrule
-1 & $32 \to 32$  & 7 & $\lfloor 750/3 \rfloor = 250$ \\
-2 & $32 \to 32$  & 5 & $\lfloor 250/3 \rfloor = 83$ \\
-3 & $32 \to 64$  & 3 & $\lfloor 83/3 \rfloor = 27$ \\
-4 & $64 \to 64$  & 3 & $\lfloor 27/3 \rfloor = 9$ \\
-5 & $64 \to 128$ & 3 & $\lfloor 9/3 \rfloor = 3$ \\
+1 & $32 \to 32$  & 7 & $\lfloor 5000/3 \rfloor = 1666$ \\
+2 & $32 \to 32$  & 5 & $\lfloor 1666/3 \rfloor = 555$ \\
+3 & $32 \to 64$  & 3 & $\lfloor 555/3 \rfloor = 185$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent Each ResBlock uses pre-activation order:
-BatchNorm$\to$ReLU$\to$Conv$\to$Dropout($0.19$)$\to$BatchNorm$\to$ReLU$\to$%
-Conv.
-It includes an internal SE attention module (reduction\,8) and a $1{\times}1$
-projection shortcut when channels change. A \emph{dual-pool head} concatenates
-AdaptiveAvgPool1d(1) and AdaptiveMaxPool1d(1) into a 256-dim vector. The
-classifier is LayerNorm$\to$Dropout$\to$FC($256{\to}128$)$\to$ReLU$\to$%
-LayerNorm$\to$Dropout$\to$FC($128{\to}C$).
-Parameters: ${\sim}$58\,K. Loss: cross-entropy.
+\noindent Each ResBlock uses pre-activation order: BN -- ReLU -- Conv --
+Dropout(0.1) -- BN -- ReLU -- Conv, with an internal SE module (reduction\,8)
+and a $1{\times}1$ projection shortcut when channels change. A \emph{dual-pool
+head} concatenates AdaptiveAvgPool1d(1) and AdaptiveMaxPool1d(1) into a 128-dim
+vector. The classifier is: LayerNorm -- Dropout -- FC($128{\to}64$) -- ReLU --
+LayerNorm -- Dropout -- FC($64{\to}C$). Parameters: ${\sim}$58\,K.
 
 \paragraph{GraphSAGE GNN.}
-This model operates \emph{transductively}: all cells (train + val + test) are
-nodes in a single graph. Construction proceeds by L$_2$-normalizing each cell's
+This model operates \emph{transductively}: all cells (train+val+test) are nodes
+in a single graph. Construction proceeds by L$_2$-normalizing each cell's
 feature vector, computing pairwise cosine similarity in batches, selecting the
-$k{=}9$ nearest neighbours per node, and symmetrizing edges (${\sim}2kN$ total).
-A linear encoder projects node features to 256 dimensions
-(Linear$\to$LayerNorm$\to$GELU$\to$Dropout($0.38$)). One
-\emph{ResidualSAGEBlock} applies SAGEConv($256 \to 256$)---which aggregates
-neighbour embeddings via mean pooling, concatenates with the node's own
-embedding, and linearly projects---followed by
-LayerNorm$\to$GELU$\to$Dropout$\to$residual add. An output SAGEConv($256 \to
-128$) + GELU produces the final node embeddings. The classifier is
-LayerNorm($128$)$\to$Linear($128 \to C$). Training uses boolean masks to
-restrict gradient computation to training nodes. Parameters: ${\sim}$2.9\,M.
-Loss: focal ($\gamma{=}1.94$) with label smoothing.
+$k{=}10$ nearest neighbours per node, and symmetrizing edges (${\sim}2kN$
+total). A linear encoder projects node features to 256 dimensions (Linear --
+LayerNorm -- GELU -- Dropout(0.1)). Two \emph{ResidualSAGEBlocks} each apply
+SAGEConv($256{\to}256$)---which aggregates neighbour embeddings via mean
+pooling, concatenates with the node's own embedding, and linearly
+projects---followed by LayerNorm -- GELU -- Dropout -- residual add. An output
+SAGEConv($256{\to}128$) + GELU produces the final node embeddings. The
+classifier is LayerNorm(128) -- Linear($128{\to}C$). Training uses boolean
+masks to restrict gradient computation to training nodes. Parameters:
+${\sim}$2.9\,M.
 
 \paragraph{Pathway-Masked Transformer (our implementation).}
 Inspired by TOSICA, this model embeds gene expression into biologically
-meaningful pathway tokens. A binary mask
-$\mathbf{M} \in \{0,1\}^{n_g \times P}$ is derived from Reactome gene sets
-(filtered to $P{\leq}300$ pathways with ${\geq}5$ overlapping genes each). A
-\emph{MaskedEmbedding} layer maintains a learnable weight tensor
-$W \in \mathbb{R}^{48 \times n_g \times P}$, element-wise masked by $M$, so
-each gene can only contribute to pathways it belongs to. The embedding produces
-tokens $\in \mathbb{R}^{B \times P \times 48}$; a learnable [CLS] token is
-prepended, and positional embeddings are added, yielding a sequence of $P{+}1$
-tokens of dimension 48.
+meaningful pathway tokens. A binary mask $\mathbf{M}\in\{0,1\}^{n_g \times P}$
+is derived from Reactome gene sets (filtered to $P{\leq}300$ pathways with
+${\geq}5$ overlapping genes each). A \emph{MaskedEmbedding} layer maintains a
+learnable weight tensor $W\in\mathbb{R}^{48 \times n_g \times P}$, element-wise
+masked by~$M$, so each gene can only contribute to pathways it belongs to. The
+embedding produces $P$ pathway features in $\mathbb{R}^{B \times 48 \times P}$;
+a learnable [CLS] token is prepended and the result is permuted to yield a
+sequence of $P{+}1$ tokens of dimension~48.
 
-A 4-layer Transformer encoder (pre-LN, $d_{\text{model}}{=}48$, 4 heads,
-$d_k{=}12$, FF hidden$\,{=}\,$192, GELU activation, dropout$\,{=}\,$0.41)
+A 2-layer Transformer encoder (pre-LN, $d_{\text{model}}{=}48$, 4 heads,
+$d_k{=}12$, FF hidden$\,{=}\,$192, GELU activation, dropout$\,{=}\,$0.1)
 processes the sequence. The [CLS] output is extracted and passed through a
-classifier head: LayerNorm($48$)$\to$FC($48 \to 96$)$\to$GELU$\to$%
-Dropout($0.41$)$\to$FC($96 \to C$). For mouse datasets, the species-matched
-Reactome GMT (\texttt{m2.cp.reactome.Mm}) is used with native gene symbols.
-Parameters: ${\sim}$144\,M (dominated by the $48 \times n_g \times P$ embedding
-weight). Loss: focal ($\gamma{=}0.65$) with label smoothing.
+classifier head: LayerNorm($48$) -- FC($48{\to}96$) -- GELU -- Dropout(0.1)
+-- FC($96{\to}C$). For mouse datasets, the species-matched Reactome GMT
+(\texttt{m2.cp.reactome.Mm}) is used with native gene symbols. Parameters:
+${\sim}$144\,M (dominated by the $48 \times n_g \times P$ embedding weight).
 
 \paragraph{TOSICA (original authors' code).}
 The published TOSICA model from Chen et al.\ (2023), trained using the authors'
@@ -249,18 +232,19 @@ than our shared infrastructure.
 
 \begin{table}[H]
 \centering
-\caption{Architecture summary. $n_g$ = number of selected HVGs.}
+\caption{Architecture summary. All models use cross-entropy loss and 10\,K HVG
+input.}
 \label{tab:arch}
 \footnotesize
-\begin{tabular}{@{}llllrl@{}}
+\begin{tabular}{@{}lllrl@{}}
 \toprule
-Model & Input dim & Key mechanism & Depth & Params & Loss \\
+Model & Key mechanism & Depth & Params & Notes \\
 \midrule
-MLP         & $n_g{=}$10\,K & SE channel attention        & 2 layers   & 2.6\,M  & CE \\
-CNN         & $1{\times}1500$ & Residual conv + SE + dual-pool & 5 stages & 58\,K   & CE \\
-GNN         & $n_g{=}$10\,K & $k$-NN graph + SAGEConv     & 1 block    & 2.9\,M  & Focal \\
-Transformer & $n_g{=}$10\,K & Pathway-masked attention    & 4 layers   & 144\,M  & Focal \\
-TOSICA      & $n_g{=}$10\,K & Pathway-masked attention    & 2 layers   & ${\sim}$144\,M & CE \\
+MLP         & SE channel attention        & 2 layers   & 2.6\,M  & $256{\to}128$ hidden \\
+CNN         & Residual conv + SE + dual-pool & 3 stages & 58\,K   & channels 32/32/64 \\
+GNN         & $k$-NN graph + SAGEConv     & 2 blocks   & 2.9\,M  & $k{=}10$, transductive \\
+Transformer & Pathway-masked attention    & 2 layers   & 144\,M  & $P{\leq}300$ pathways \\
+TOSICA      & Pathway-masked attention    & 2 layers   & ${\sim}$144\,M & authors' pipeline \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -274,29 +258,24 @@ with our shared infrastructure. The key differences are:
     \item \textbf{Data pipeline.} TOSICA uses the authors' own
     \texttt{splitDataSet} with internal 70/30 balancing; our Transformer uses
     the same pre-computed condition-based splits shared by all five models.
-    \item \textbf{GMT source.} For mouse datasets, our Transformer uses the
-    mouse Reactome GMT (\texttt{m2.cp.reactome.Mm}) with native gene symbols
-    (e.g., \texttt{Erbb4}); TOSICA uses the human GMT, relying on internal
-    case-insensitive matching.
+    \item \textbf{GMT source.} Both use the mouse Reactome GMT
+    (\texttt{m\_reactome.gmt}) for mouse datasets.
     \item \textbf{Training infrastructure.} Our Transformer uses cosine
     annealing with early stopping; TOSICA uses a fixed cosine schedule with
     per-epoch checkpoint saves.
 \end{itemize}
 \noindent Comparing TOSICA to our Transformer thus isolates the effect of
-implementation choices (data pipeline, GMT matching) from the underlying
+implementation choices (data pipeline, early stopping) from the underlying
 architecture.
 
 \subsection{Training Protocol}
-All models were trained for 20 epochs on Google Colab (NVIDIA L4 GPU) with SGD
-(momentum 0.9, weight decay $5{\times}10^{-5}$) and cosine annealing
-($\eta_{\min}{=}10^{-6}$). Learning rates: MLP 0.01, CNN 0.001, GNN 0.001,
-Transformer 0.001, TOSICA 0.001. Early stopping (patience\,=\,5) halts
-training if validation accuracy does not improve. Gradients are clipped to unit
-norm. The GNN and Transformer use focal loss~\cite{lin2017focal}
-($\gamma{=}1.94$ and $0.65$ respectively) to handle class imbalance; the MLP
-and CNN use standard cross-entropy with label smoothing. Mixed-precision
-(bfloat16) is used where supported. Hyperparameters were selected via Optuna
-(15 trials, 5 tuning epochs per trial) before the final 20-epoch training run.
+All models were trained for up to 20 epochs on Google Colab (NVIDIA L4 GPU)
+with SGD (momentum 0.9, weight decay $5{\times}10^{-5}$) and cosine annealing.
+Early stopping (patience\,=\,5) halts training if validation loss does not
+improve. Learning rates: MLP 0.01, CNN 0.001, GNN 0.001, Transformer 0.001,
+TOSICA 0.001. All models use cross-entropy loss; class imbalance is addressed
+via oversampling rather than loss re-weighting. Gradients are clipped to unit
+norm. Mixed-precision (bfloat16) is used where supported.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Results}
@@ -445,17 +424,20 @@ than raw feature-space neighborhoods.
 \end{figure}
 
 \subsection{CNN Limitations on Gene Expression}
-The CNN consistently fails across both datasets (6.5\% and 21.8\% accuracy).
-Gene expression vectors lack the spatial locality that makes 1D convolutions
-effective on sequential data. Gene ordering is arbitrary, so learned
-convolutional filters have no consistent spatial patterns to exploit.
+The CNN consistently fails across all three datasets (6.5\%, 21.8\%, and 0.8\%
+accuracy). Gene expression vectors lack the spatial locality that makes 1D
+convolutions effective on sequential data. Gene ordering is arbitrary, so
+learned convolutional filters have no consistent spatial patterns to exploit.
 
 \subsection{TOSICA vs.\ Transformer Gap}
-Our Transformer matches or slightly exceeds the external TOSICA library on
-both datasets, despite sharing the same core architecture. The gap reflects our
-improved data pipeline: consistent HVG selection, balanced oversampling, and
-species-appropriate Reactome GMT files. This confirms that preprocessing and
-implementation choices can matter as much as architectural novelty.
+Our Transformer exceeds TOSICA on hPancreas (96.6\% vs.\ 96.2\%) and mPancreas
+(78.9\% vs.\ 74.4\%), but TOSICA outperforms our Transformer on mAtlas (76.1\%
+vs.\ 70.9\%). The advantage on hPancreas and mPancreas likely reflects our
+condition-based splits and early stopping; the reversal on mAtlas suggests that
+the original TOSICA pipeline's internal balancing strategy scales better to
+120 classes. Overall, both implementations surpass the published TOSICA accuracy
+on hPancreas, confirming that preprocessing and implementation choices can
+matter as much as architectural novelty.
 
 \subsection{Challenges of Benchmark Reproducibility}
 Of the six original TOSICA benchmark datasets, only three could be exactly
@@ -490,17 +472,16 @@ Key findings:
     the lack of spatial structure in gene ordering.
 \end{enumerate}
 
+\section*{Code Availability}
+All source code, model implementations, and training scripts are available at
+\url{https://github.com/magana272/CellTypeClassification}.
+
 \bibliographystyle{plainnat}
-\begin{thebibliography}{2}
+\begin{thebibliography}{1}
 \bibitem{chen2023tosica}
 Chen, J., Xu, H., Tao, W. et al.
 \newblock Transformer for one stop interpretable cell type annotation.
 \newblock \emph{Nature Communications}, 14, 223 (2023).
-
-\bibitem{lin2017focal}
-Lin, T.-Y., Goyal, P., Girshick, R., He, K., and Doll\'{a}r, P.
-\newblock Focal loss for dense object detection.
-\newblock \emph{IEEE ICCV}, 2017.
 \end{thebibliography}
 
 \end{document}
